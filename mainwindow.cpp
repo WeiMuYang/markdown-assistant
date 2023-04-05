@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
     aboutDialog_ = new AboutDialog(this);
     modifyNameDialog_ = new ModifyNameDialog(this);
 
-    initScreenRes();
+    initScreenResNormal();
     initStatusBar();
     setWindowStyle();
 
@@ -139,16 +139,41 @@ void MainWindow::initStatusBar(){
     pStatusLabelCurrentFile_->setAlignment(Qt::AlignHCenter);
 }
 
-void MainWindow::initScreenRes(){
+void MainWindow::setNormalViewByScreenRes(){
     if(getScrrenRes() == ScreenRes::High){
         this->setMinimumSize(QSize(1300, 1000));
         this->resize(QSize(1300, 1000));
+        ui->pathWgt->setMinimumSize(QSize(500,155));
+        ui->listPbnWgt->setMinimumHeight(50);
+        ui->listPbnWgt->setMaximumHeight(65);
         multiple = 2;
     }else{
-        this->setMinimumSize(QSize(905, 680)); // int w, int h
-        this->resize(QSize(905, 680));
+        this->setMinimumSize(QSize(860, 600)); // int w, int h
+        this->resize(QSize(860, 600));
+        ui->pathWgt->setMaximumHeight(126);
+        ui->pathWgt->setMinimumSize(QSize(0,126));
+        ui->listPbnWgt->setMinimumHeight(40);
+        ui->listPbnWgt->setMaximumHeight(50);
+        ui->pathWgt->setMinimumWidth(440);
         multiple = 1;
     }
+}
+
+void MainWindow::setSampleViewByScreenRes(){
+    if(getScrrenRes() == ScreenRes::High){
+        this->setMinimumSize(QSize(880, 480));
+        this->resize(QSize(880, 480));
+        ui->pathWgt->setMinimumWidth(440);
+    }else{
+        this->setMinimumSize(QSize(650, 350));
+        this->resize(QSize(650, 350));
+        ui->pathWgt->setMinimumWidth(350);
+    }
+}
+
+
+void MainWindow::initScreenResNormal(){
+    setNormalViewByScreenRes();
     initListWgt();
 }
 
@@ -729,8 +754,8 @@ void MainWindow::setSampleView(){
     ui->filePbnWgt->hide();
     ui->syncPbn->hide();
     ui->modePbn->hide();
-    this->setMinimumSize(QSize(880, 480));
-    this->resize(QSize(880, 480));
+
+    setSampleViewByScreenRes();
 }
 
 void MainWindow::setNormalView(){
@@ -740,7 +765,8 @@ void MainWindow::setNormalView(){
     ui->filePbnWgt->show();
     ui->syncPbn->show();
     ui->modePbn->show();
-    initScreenRes();
+
+    setNormalViewByScreenRes();
 }
 
 void MainWindow::simpleViewSlot()

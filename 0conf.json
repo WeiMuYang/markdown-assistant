@@ -18,7 +18,26 @@
             "泰国旅游": "F:/01-life-records/07-出国旅游"
         },
         {
-            "Lenovo PngTest": "F:/png/test" 
+            "Lenovo PngTest": "F:/05-markdown-assistant/test" 
+        }
+    ],
+    "TargetPath-BMW": [
+        {
+            "Ramses": "D:/YangWeiBin/01-sync-file-level-1/02-ramses-composer"
+        },
+        {
+            "Android": "D:/YangWeiBin/01-sync-file-level-1/05-Android"
+        },
+        {
+            "BMW PngTest": "D:/YangWeiBin/png/test"
+        }
+    ],
+    "TargetPath-Lenvo": [
+        {
+            "泰国旅游": "F:/01-life-records/07-出国旅游"
+        },
+        {
+            "Lenovo PngTest": "F:/05-markdown-assistant/test" 
         }
     ],
     "Interval": [
@@ -39,10 +58,14 @@
         "Typora": "D:/YangWeiBin/software/Typora/Typora/Typora.exe",
         "Vscode": "D:/YangWeiBin/software/Microsoft VS Code/Code.exe"
     },
-    "Software1": {
+    "Software-bmw": {
         "Typora": "D:/YangWeiBin/software/Typora/Typora/Typora.exe",
         "Vscode": "D:/YangWeiBin/software/Microsoft VS Code/Code.exe"
     },
+    "Software-Len": {
+        "Typora": "D:/Program Files/Typora/Typora.exe",
+        "Vscode": "D:/Users/yang-wei-da/AppData/Local/Programs/Microsoft VS Code/Code.exe"
+    },
     "Version": "v0.0.2",    
-    "Date": "2023/03/23"
+    "Date": "2023/04/05"
 }

@@ -38,7 +38,9 @@ public:
     void InitMainWindowMenu();
     void setScreenWitdh(int w);
     int getScreenWitdh();
-    void initScreenRes();
+    void initScreenResNormal();
+    void setNormalViewByScreenRes();
+    void setSampleViewByScreenRes();
     ScreenRes getScrrenRes();
     void updateSubDirCombox();
 
