@@ -8,6 +8,7 @@
 #include <QStandardItemModel>
 #include <QDir>
 #include <QDesktopWidget>
+#include <QFileDialog>
 #include "debug_box.h"
 
 int printscreeninfo()
@@ -26,6 +27,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    InitMainWindowMenu();
     scrrenWidth_ = printscreeninfo();
     videoThr_ = new VideoThr;
     clip_ = QApplication::clipboard();
@@ -47,9 +49,6 @@ MainWindow::MainWindow(QWidget *parent) :
     splitterList->addWidget(ui->delList);
     ui->listLayout->addWidget(splitterList);
     splitterList->show();
-
-    // start
-    startSlot();
 
     ui->addList->setMouseTracking(true);
     connect(ui->addList,&QListWidget::itemEntered,this, &MainWindow::itemEnteredSlot);
@@ -75,11 +74,13 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // dialog --> fileOp
     connect(getAssetsDialog_,&GetAssetsDialog::sigSearchMarkdownCode,this,&MainWindow::searchAssetsByCodeSlot);
+
+
 }
 
 void MainWindow::startSlot()
 {
-    confDialog_.readConf("../0conf.json");
+    confDialog_.readConf(configFilePath_);
     openExPro_.setSoftWarePath(confDialog_.getSoftWarePathMap());
     addDelListData_.setAssetsTypes(confDialog_.getAssetsTypes());
     fileOp_.setAssetsTypes(confDialog_.getAssetsTypes());
@@ -93,13 +94,13 @@ void MainWindow::startSlot()
     // 4 更新 最新的修改文件
     ui->logText->clear();
     updateLastModifyFile();
-    // 5 初始化菜单栏
-    InitMainWindowMenu();
 }
 
 void MainWindow::InitMainWindowMenu(){
     // TODO： restart  about
     // 获取资源文件
+//    ui->menuFile->addAction(actionGetAssets);
+
     ui->actionGetAssets->setShortcut(QKeySequence::Find);
     ui->actionGetAssets->setShortcutContext(Qt::ApplicationShortcut);
     connect(ui->actionGetAssets, &QAction::triggered, this, &MainWindow::getAssetsSlot);
@@ -124,11 +125,29 @@ void MainWindow::InitMainWindowMenu(){
         ui->actionSimpleView->setShortcut(QKeySequence("Ctrl+-"));
     }
     connect(ui->actionSimpleView, &QAction::triggered, this, &MainWindow::simpleViewSlot,Qt::UniqueConnection);
+
+    connect(ui->actionConfFile, &QAction::triggered, this, &MainWindow::setConfigFilePath);
 }
 
 void MainWindow::clearLogSlot()
 {
     ui->logText->clear();
+}
+
+void MainWindow::setConfigFilePath()
+{
+    configFilePath_ = QFileDialog::getOpenFileName(
+                this, "选择配置文件",
+                "/",
+                "Json文件 (*.json);; 所有文件 (*.*);; ");
+    if (configFilePath_.isEmpty())
+    {
+        appendTextToLog(QString("配置文件不存在 !"));
+        return;
+    }else{
+        qDebug() << "configFilePath_=" << configFilePath_;
+        startSlot();
+    }
 }
 
 void MainWindow::initStatusBar(){
@@ -170,7 +189,6 @@ void MainWindow::setSampleViewByScreenRes(){
         ui->pathWgt->setMinimumWidth(350);
     }
 }
-
 
 void MainWindow::initScreenResNormal(){
     setNormalViewByScreenRes();

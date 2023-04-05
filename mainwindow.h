@@ -84,6 +84,8 @@ private slots:
     void startSlot();
     void clearLogSlot();
 
+    void setConfigFilePath();
+
 protected:
     // 窗口设置为随着窗口变化而变化
     virtual void resizeEvent(QResizeEvent *event) override;
@@ -117,6 +119,7 @@ private:
     AboutDialog* aboutDialog_;
     ModifyNameDialog* modifyNameDialog_;
     int simpleViewNum_{0};
+    QString configFilePath_;
 };
 
 #endif // MAINWINDOW_H

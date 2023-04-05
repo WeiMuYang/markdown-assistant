@@ -588,6 +588,7 @@
     <property name="title">
      <string>文件</string>
     </property>
+    <addaction name="actionConfFile"/>
     <addaction name="actionRestart"/>
     <addaction name="actionSimpleView"/>
    </widget>
@@ -646,6 +647,11 @@
   <action name="actionSimpleView">
    <property name="text">
     <string>极简窗口</string>
+   </property>
+  </action>
+  <action name="actionConfFile">
+   <property name="text">
+    <string>配置文件</string>
    </property>
   </action>
  </widget>
