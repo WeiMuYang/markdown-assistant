@@ -19,6 +19,13 @@ struct ImgData{
     QFileInfo oldFileInfo;
 };
 
+struct IniFile{
+    QVector<QString> recentFileList;
+    QString version;
+    QString date;
+    QString jsonPath;
+};
+
 typedef enum {
     High, Low
 }ScreenRes;

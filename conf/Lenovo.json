@@ -1,0 +1,33 @@
+{
+    "ImagePath": [
+        {
+            "Desktop": "Desktop"
+        }
+    ],
+    "TargetPath": [
+        {
+            "泰国旅游": "F:/01-life-records/07-出国旅游"
+        },
+        {
+            "Lenovo PngTest": "F:/05-markdown-assistant/test" 
+        }
+    ],
+    "Interval": [
+        "1 hours",
+        "1 days",
+        "2 days",
+        "today"
+    ],
+    "AssetsType": [
+        "99-*.png",
+        "99-*.jpg",
+        "99-*.bmp",
+        "99-*.jpeg",
+        "99-*.gif",
+        "99-*.mp4"
+    ],
+    "Software": {
+        "Typora": "D:/Program Files/Typora/Typora.exe",
+        "Vscode": "D:/Users/yang-wei-da/AppData/Local/Programs/Microsoft VS Code/Code.exe"
+    }
+}

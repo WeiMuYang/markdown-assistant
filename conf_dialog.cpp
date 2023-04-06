@@ -17,6 +17,7 @@ bool confDialog::readConf(QString path)
         DebugBox(__FUNCTION__, __LINE__,"read json error");
         return false;
     }
+    dataClear();
     QByteArray data(file.readAll());
     file.close();
 
@@ -70,8 +71,7 @@ void confDialog::analysisJson(QJsonObject &rootObj){
         softWarePathMap_.insert(key, value);
     }
 
-    version_ = rootObj["Version"].toString();
-    date_ = rootObj["Date"].toString();
+
 }
 
 QString confDialog::getImgPathByKey(QString key){
@@ -82,21 +82,20 @@ QString confDialog::getImgPathByKey(QString key){
             return it->value;
         }
     }
-
     DebugBox(__FUNCTION__, __LINE__,"can't find "+ key + " from imgNamePathMap");
     return QString("");
 }
 
 QString confDialog::getTarPathByKey(QString key){
-   for(auto it = tarNamePathMap_.begin(); it != tarNamePathMap_.end(); ++it)
-   {
-       if(it->key == key)
-       {
-           return it->value;
-       }
-   }
-   DebugBox(__FUNCTION__, __LINE__,"can't find "+ key + " from tarNamePathMap");
-   return QString("");
+    for(auto it = tarNamePathMap_.begin(); it != tarNamePathMap_.end(); ++it)
+    {
+        if(it->key == key)
+        {
+            return it->value;
+        }
+    }
+    DebugBox(__FUNCTION__, __LINE__,"can't find "+ key + " from tarNamePathMap");
+    return QString("");
 }
 
 bool confDialog::findTarPath(QString key, NamePath& data){
@@ -121,4 +120,74 @@ bool confDialog::findImgPath(QString key, NamePath& data){
         }
     }
     return false;
+}
+
+bool iniFilePath(QString& iniPath, QString& jsonPath){
+    QString iniFileName = "conf.ini";
+    QString dotPath = QDir::currentPath();;
+    QDir dir1(dotPath+"/conf");
+    if(dir1.exists(iniFileName)){
+        jsonPath =dir1.absolutePath();
+        iniPath = dir1.absolutePath() +"/"+iniFileName;
+        return true;
+    }
+    dir1.cdUp();
+    dir1.cdUp();
+    dir1.cd("conf");
+    if(dir1.exists(iniFileName)){
+        jsonPath =dir1.absolutePath();
+        iniPath = dir1.absolutePath()+"/"+iniFileName;
+        return true;
+    }
+    return false;
+}
+
+bool confDialog::readIniFile()
+{
+    QString iniPath;
+    QString jsonPath;
+    if(!iniFilePath(iniPath,jsonPath)){
+        return false;
+    }
+    QFile file(iniPath);
+    if(!file.open(QIODevice::ReadOnly)){
+        DebugBox(__FUNCTION__, __LINE__,"read json error");
+        return false;
+    }
+    QByteArray data(file.readAll());
+    file.close();
+
+    QJsonParseError jError;	//创建QJsonParseError对象
+    //使用QJsonDocument的fromJson函数读取json串，并将QJsonParseError对象传入获取错误值
+    QJsonDocument jDoc = QJsonDocument::fromJson(data, &jError);
+    //判断QJsonParseError对象获取的error是否包含错误，包含则返回0
+    if(jError.error != QJsonParseError::NoError){
+        DebugBox(__FUNCTION__, __LINE__,"json format error");
+        return false;
+    }
+    QJsonObject rootObj = jDoc.object();
+    QJsonArray RecentFile = rootObj["RecentFile"].toArray();
+    for(int i = 0; i < RecentFile.size(); ++i){
+        QString value = RecentFile.at(i).toString();
+        iniFile_.recentFileList.push_back(value);
+    }
+
+    iniFile_.version = rootObj["Version"].toString();
+    iniFile_.date = rootObj["Date"].toString();
+    iniFile_.jsonPath = jsonPath;
+    return true;
+}
+
+void confDialog::dataClear(){
+    imgNamePathMap_.clear();
+    tarNamePathMap_.clear();
+    intervalArr_.clear();
+    assetsType_.clear();
+    typoraExePath_.clear();
+    vsCodePath_.clear();
+    softWarePathMap_.clear();
+    iniFile_.jsonPath.clear();
+    iniFile_.recentFileList.clear();
+    iniFile_.version.clear();
+    iniFile_.date.clear();
 }

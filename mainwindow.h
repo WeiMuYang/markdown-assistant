@@ -86,6 +86,8 @@ private slots:
 
     void setConfigFilePath();
 
+    void openRecentFileSlot();
+
 protected:
     // 窗口设置为随着窗口变化而变化
     virtual void resizeEvent(QResizeEvent *event) override;

@@ -40,16 +40,23 @@ public:
     const QMap<QString,QString>& getSoftWarePathMap(){
         return softWarePathMap_;
     }
+
+    bool readIniFile();
+
+    IniFile getIniFile(){
+        return iniFile_;
+    }
+    void dataClear();
 private: // need to change to private
     QList<NamePath> imgNamePathMap_;
     QList<NamePath> tarNamePathMap_;
     QVector<QString> intervalArr_;
     QStringList assetsType_;
-    QString version_;
-    QString date_;
     QString typoraExePath_;
     QString vsCodePath_;
     QMap<QString,QString> softWarePathMap_;
+
+    IniFile iniFile_;
 };
 
 #endif // CONF_DIALOG_H

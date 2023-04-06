@@ -10,6 +10,7 @@
 #include <QDesktopWidget>
 #include <QFileDialog>
 #include <QAction>
+#include <QMenu>
 #include "debug_box.h"
 
 int printscreeninfo()
@@ -28,7 +29,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    //    configFilePath_ = "../defutConf.json";
     scrrenWidth_ = printscreeninfo();
     videoThr_ = new VideoThr;
     clip_ = QApplication::clipboard();
@@ -36,7 +36,6 @@ MainWindow::MainWindow(QWidget *parent) :
     getAssetsDialog_ = new GetAssetsDialog(this);
     aboutDialog_ = new AboutDialog(this);
     modifyNameDialog_ = new ModifyNameDialog(this);
-
     initScreenResNormal();
     initStatusBar();
     setWindowStyle();
@@ -86,6 +85,9 @@ void MainWindow::startSlot()
         appendTextToLog(QString("请选择配置文件 !"));
         return;
     }
+    ui->subPathComBox->clear();
+    ui->tarPathCombox->clear();
+    ui->numSpinBox->clear();
     confDialog_.readConf(configFilePath_);
     openExPro_.setSoftWarePath(confDialog_.getSoftWarePathMap());
     addDelListData_.setAssetsTypes(confDialog_.getAssetsTypes());
@@ -103,6 +105,12 @@ void MainWindow::startSlot()
 }
 
 void MainWindow::InitMainWindowMenu(){
+    IniFile iniFile;
+    if(!confDialog_.readIniFile()){
+        appendTextToLog(QString("iniFile读取失败 !"));
+    }else{
+        iniFile = confDialog_.getIniFile();
+    }
     ui->setupUi(this);
     // TODO： restart  about
     ui->actionGetAssets->setShortcut(QKeySequence::Find);
@@ -134,8 +142,24 @@ void MainWindow::InitMainWindowMenu(){
 
     ui->actionConfFile->setShortcut(QKeySequence("Ctrl+O"));
     connect(ui->actionConfFile, &QAction::triggered, this, &MainWindow::setConfigFilePath);
-    // 解决文件菜单单击没有反应，
 
+
+    QMenu *recentMenu = new QMenu;
+    recentMenu->setTitle("最近文件");
+    for (int i = 0; i < iniFile.recentFileList.size(); ++i) {
+        QAction *actionFileName = new QAction(recentMenu);
+        actionFileName->setText(iniFile.jsonPath+"/"+iniFile.recentFileList.at(i));
+        connect(actionFileName, &QAction::triggered, this, &MainWindow::openRecentFileSlot);
+        recentMenu->addAction(actionFileName);
+    }
+    ui->menuFile->addMenu(recentMenu);
+}
+
+void MainWindow::openRecentFileSlot(){
+    QAction *action=qobject_cast<QAction *>(sender());
+    QString fileName = action->text();
+    configFilePath_ = fileName;
+    startSlot();
 }
 
 void MainWindow::clearLogSlot()
