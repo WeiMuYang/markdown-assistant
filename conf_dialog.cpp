@@ -70,8 +70,6 @@ void confDialog::analysisJson(QJsonObject &rootObj){
         QString value = SoftPathMap[key].toString();
         softWarePathMap_.insert(key, value);
     }
-
-
 }
 
 QString confDialog::getImgPathByKey(QString key){
@@ -129,6 +127,14 @@ bool iniFilePath(QString& iniPath, QString& jsonPath){
     if(dir1.exists(iniFileName)){
         jsonPath =dir1.absolutePath();
         iniPath = dir1.absolutePath() +"/"+iniFileName;
+        return true;
+    }
+    dir1.cdUp();
+    dir1.cdUp();
+    dir1.cd("conf");
+    if(dir1.exists(iniFileName)){
+        jsonPath =dir1.absolutePath();
+        iniPath = dir1.absolutePath()+"/"+iniFileName;
         return true;
     }
     dir1.cdUp();

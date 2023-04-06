@@ -74,8 +74,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // dialog --> fileOp
     connect(getAssetsDialog_,&GetAssetsDialog::sigSearchMarkdownCode,this,&MainWindow::searchAssetsByCodeSlot);
-
     InitMainWindowMenu();
+    // 必须初始化StatusBar，否则第一个菜单栏的菜单单击不到
+    setStatusBar("",false);
     appendTextToLog(QString("请选择配置文件 !"));
 }
 
@@ -87,7 +88,6 @@ void MainWindow::startSlot()
     }
     ui->subPathComBox->clear();
     ui->tarPathCombox->clear();
-    ui->numSpinBox->clear();
     confDialog_.readConf(configFilePath_);
     openExPro_.setSoftWarePath(confDialog_.getSoftWarePathMap());
     addDelListData_.setAssetsTypes(confDialog_.getAssetsTypes());
@@ -95,12 +95,14 @@ void MainWindow::startSlot()
 
     // 1 Init Path
     initImgPathTarPathCombox();
+
     // 2 更新 子目录
     updateSubDirCombox();
+
     // 3 更新 列表数据和界面
     updateListDataAndWgtSlot();
+
     // 4 更新 最新的修改文件
-    //    ui->logText->clear();
     updateLastModifyFile();
 }
 
@@ -111,7 +113,6 @@ void MainWindow::InitMainWindowMenu(){
     }else{
         iniFile = confDialog_.getIniFile();
     }
-    ui->setupUi(this);
     // TODO： restart  about
     ui->actionGetAssets->setShortcut(QKeySequence::Find);
     ui->actionGetAssets->setShortcutContext(Qt::ApplicationShortcut);
@@ -142,7 +143,6 @@ void MainWindow::InitMainWindowMenu(){
 
     ui->actionConfFile->setShortcut(QKeySequence("Ctrl+O"));
     connect(ui->actionConfFile, &QAction::triggered, this, &MainWindow::setConfigFilePath);
-
 
     QMenu *recentMenu = new QMenu;
     recentMenu->setTitle("最近文件");
