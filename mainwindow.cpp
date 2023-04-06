@@ -9,6 +9,7 @@
 #include <QDir>
 #include <QDesktopWidget>
 #include <QFileDialog>
+#include <QAction>
 #include "debug_box.h"
 
 int printscreeninfo()
@@ -27,7 +28,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    InitMainWindowMenu();
+    //    configFilePath_ = "../defutConf.json";
     scrrenWidth_ = printscreeninfo();
     videoThr_ = new VideoThr;
     clip_ = QApplication::clipboard();
@@ -75,11 +76,16 @@ MainWindow::MainWindow(QWidget *parent) :
     // dialog --> fileOp
     connect(getAssetsDialog_,&GetAssetsDialog::sigSearchMarkdownCode,this,&MainWindow::searchAssetsByCodeSlot);
 
-
+    InitMainWindowMenu();
+    appendTextToLog(QString("请选择配置文件 !"));
 }
 
 void MainWindow::startSlot()
 {
+    if(configFilePath_.isEmpty()){
+        appendTextToLog(QString("请选择配置文件 !"));
+        return;
+    }
     confDialog_.readConf(configFilePath_);
     openExPro_.setSoftWarePath(confDialog_.getSoftWarePathMap());
     addDelListData_.setAssetsTypes(confDialog_.getAssetsTypes());
@@ -92,19 +98,19 @@ void MainWindow::startSlot()
     // 3 更新 列表数据和界面
     updateListDataAndWgtSlot();
     // 4 更新 最新的修改文件
-    ui->logText->clear();
+    //    ui->logText->clear();
     updateLastModifyFile();
 }
 
 void MainWindow::InitMainWindowMenu(){
+    ui->setupUi(this);
     // TODO： restart  about
-    // 获取资源文件
-//    ui->menuFile->addAction(actionGetAssets);
-
     ui->actionGetAssets->setShortcut(QKeySequence::Find);
     ui->actionGetAssets->setShortcutContext(Qt::ApplicationShortcut);
     connect(ui->actionGetAssets, &QAction::triggered, this, &MainWindow::getAssetsSlot);
     connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::openAboutSlot);
+
+    ui->actionRestart->setShortcut(QKeySequence("Ctrl+R"));
     connect(ui->actionRestart,&QAction::triggered, this, &MainWindow::startSlot);
 
     ui->actionClearLog->setShortcut(QKeySequence::Refresh);
@@ -126,7 +132,10 @@ void MainWindow::InitMainWindowMenu(){
     }
     connect(ui->actionSimpleView, &QAction::triggered, this, &MainWindow::simpleViewSlot,Qt::UniqueConnection);
 
+    ui->actionConfFile->setShortcut(QKeySequence("Ctrl+O"));
     connect(ui->actionConfFile, &QAction::triggered, this, &MainWindow::setConfigFilePath);
+    // 解决文件菜单单击没有反应，
+
 }
 
 void MainWindow::clearLogSlot()
@@ -138,7 +147,7 @@ void MainWindow::setConfigFilePath()
 {
     configFilePath_ = QFileDialog::getOpenFileName(
                 this, "选择配置文件",
-                "/",
+                "../../",
                 "Json文件 (*.json);; 所有文件 (*.*);; ");
     if (configFilePath_.isEmpty())
     {
@@ -271,12 +280,6 @@ void MainWindow::updateLastModifyFile(){
         QString subPath =strList.last().replace("/","");
         ui->subPathComBox->setCurrentText(subPath);
         ui->numSpinBox->setValue(num);
-        //        appendTextToLog(QString("切换路径成功  !"));
-        //        if(currentFile_.size() >3 && currentFile_.right(2) == "md"){
-        //            appendTextToLog(QString("当前文件: ") + currentFile_);
-        //        }else{
-        //            appendTextToLog(QString("当前目录: ") + currentFile_);
-        //        }
         setStatusBar("", true);
         subDirName_ = subPath;
         whoIsBoxSelection(BoxSelect::NumSpinBox);
@@ -342,12 +345,6 @@ void MainWindow::setSubPathSlot(QString currentStr){
         QString subPathName =strList.last().replace("/","");
         ui->subPathComBox->setCurrentText(subPathName);
         ui->numSpinBox->setValue(num);
-        //        appendTextToLog(QString("切换路径成功 !"));
-        //        if(currentFile_.size() >3 && currentFile_.right(2) == "md"){
-        //            appendTextToLog(QString("当前文件: ") + currentFile_);
-        //        }else{
-        //            appendTextToLog(QString("当前目录: ") + currentFile_);
-        //        }
         setStatusBar("", true);
         whoIsBoxSelection(BoxSelect::NumSpinBox);
     }
