@@ -17,7 +17,7 @@
    </sizepolicy>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>版本信息</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_3" stretch="10,1,2,1">
    <item>
