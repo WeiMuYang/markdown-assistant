@@ -22,6 +22,13 @@ int printscreeninfo()
     return deskrect.width();
 }
 
+// 获得用户名
+QString getUserName()
+{
+    QString userName = QStandardPaths::displayName(QStandardPaths::HomeLocation);
+    return userName;
+}
+
 double multiple = 2;  // 1 or 12/9
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -32,6 +39,10 @@ MainWindow::MainWindow(QWidget *parent) :
     scrrenWidth_ = printscreeninfo();
     videoThr_ = new VideoThr;
     clip_ = QApplication::clipboard();
+
+    if(!confDialog_.readIniFile()){
+        appendTextToLog(QString("iniFile读取失败 !"));
+    }
     DebugBox logBoxVideoThr;
     getAssetsDialog_ = new GetAssetsDialog(this);
     aboutDialog_ = new AboutDialog(this);
@@ -61,23 +72,26 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->imgPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setImgPathSlot);
     connect(ui->tarPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setTarPathSlot);
     connect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
-
     // video
     connect(videoThr_,&VideoThr::sigCreateVideoFrame,this,&MainWindow::setImageToLabelSlot);
     connect(videoThr_,&VideoThr::sigLogBoxMsg,&logBoxVideoThr,&DebugBox::debugBoxSlot,Qt::DirectConnection);
-
     // log
     connect(videoThr_,&VideoThr::sigVideoThrLogText,this,&MainWindow::appendTextToLog);
     connect(&fileOp_,&FileOperation::sigFileOperationLog,this,&MainWindow::appendTextToLog);
     connect(getAssetsDialog_,&GetAssetsDialog::sigGetAssetsDlgLogText,this,&MainWindow::appendTextToLog);
     connect(&openExPro_,&OpenExProgram::sigOpenExProLog,this,&MainWindow::appendTextToLog);
-
     // dialog --> fileOp
     connect(getAssetsDialog_,&GetAssetsDialog::sigSearchMarkdownCode,this,&MainWindow::searchAssetsByCodeSlot);
+
     InitMainWindowMenu();
+    // 根据用户名设置路径
+    setConfigFilePathByUserName(confDialog_.getIniFile());
     // 必须初始化StatusBar，否则第一个菜单栏的菜单单击不到
     setStatusBar("",false);
-    appendTextToLog(QString("请选择配置文件 !"));
+//    if(configFilePath_.isEmpty()){
+//        appendTextToLog(QString("请选择配置文件 !"));
+//    }
+    startSlot();
 }
 
 void MainWindow::startSlot()
@@ -95,24 +109,30 @@ void MainWindow::startSlot()
 
     // 1 Init Path
     initImgPathTarPathCombox();
-
     // 2 更新 子目录
     updateSubDirCombox();
-
     // 3 更新 列表数据和界面
     updateListDataAndWgtSlot();
-
     // 4 更新 最新的修改文件
     updateLastModifyFile();
 }
 
-void MainWindow::InitMainWindowMenu(){
-    IniFile iniFile;
-    if(!confDialog_.readIniFile()){
-        appendTextToLog(QString("iniFile读取失败 !"));
-    }else{
-        iniFile = confDialog_.getIniFile();
+void MainWindow::setConfigFilePathByUserName(const IniFile& iniFile){
+    QString userName = getUserName();
+    for (int i = 0; i < iniFile.recentFileList.size(); ++i) {
+        if(userName == "Home" && iniFile.recentFileList.at(i).indexOf("BMW") != -1){
+            configFilePath_= iniFile.jsonPath+"/"+iniFile.recentFileList.at(i);
+            break;
+        }else{
+            // todo: Lenovo
+        }
+
     }
+}
+
+void MainWindow::InitMainWindowMenu(){
+    IniFile iniFile = confDialog_.getIniFile();
+
     // TODO： restart  about
     ui->actionGetAssets->setShortcut(QKeySequence::Find);
     ui->actionGetAssets->setShortcutContext(Qt::ApplicationShortcut);
@@ -178,7 +198,6 @@ void MainWindow::setConfigFilePath()
         appendTextToLog(QString("配置文件不存在 !"));
         return;
     }else{
-        qDebug() << "configFilePath_=" << configFilePath_;
         startSlot();
     }
 }

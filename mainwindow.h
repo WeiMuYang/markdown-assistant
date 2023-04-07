@@ -46,6 +46,7 @@ public:
 
     void setSampleView();
     void setNormalView();
+    void setConfigFilePathByUserName(const IniFile& iniFile);
 private slots:
     void updateListDataAndWgtSlot();
     void changeModeSlot();
