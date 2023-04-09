@@ -192,7 +192,7 @@ bool FileOperation::getFileNameByNum(QString fullPath, int fileNum, QString& fil
         emit sigFileOperationLog(msg);
     }else if(fileInfoList.size() < 1){
         QString msg;
-        msg = QString("序号为：\"") + QString("%1").arg(fileNum, 2, 10, QLatin1Char('0')) + QString("\" 的文件/目录不存在！");
+        msg = QString("序号为：\"") + QString("%1").arg(fileNum, 2, 10, QLatin1Char('0')) + QString("\"的文件or目录不存在！").toUtf8();
         emit sigFileOperationLog(msg);
         return false;
     }
