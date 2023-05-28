@@ -2,7 +2,7 @@
 
 ## 1 简介 
 
-Markdown助手的主要是用于Markdown文件编写过程中，资源的管理以及文件的批量修改，可以帮助Markdown的编辑人员，更加专注于文件的编写，提高文档的编辑效率。
+Markdown助手的主要是用于Markdown文件编写过程中，资源的管理以及文件的批量修改，可以帮助Markdown的编辑人员，更加专注于文件的编写，提高文档的编辑效率。如果图片加载不下来，可以移步[CSDN博客介绍](https://blog.csdn.net/tangsenghandan/article/details/130914281?csdn_share_tail=%7B%22type%22%3A%22blog%22%2C%22rType%22%3A%22article%22%2C%22rId%22%3A%22130914281%22%2C%22source%22%3A%22tangsenghandan%22%7D)。
 
 ## 2 功能介绍  
 

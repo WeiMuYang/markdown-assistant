@@ -11,16 +11,13 @@
             "研发经理": "H:/00-sync-file-work/08-R&D-Manager-Learning"
         },
         {
-            "泰国旅游": "F:/01-life-records/07-出国旅游"
-        },
-        {
-            "Lenovo PngTest": "F:/05-markdown-assistant/test" 
-        },
-        {
             "购买记录": "F:/01-life-records/03-购买记录" 
         },
         {
             "生活相关": "F:/01-life-records" 
+        },
+        {
+            "Lenovo PngTest": "F:/05-markdown-assistant/test" 
         }
     ],
     "?Interval": "间隔时间，目前是将当日的图片放到addList中，非当日的放到下面的delList中",
