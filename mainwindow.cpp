@@ -22,13 +22,6 @@ int printscreeninfo()
     return deskrect.width();
 }
 
-// 获得用户名
-QString getUserName()
-{
-    QString userName = QDir::home().dirName();;
-    return userName;
-}
-
 double multiple = 2;  // 1 or 12/9
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -115,15 +108,11 @@ void MainWindow::startSlot()
 }
 
 void MainWindow::setConfigFilePathByUserName(const IniFile& iniFile){
-    QString userName = getUserName();
+    QString userName = iniFile.hostName;
     bool hasUserConf = false;
     for (int i = 0; i < iniFile.recentFileList.size(); ++i) {
-        if(userName == "qxz32h9" && iniFile.recentFileList.at(i).indexOf("BMW") != -1){
-            configFilePath_= iniFile.jsonPath+"/"+iniFile.recentFileList.at(i);
-            hasUserConf = true;
-            break;
-        }else if(userName == "yang-wei-da" && iniFile.recentFileList.at(i).indexOf("Lenovo") != -1){
-            // todo: Lenovo
+        if(iniFile.recentFileList.at(i).indexOf(userName) != -1){
+            // todo: Lenovo  or BMW
             configFilePath_= iniFile.jsonPath+"/"+iniFile.recentFileList.at(i);
             hasUserConf = true;
             break;
@@ -551,10 +540,10 @@ void MainWindow::on_modePbn_clicked()
 {
     clickNum_++;
     if(clickNum_ % 2 == 0){
-        ui->modePbn->setText("图标");
+        ui->modePbn->setText(u8"图标");
         isIconMode_ = false;
     }else {
-        ui->modePbn->setText("列表");
+        ui->modePbn->setText(u8"列表");
         isIconMode_ = true;
     }
     changeModeSlot();

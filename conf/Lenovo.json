@@ -1,23 +1,36 @@
 {
+    "?ImagePath": "资源目录的路径，Desktop代表的是当前用户的桌面",
     "ImagePath": [
         {
             "Desktop": "Desktop"
         }
     ],
+    "?TargetPath": "仓库目录列表，仓库名+路径",
     "TargetPath": [
+        {
+            "研发经理": "H:/00-sync-file-work/08-R&D-Manager-Learning"
+        },
         {
             "泰国旅游": "F:/01-life-records/07-出国旅游"
         },
         {
             "Lenovo PngTest": "F:/05-markdown-assistant/test" 
+        },
+        {
+            "购买记录": "F:/01-life-records/03-购买记录" 
+        },
+        {
+            "生活相关": "F:/01-life-records" 
         }
     ],
+    "?Interval": "间隔时间，目前是将当日的图片放到addList中，非当日的放到下面的delList中",
     "Interval": [
         "1 hours",
         "1 days",
         "2 days",
         "today"
     ],
+    "?AssetsType": "支持的资源名，以及资源的类型",
     "AssetsType": [
         "99-*.png",
         "99-*.jpg",
@@ -26,8 +39,9 @@
         "99-*.gif",
         "99-*.mp4"
     ],
+    "?Software": "软件名+路径",
     "Software": {
         "Typora": "D:/Program Files/Typora/Typora.exe",
-        "Vscode": "D:/Users/yang-wei-da/AppData/Local/Programs/Microsoft VS Code/Code.exe"
+        "Vscode": "D:/VSCode1.78.2/Code.exe"
     }
 }

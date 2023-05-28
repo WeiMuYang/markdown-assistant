@@ -37,10 +37,10 @@ void FileOperation::getDirAllFiles(const QString &dirPath)
     QFileInfoList list = dir.entryInfoList(QDir::Files | QDir::AllDirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
     foreach(QFileInfo fileInfo, list)
     {
-        if(fileInfo.isDir() && isEditFileDir(fileInfo.fileName())) //book  study  test目录
+        if(fileInfo.isDir()) //book  study  test目录
         {
             fileList_.append(getLastmodifiedTimeFileName(fileInfo.absoluteFilePath()));
-            getDirAllFiles(fileInfo.absoluteFilePath());
+//            getDirAllFiles(fileInfo.absoluteFilePath());
         }
     }
 }

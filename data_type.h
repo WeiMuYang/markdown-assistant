@@ -20,6 +20,7 @@ struct ImgData{
 };
 
 struct IniFile{
+    QString hostName;
     QVector<QString> recentFileList;
     QString version;
     QString date;

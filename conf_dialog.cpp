@@ -177,7 +177,8 @@ bool confDialog::readIniFile()
         QString value = RecentFile.at(i).toString();
         iniFile_.recentFileList.push_back(value);
     }
-
+    //0.HostName
+    iniFile_.hostName = rootObj["HostName"].toString();
     iniFile_.version = rootObj["Version"].toString();
     iniFile_.date = rootObj["Date"].toString();
     iniFile_.jsonPath = jsonPath;

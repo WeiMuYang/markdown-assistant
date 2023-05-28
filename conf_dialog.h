@@ -32,7 +32,6 @@ public:
     QString getTyporaPath(){
         return typoraExePath_;
     }
-
     const QStringList& getAssetsTypes(){
         return assetsType_;
     }
@@ -55,6 +54,7 @@ private: // need to change to private
     QString typoraExePath_;
     QString vsCodePath_;
     QMap<QString,QString> softWarePathMap_;
+
 
     IniFile iniFile_;
 };
