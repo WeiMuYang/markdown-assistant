@@ -5,6 +5,7 @@
 #include "assets_data.h"
 #include <QListWidgetItem>
 #include <QLabel>
+#include <QComboBox>
 #include "conf_dialog.h"
 #include "video_thr.h"
 #include "file_operation.h"
@@ -47,6 +48,7 @@ public:
     void setSampleView();
     void setNormalView();
     void setConfigFilePathByUserName(const IniFile& iniFile);
+    void setComboBoxToolTip(QComboBox* box);
 private slots:
     void updateListDataAndWgtSlot();
     void changeModeSlot();

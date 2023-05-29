@@ -34,7 +34,7 @@ MainWindow::MainWindow(QWidget *parent) :
     clip_ = QApplication::clipboard();
 
     if(!confDialog_.readIniFile()){
-        appendTextToLog(QString("iniFile¶ÁÈ¡Ê§°Ü !"));
+        appendTextToLog(QString("iniFileè¯»å–å¤±è´¥ !"));
     }
     DebugBox logBoxVideoThr;
     getAssetsDialog_ = new GetAssetsDialog(this);
@@ -48,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->addList->setSelectionMode(QAbstractItemView::MultiSelection);
     ui->delList->setMovement(QListWidget::Static);
     ui->delList->setSelectionMode(QAbstractItemView::MultiSelection);
-    QSplitter *splitterList = new QSplitter(Qt::Vertical,nullptr); // Ë®Æ½²¼ÖÃ
+    QSplitter *splitterList = new QSplitter(Qt::Vertical,nullptr); // æ°´å¹³å¸ƒç½®
     splitterList->addWidget(ui->addList);
     splitterList->addWidget(ui->delList);
     ui->listLayout->addWidget(splitterList);
@@ -77,9 +77,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(getAssetsDialog_,&GetAssetsDialog::sigSearchMarkdownCode,this,&MainWindow::searchAssetsByCodeSlot);
 
     InitMainWindowMenu();
-    // ¸ù¾İÓÃ»§ÃûÉèÖÃÂ·¾¶
+    // æ ¹æ®ç”¨æˆ·åè®¾ç½®è·¯å¾„
     setConfigFilePathByUserName(confDialog_.getIniFile());
-    // ±ØĞë³õÊ¼»¯StatusBar£¬·ñÔòµÚÒ»¸ö²Ëµ¥À¸µÄ²Ëµ¥µ¥»÷²»µ½
+    // å¿…é¡»åˆå§‹åŒ–StatusBarï¼Œå¦åˆ™ç¬¬ä¸€ä¸ªèœå•æ çš„èœå•å•å‡»ä¸åˆ°
     setStatusBar("",false);
     startSlot();
 }
@@ -87,10 +87,11 @@ MainWindow::MainWindow(QWidget *parent) :
 void MainWindow::startSlot()
 {
     if(configFilePath_.isEmpty()){
-        appendTextToLog(QString("ÇëÑ¡ÔñÅäÖÃÎÄ¼ş !"));
+        appendTextToLog(QString("è¯·é€‰æ‹©é…ç½®æ–‡ä»¶ !"));
         return;
     }
     ui->subPathComBox->clear();
+
     ui->tarPathCombox->clear();
     confDialog_.readConf(configFilePath_);
     openExPro_.setSoftWarePath(confDialog_.getSoftWarePathMap());
@@ -99,11 +100,11 @@ void MainWindow::startSlot()
 
     // 1 Init Path
     initImgPathTarPathCombox();
-    // 2 ¸üĞÂ ×ÓÄ¿Â¼
+    // 2 æ›´æ–° å­ç›®å½•
     updateSubDirCombox();
-    // 3 ¸üĞÂ ÁĞ±íÊı¾İºÍ½çÃæ
+    // 3 æ›´æ–° åˆ—è¡¨æ•°æ®å’Œç•Œé¢
     updateListDataAndWgtSlot();
-    // 4 ¸üĞÂ ×îĞÂµÄĞŞ¸ÄÎÄ¼ş
+    // 4 æ›´æ–° æœ€æ–°çš„ä¿®æ”¹æ–‡ä»¶
     updateLastModifyFile();
 }
 
@@ -119,14 +120,14 @@ void MainWindow::setConfigFilePathByUserName(const IniFile& iniFile){
         }
     }
     if(!hasUserConf){
-        appendTextToLog(QString("Î´ÅäÖÃ¸ÃÓÃ»§ÎÄ¼ş !"));
+        appendTextToLog(QString("æœªé…ç½®è¯¥ç”¨æˆ·æ–‡ä»¶ !"));
     }
 }
 
 void MainWindow::InitMainWindowMenu(){
     IniFile iniFile = confDialog_.getIniFile();
 
-    // TODO£º restart  about
+    // TODOï¼š restart  about
     ui->actionGetAssets->setShortcut(QKeySequence::Find);
     ui->actionGetAssets->setShortcutContext(Qt::ApplicationShortcut);
     connect(ui->actionGetAssets, &QAction::triggered, this, &MainWindow::getAssetsSlot);
@@ -145,11 +146,11 @@ void MainWindow::InitMainWindowMenu(){
 
     if(simpleViewNum_ % 2 != 0){
         setSampleView();
-        ui->actionSimpleView->setText(u8"Õı³£´°¿Ú");
+        ui->actionSimpleView->setText(u8"æ­£å¸¸çª—å£");
         ui->actionSimpleView->setShortcut(QKeySequence("Ctrl+="));
     }else{
         setNormalView();
-        ui->actionSimpleView->setText(u8"¼«¼ò´°¿Ú");
+        ui->actionSimpleView->setText(u8"æç®€çª—å£");
         ui->actionSimpleView->setShortcut(QKeySequence("Ctrl+-"));
     }
     connect(ui->actionSimpleView, &QAction::triggered, this, &MainWindow::simpleViewSlot,Qt::UniqueConnection);
@@ -158,7 +159,7 @@ void MainWindow::InitMainWindowMenu(){
     connect(ui->actionConfFile, &QAction::triggered, this, &MainWindow::setConfigFilePath);
 
     QMenu *recentMenu = new QMenu;
-    recentMenu->setTitle(u8"×î½üÎÄ¼ş");
+    recentMenu->setTitle(u8"æœ€è¿‘æ–‡ä»¶");
     for (int i = 0; i < iniFile.recentFileList.size(); ++i) {
         QAction *actionFileName = new QAction(recentMenu);
         actionFileName->setText(iniFile.jsonPath+"/"+iniFile.recentFileList.at(i));
@@ -183,12 +184,12 @@ void MainWindow::clearLogSlot()
 void MainWindow::setConfigFilePath()
 {
     configFilePath_ = QFileDialog::getOpenFileName(
-                this, "Ñ¡ÔñÅäÖÃÎÄ¼ş",
+                this, "é€‰æ‹©é…ç½®æ–‡ä»¶",
                 "../../",
-                "JsonÎÄ¼ş (*.json);; ËùÓĞÎÄ¼ş (*.*);; ");
+                "Jsonæ–‡ä»¶ (*.json);; æ‰€æœ‰æ–‡ä»¶ (*.*);; ");
     if (configFilePath_.isEmpty())
     {
-        appendTextToLog(QString("ÅäÖÃÎÄ¼ş²»´æÔÚ !"));
+        appendTextToLog(QString("é…ç½®æ–‡ä»¶ä¸å­˜åœ¨ !"));
         return;
     }else{
         startSlot();
@@ -225,7 +226,7 @@ void MainWindow::setNormalViewByScreenRes(){
 
 void MainWindow::setSampleViewByScreenRes(){
     if(getScrrenRes() == ScreenRes::High){
-        this->setMinimumSize(QSize(880, 480));
+        this->setMinimumSize(QSize(440, 240));
         this->resize(QSize(880, 480));
         ui->pathWgt->setMinimumWidth(440);
     }else{
@@ -265,13 +266,13 @@ void MainWindow::setStatusBar(QString msg, bool isCorrect){
         QImage image(QString(":/qss/psblack/checkbox_checked.png"));
         pStatusLabelIcon_->setPixmap(QPixmap::fromImage(image));
         pStatusLabelIcon_->setMinimumWidth(15);
-        pStatusLabelMsg_->setText(u8"Õı³£");
+        pStatusLabelMsg_->setText(u8"æ­£å¸¸");
         pStatusLabelCurrentFile_->setText("|  " +subDirName_ +"/"+ currentFile_);
     }else{
         QImage image(QString(":/qss/psblack/checkbox_checked_disable.png"));
         pStatusLabelIcon_->setPixmap(QPixmap::fromImage(image));
         pStatusLabelIcon_->setMinimumWidth(15);
-        pStatusLabelMsg_->setText(u8"´íÎó");
+        pStatusLabelMsg_->setText(u8"é”™è¯¯");
         pStatusLabelCurrentFile_->setText("|  " + currentFile_);
     }
 
@@ -300,7 +301,7 @@ void MainWindow::appendTextToLog(QString log)
 
 // 3.
 void MainWindow::updateLastModifyFile(){
-    // »ñÈ¡×îºóĞŞ¸ÄµÄÎÄ¼şĞòºÅ
+    // è·å–æœ€åä¿®æ”¹çš„æ–‡ä»¶åºå·
     int num = fileOp_.getLastmodifiedTimeFileNum(tarPath_,fullTarPath_,currentFile_);
     if(num == -1){
         ui->subPathComBox->setCurrentText("no file");
@@ -308,7 +309,7 @@ void MainWindow::updateLastModifyFile(){
         tarPath_.clear();
         fullTarPath_.clear();
         currentFile_.clear();
-        appendTextToLog(QString(u8"µ±Ç°µÄÄ¿±êÂ·¾¶²»´æÔÚ !"));
+        appendTextToLog(QString(u8"å½“å‰çš„ç›®æ ‡è·¯å¾„ä¸å­˜åœ¨ !"));
         setStatusBar("", false);
         whoIsBoxSelection(BoxSelect::SubCombox);
     }else{
@@ -334,9 +335,17 @@ void MainWindow::initImgPathTarPathCombox()
     this->tarPath_ = confDialog_.getTarPathByKey(ui->tarPathCombox->currentText());
 }
 
+void MainWindow::setComboBoxToolTip(QComboBox * box){
+    auto itemModel = qobject_cast<QStandardItemModel*>(box->model());
+    for(int i = 0; i < box->count(); ++i){
+        itemModel->item(i)->setToolTip(box->itemText(i));
+    }
+}
+
 void MainWindow::updateSubDirCombox(){
     ui->subPathComBox->clear();
     ui->subPathComBox->addItems(fileOp_.getSubDirNames(this->tarPath_));
+    setComboBoxToolTip(ui->subPathComBox);
     subDirName_ = ui->subPathComBox->currentText();
     whoIsBoxSelection(BoxSelect::SubCombox);
 }
@@ -353,7 +362,7 @@ void MainWindow::setTarPathSlot(QString currentStr){
         subDirName_.clear();
         tarPath_.clear();
         ui->numSpinBox->setValue(-1);
-        appendTextToLog(QString(u8"µ±Ç°µÄÄ¿±êÂ·¾¶²»´æÔÚ !"));
+        appendTextToLog(QString(u8"å½“å‰çš„ç›®æ ‡è·¯å¾„ä¸å­˜åœ¨ !"));
         currentFile_.clear();
         setStatusBar("", false);
         whoIsBoxSelection(BoxSelect::None);
@@ -373,7 +382,7 @@ void MainWindow::setSubPathSlot(QString currentStr){
     if(num == -1){
         fullTarPath_.clear();
         ui->numSpinBox->setValue(num);
-        appendTextToLog(QString(u8"µ±Ç°µÄÄ¿±êÂ·¾¶²»´æÔÚ !"));
+        appendTextToLog(QString(u8"å½“å‰çš„ç›®æ ‡è·¯å¾„ä¸å­˜åœ¨ !"));
         setStatusBar("", false);
         whoIsBoxSelection(BoxSelect::SubCombox);
     }else{
@@ -396,17 +405,17 @@ void MainWindow::setImageToLabelSlot(QImage image){
 void MainWindow::changeModeSlot()
 {
     if(isIconMode_){
-        // ÉèÖÃÏÔÊ¾Ä£Ê½
+        // è®¾ç½®æ˜¾ç¤ºæ¨¡å¼
         ui->addList->setViewMode(QListView::IconMode);  // ListMode  IconMode
-        // ÉõÖÁËæÂÔÍ¼µÄ´óĞ¡
+        // ç”šè‡³éšç•¥å›¾çš„å¤§å°
         ui->addList->setIconSize(QSize(100,100*multiple));  // 100,100
-        // ÉèÖÃÍ¼±ê¼ä¾à
+        // è®¾ç½®å›¾æ ‡é—´è·
         ui->addList->setSpacing(15);
-        // ÉèÖÃÏÔÊ¾Ä£Ê½
+        // è®¾ç½®æ˜¾ç¤ºæ¨¡å¼
         ui->delList->setViewMode(QListView::IconMode);  // ListMode  IconMode
-        // ÉõÖÁËæÂÔÍ¼µÄ´óĞ¡
+        // ç”šè‡³éšç•¥å›¾çš„å¤§å°
         ui->delList->setIconSize(QSize(100,100*multiple));  // 100,100
-        // ÉèÖÃÍ¼±ê¼ä¾à
+        // è®¾ç½®å›¾æ ‡é—´è·
         ui->delList->setSpacing(15);
     }else{
         ui->addList->setViewMode(QListView::ListMode);
@@ -417,7 +426,7 @@ void MainWindow::changeModeSlot()
         ui->delList->setIconSize(QSize(40 ,20*multiple));
         ui->delList->setSpacing(4);
     }
-    appendTextToLog(u8"ĞŞ¸ÄÏÔÊ¾Ä£Ê½Íê±Ï !");
+    appendTextToLog(u8"ä¿®æ”¹æ˜¾ç¤ºæ¨¡å¼å®Œæ¯• !");
 }
 
 MainWindow::~MainWindow()
@@ -441,14 +450,14 @@ void MainWindow::updateListDataAndWgtSlot(){
     }else{
         DebugBox(__FUNCTION__, __LINE__,"path error");
     }
-    // ¸üĞÂÊı¾İ²ã data
+    // æ›´æ–°æ•°æ®å±‚ data
     addDelListData_.updateImgVideoFile(path, ui->numSpinBox->value());// ui->numEdit->text().toInt());
 
-    // ¸üĞÂ½çÃæ²ã
+    // æ›´æ–°ç•Œé¢å±‚
     updateListWgt();
 
     ui->imgLabel->setPixmap(QString(""));
-    appendTextToLog(u8"¸üĞÂÎÄ¼şÁĞ±íÍê±Ï !");
+    appendTextToLog(u8"æ›´æ–°æ–‡ä»¶åˆ—è¡¨å®Œæ¯• !");
 }
 
 void MainWindow::initListWgt(){
@@ -540,10 +549,10 @@ void MainWindow::on_modePbn_clicked()
 {
     clickNum_++;
     if(clickNum_ % 2 == 0){
-        ui->modePbn->setText(u8"Í¼±ê");
+        ui->modePbn->setText(u8"å›¾æ ‡");
         isIconMode_ = false;
     }else {
-        ui->modePbn->setText(u8"ÁĞ±í");
+        ui->modePbn->setText(u8"åˆ—è¡¨");
         isIconMode_ = true;
     }
     changeModeSlot();
@@ -557,14 +566,14 @@ void MainWindow::itemEnteredSlot(QListWidgetItem *item)
     labelPath_ = path;
     if(name.right(4) != ".mp4"){
         videoThr_->stop();
-        // ´ÓÎÄ¼şÖĞ¼ÓÔØÍ¼Æ¬µ½±êÇ©
+        // ä»æ–‡ä»¶ä¸­åŠ è½½å›¾ç‰‡åˆ°æ ‡ç­¾
         if(!path.isEmpty()){
             QPixmap map = QPixmap(path);
             map = map.scaled(ui->imgLabel->width(), ui->imgLabel->height(),Qt::KeepAspectRatio, Qt::SmoothTransformation);
             ui->imgLabel->setAlignment(Qt::AlignCenter);
             ui->imgLabel->setPixmap(map);
         }else{
-            // todo: Â·¾¶Îª¿Õ£¬ĞèÒªÌí¼ÓÒ»¸öÄ¬ÈÏÍ¼Æ¬
+            // todo: è·¯å¾„ä¸ºç©ºï¼Œéœ€è¦æ·»åŠ ä¸€ä¸ªé»˜è®¤å›¾ç‰‡
             ui->imgLabel->setAlignment(Qt::AlignCenter);
             ui->imgLabel->setPixmap(path);
         }
@@ -596,7 +605,7 @@ void MainWindow::sycImgDataByOldName(QString oldName){
 
 void MainWindow::on_syncPbn_clicked()
 {
-    // Í¬²½µ×²ãÊı¾İ
+    // åŒæ­¥åº•å±‚æ•°æ®
     for (int i = 0; i < ui->delList->count(); ++i) {
         if(ui->delList->item(i)->isSelected()){
             qDebug() <<ui->delList->item(i)->text();
@@ -614,12 +623,12 @@ void MainWindow::on_syncPbn_clicked()
             addDelListData_.insertDataDelImageList(data);
         }
     }
-    // ¸üĞÂ½çÃæ
+    // æ›´æ–°ç•Œé¢
     updateListWgt();
-    appendTextToLog(u8"Í¬²½ÁĞ±íĞÅÏ¢Íê±Ï !");
+    appendTextToLog(u8"åŒæ­¥åˆ—è¡¨ä¿¡æ¯å®Œæ¯• !");
 }
 
-// Ë«»÷ÒÆ¶¯ DelImageList -->  AddImageList
+// åŒå‡»ç§»åŠ¨ DelImageList -->  AddImageList
 void MainWindow::moveDelItemToAddListSlot(const QModelIndex &index)
 {
     Q_UNUSED(index);
@@ -630,9 +639,9 @@ void MainWindow::moveDelItemToAddListSlot(const QModelIndex &index)
     addDelListData_.delDelImageListByOldName(oldName, data);
     addDelListData_.insertDataAddImageList(data);
     updateListWgt();
-    appendTextToLog(u8"ÒÆ¶¯\""+ oldName + u8"\"ÎÄ¼şÍê±Ï !");
+    appendTextToLog(u8"ç§»åŠ¨\""+ oldName + u8"\"æ–‡ä»¶å®Œæ¯• !");
 }
-// Ë«»÷ÒÆ¶¯ AddImageList -->  DelImageList
+// åŒå‡»ç§»åŠ¨ AddImageList -->  DelImageList
 void MainWindow::moveAddItemToDelListSlot(const QModelIndex &index)
 {
     Q_UNUSED(index);
@@ -641,30 +650,30 @@ void MainWindow::moveAddItemToDelListSlot(const QModelIndex &index)
     addDelListData_.delAddImageListByOldName(oldName, data);
     addDelListData_.insertDataDelImageList(data);
     updateListWgt();
-    appendTextToLog(u8"ÒÆ¶¯\""+ oldName + u8"\"ÎÄ¼şÍê±Ï !");
+    appendTextToLog(u8"ç§»åŠ¨\""+ oldName + u8"\"æ–‡ä»¶å®Œæ¯• !");
 }
-// ĞèÒªtodo
+// éœ€è¦todo
 void MainWindow::on_clipPbn_clicked()
 {
     if(addDelListData_.getAddList().isEmpty()){
-        appendTextToLog(u8"Ìí¼ÓÁĞ±íÎª¿Õ ! ! !");
+        appendTextToLog(u8"æ·»åŠ åˆ—è¡¨ä¸ºç©º ! ! !");
         return;
     }
     if(fullTarPath_.isEmpty()){
         DebugBox(__FUNCTION__, __LINE__, "path error");
-        appendTextToLog(u8"µ±Ç°µÄÄ¿±êÂ·¾¶²»´æÔÚ ! ! !");
+        appendTextToLog(u8"å½“å‰çš„ç›®æ ‡è·¯å¾„ä¸å­˜åœ¨ ! ! !");
         return;
     }
-    // ·ÀÖ¹ÊÓÆµ»¹ÔÚ²¥·ÅÎŞ·¨¸´ÖÆMP4
+    // é˜²æ­¢è§†é¢‘è¿˜åœ¨æ’­æ”¾æ— æ³•å¤åˆ¶MP4
     videoThr_->stop();
-    // ÎÄ¼ş¼ôÇĞ£¬²¢·µ»ØMarkdown´úÂë
+    // æ–‡ä»¶å‰ªåˆ‡ï¼Œå¹¶è¿”å›Markdownä»£ç 
     QString clipText;
     if(fileOp_.clipFilesByFileInfo(addDelListData_.getAddList(), fullTarPath_,ui->numSpinBox->value(), clipText)){
         clip_->setText(clipText);
-        appendTextToLog(u8"¼ôÇĞÎÄ¼şÍê³É !");
+        appendTextToLog(u8"å‰ªåˆ‡æ–‡ä»¶å®Œæˆ !");
     }else{
         clip_->setText(clipText);
-        appendTextToLog(u8"¼ôÇĞÎÄ¼şÊ§°Ü ! ! !");
+        appendTextToLog(u8"å‰ªåˆ‡æ–‡ä»¶å¤±è´¥ ! ! !");
     }
 
     updateListDataAndWgtSlot();
@@ -679,7 +688,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
         ui->imgLabel->setAlignment(Qt::AlignCenter);
         ui->imgLabel->setPixmap(map);
     }else{
-        // todo: Â·¾¶Îª¿Õ£¬ĞèÒªÌí¼ÓÒ»¸öÄ¬ÈÏÍ¼Æ¬
+        // todo: è·¯å¾„ä¸ºç©ºï¼Œéœ€è¦æ·»åŠ ä¸€ä¸ªé»˜è®¤å›¾ç‰‡
         ui->imgLabel->setAlignment(Qt::AlignCenter);
         ui->imgLabel->setPixmap(labelPath_);
     }
@@ -704,7 +713,7 @@ void MainWindow::on_toolPbn_clicked()
         openExPro_.OpenDirSlot(tarPath_);
         break;
     default:
-        appendTextToLog(u8"Ã»ÓĞÑ¡ÖĞÎÄ¼şĞèÒª´ò¿ª!");
+        appendTextToLog(u8"æ²¡æœ‰é€‰ä¸­æ–‡ä»¶éœ€è¦æ‰“å¼€!");
         break;
     }
 }
@@ -716,15 +725,15 @@ void MainWindow::on_numSpinBox_valueChanged(int num)
         return;
     }
     if(fullTarPath_.isEmpty()){
-        appendTextToLog(u8"µ±Ç°µÄÄ¿±êÂ·¾¶²»´æÔÚ !");
+        appendTextToLog(u8"å½“å‰çš„ç›®æ ‡è·¯å¾„ä¸å­˜åœ¨ !");
         whoIsBoxSelection(BoxSelect::SubCombox);
         return;
     }
     if(fileOp_.getFileNameByNum(fullTarPath_, num, currentFile_)){
         if(currentFile_.size() >3 && currentFile_.right(2) == "md"){
-            appendTextToLog(u8"µ±Ç°ÎÄµµÎª£º" + currentFile_);
+            appendTextToLog(u8"å½“å‰æ–‡æ¡£ä¸ºï¼š" + currentFile_);
         }else{
-            appendTextToLog(u8"µ±Ç°Ä¿Â¼Îª£º" + currentFile_);
+            appendTextToLog(u8"å½“å‰ç›®å½•ä¸ºï¼š" + currentFile_);
         }
         setStatusBar("",true);
         whoIsBoxSelection(BoxSelect::NumSpinBox);
@@ -802,7 +811,8 @@ void MainWindow::setSampleView(){
     ui->logWgt->hide();
     ui->delList->hide();
     ui->openWgt->hide();
-    ui->filePbnWgt->hide();
+    ui->updateConfPbn->hide();
+//    ui->filePbnWgt->hide();
     ui->syncPbn->hide();
     ui->modePbn->hide();
 
@@ -813,7 +823,8 @@ void MainWindow::setNormalView(){
     ui->logWgt->show();
     ui->delList->show();
     ui->openWgt->show();
-    ui->filePbnWgt->show();
+    ui->updateConfPbn->show();
+//    ui->filePbnWgt->show();
     ui->syncPbn->show();
     ui->modePbn->show();
 
@@ -825,11 +836,11 @@ void MainWindow::simpleViewSlot()
     simpleViewNum_++;
     if(simpleViewNum_ % 2 != 0){
         setSampleView();
-        ui->actionSimpleView->setText(u8"Õı³£´°¿Ú");
+        ui->actionSimpleView->setText(u8"æ­£å¸¸çª—å£");
         ui->actionSimpleView->setShortcut(QKeySequence("Ctrl+="));
     }else{
         setNormalView();
-        ui->actionSimpleView->setText(u8"¼«¼ò´°¿Ú");
+        ui->actionSimpleView->setText(u8"æç®€çª—å£");
         ui->actionSimpleView->setShortcut(QKeySequence("Ctrl+-"));
     }
 }
