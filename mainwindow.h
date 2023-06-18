@@ -34,9 +34,11 @@ public:
     void initImgPathTarPathCombox();
     void sycImgDataByOldName(QString name);
     void updateLastModifyFile();
+    void updateHistoryFileList();
     void setWindowStyle();
     void initStatusBar();
     void InitMainWindowMenu();
+    void initHistoryFileList();
     void setScreenWitdh(int w);
     int getScreenWitdh();
     void initScreenResNormal();
@@ -60,6 +62,8 @@ private slots:
     void moveDelItemToAddListSlot(const QModelIndex &index);
     void moveAddItemToDelListSlot(const QModelIndex &index);
     void itemEnteredSlot(QListWidgetItem *item);
+
+    void ChangeToHistoryFile();
 
     void on_clipPbn_clicked();
     void on_lastFileNumPbn_clicked();

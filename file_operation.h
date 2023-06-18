@@ -33,6 +33,12 @@ public:
     bool getSearchResultFromMarkdownCode(const QString &currentFullPath, const QString &codeText, const QString& name, QString &searchResult);
     QString newNumFileName(QString path, QString fileName, QString suffix);
     bool copyImgVideo(QDir& CurrentPath, const QStringList& fileNameArr,const QString & name, QString &searchResult);
+
+
+    void getHistoryFileList(const QString &dirPath, QFileInfoList& fileListTop20);
+//    bool compare(const QFileInfo &stu1, const QFileInfo &stu2);
+    void getLastmodifiedTop20Files(const QString& path, QFileInfoList& fileListTemp);
+
 signals:
     void sigFileOperationLog(QString log);
 

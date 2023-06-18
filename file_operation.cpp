@@ -5,6 +5,7 @@
 #include <QtAlgorithms>
 #include <QStandardPaths>
 #include <QDateTime>
+#include <QSortFilterProxyModel>
 #include "debug_box.h"
 
 FileOperation::FileOperation(QObject *parent)
@@ -40,7 +41,7 @@ void FileOperation::getDirAllFiles(const QString &dirPath)
         if(fileInfo.isDir()) //book  study  test目录
         {
             fileList_.append(getLastmodifiedTimeFileName(fileInfo.absoluteFilePath()));
-//            getDirAllFiles(fileInfo.absoluteFilePath());
+            //            getDirAllFiles(fileInfo.absoluteFilePath());
         }
     }
 }
@@ -67,7 +68,6 @@ int FileOperation::getLastmodifiedTimeFileNum(const QString &path, QString& full
 {
     int num;
     QDir dir(path);
-    //    QString name = dir.dirName();
 
     fileList_.clear();
     getDirAllFiles(dir.absolutePath());
@@ -198,7 +198,7 @@ bool FileOperation::getFileNameByNum(QString fullPath, int fileNum, QString& fil
     }
 
     fileName = fileInfoList.last().fileName();
-//    emit sigFileOperationLog(QString("当前文档/目录为：")+fileName);
+    //    emit sigFileOperationLog(QString("当前文档/目录为：")+fileName);
     return true;
 }
 
@@ -301,4 +301,53 @@ bool FileOperation::getSearchResultFromMarkdownCode(const QString &currentFullPa
     }
 
     return copyImgVideo(CurrentPath, fileNameArr,name , searchResult);
+}
+
+// -------------------------- get file List of last two weeks 一共  15 files
+// 获取path目录下最新修改的文件
+const int topFileCount = 20;
+void FileOperation::getLastmodifiedTop20Files(const QString& path, QFileInfoList& fileListTemp)
+{
+    QDir dir(path);
+    QFileInfoList fileList = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files, QDir::Time);
+    QFileInfo lastModifiedTimeFileName;
+    if (!fileList.isEmpty())
+    {
+        for(int i = fileList.size()-1, num = 0; i >=0 && num < topFileCount; --i, ++num){
+            if(isMarkdownFile(fileList.at(i).fileName())){ // 只遍历markdown文件
+                fileListTemp.append(fileList.at(i));
+            }
+        }
+    }
+}
+
+//bool FileOperation::compareTimeData(const QFileInfo &stu1, const QFileInfo &stu2)
+//{
+//    return stu1.lastModified() > stu2.lastModified();
+//}
+
+bool compare(const QFileInfo &file1, const QFileInfo &file2){
+    return file1.lastModified().toTime_t() > file2.lastModified().toTime_t();
+}
+
+void FileOperation::getHistoryFileList(const QString &dirPath, QFileInfoList& fileListTop20){
+    QDir dir(dirPath);
+    QFileInfoList resultFileList;
+    QFileInfoList fileListTemp;
+    QFileInfoList list = dir.entryInfoList(QDir::Files | QDir::AllDirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    foreach(QFileInfo fileInfo, list)
+    {
+        if(fileInfo.isDir()) //book  study  test目录
+        {
+            fileListTemp.clear();
+            getLastmodifiedTop20Files(fileInfo.absoluteFilePath(),fileListTemp);
+            for(int i = 0; i < fileListTemp.size(); ++i){
+                resultFileList.append(fileListTemp.at(i));
+            }
+        }
+    }
+    qSort(resultFileList.begin(),resultFileList.end(),compare);
+    for(int i = 0; i < resultFileList.size() && i < topFileCount; ++i){
+        fileListTop20.append(resultFileList.at(i));
+    }
 }

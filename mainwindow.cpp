@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+﻿#include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include <QStandardPaths>
 #include <QClipboard>
@@ -53,6 +53,7 @@ MainWindow::MainWindow(QWidget *parent) :
     splitterList->addWidget(ui->delList);
     ui->listLayout->addWidget(splitterList);
     splitterList->show();
+    initHistoryFileList();
 
     ui->addList->setMouseTracking(true);
     connect(ui->addList,&QListWidget::itemEntered,this, &MainWindow::itemEnteredSlot);
@@ -76,12 +77,36 @@ MainWindow::MainWindow(QWidget *parent) :
     // dialog --> fileOp
     connect(getAssetsDialog_,&GetAssetsDialog::sigSearchMarkdownCode,this,&MainWindow::searchAssetsByCodeSlot);
 
+    // history List click
+    connect(ui->historyFileList,&QTableWidget::itemClicked,this,&MainWindow::ChangeToHistoryFile);
+
     InitMainWindowMenu();
     // 根据用户名设置路径
     setConfigFilePathByUserName(confDialog_.getIniFile());
     // 必须初始化StatusBar，否则第一个菜单栏的菜单单击不到
     setStatusBar("",false);
     startSlot();
+}
+
+void MainWindow::initHistoryFileList() {
+    ui->historyFileList->setColumnCount(2);    //设置列数
+    ui->historyFileList->setRowCount(20);        //设置行数/
+    ui->historyFileList->setSelectionBehavior(QAbstractItemView::SelectRows);
+    //设置每行内容不可编辑
+    ui->historyFileList->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    /*去掉每行的行号*/
+    QHeaderView *headerView = ui->historyFileList->verticalHeader();
+    headerView->setHidden(true);
+    ui->historyFileList->horizontalHeader()->setStretchLastSection(true);
+    // 消除表格控件的边框
+    ui->historyFileList->setFrameShape(QFrame::NoFrame);
+    //设置表格不显示格子线
+    ui->historyFileList->setShowGrid(false); //设置不显示格子线
+
+    QStringList header;  //QString类型的List容器
+    header<<u8"文件名"<<u8"最近时间";
+    ui->historyFileList->setHorizontalHeaderLabels(header);//设置表头内容
+    ui->historyFileList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
 void MainWindow::startSlot()
@@ -106,6 +131,26 @@ void MainWindow::startSlot()
     updateListDataAndWgtSlot();
     // 4 更新 最新的修改文件
     updateLastModifyFile();
+
+    // 5 更新 Top20文件列表
+    updateHistoryFileList();
+    ui->tabWgt->setCurrentIndex(0);
+}
+
+void MainWindow::updateHistoryFileList(){
+    QFileInfoList fileListTop20;
+    fileOp_.getHistoryFileList(tarPath_, fileListTop20);
+    for(int i = 0; i < fileListTop20.size(); ++i){
+        QFileInfo fileInfo = fileListTop20.at(i);
+        QString name = fileInfo.filePath().split(tarPath_).last().remove(0,1);
+        QString modifyTime = fileInfo.lastModified().toString("yyyy-MM-dd HH:mm:ss ddd");
+        QTableWidgetItem *pItem1 = new QTableWidgetItem(name);
+        QTableWidgetItem *pItem2 = new QTableWidgetItem(modifyTime);
+        ui->historyFileList->setItem(i, 0, pItem1);
+        ui->historyFileList->setItem(i, 1, pItem2);
+    }
+    ui->historyFileList->setColumnWidth(0,1300*0.66);
+    ui->historyFileList->setColumnWidth(1, 1300*0.33);
 }
 
 void MainWindow::setConfigFilePathByUserName(const IniFile& iniFile){
@@ -420,8 +465,8 @@ void MainWindow::changeModeSlot()
     }else{
         ui->addList->setViewMode(QListView::ListMode);
         ui->addList->setIconSize(QSize(40 ,20*multiple));
-
         ui->addList->setSpacing(4);
+
         ui->delList->setViewMode(QListView::ListMode);
         ui->delList->setIconSize(QSize(40 ,20*multiple));
         ui->delList->setSpacing(4);
@@ -470,6 +515,10 @@ void MainWindow::initListWgt(){
         font = ui->delList->font();
         font.setPointSize(13);
         ui->delList->setFont(font);
+
+        font = ui->historyFileList->font();
+        font.setPointSize(13);
+        ui->historyFileList->setFont(font);
         multiple = 2;
     }else{
         font = ui->addList->font();
@@ -479,6 +528,10 @@ void MainWindow::initListWgt(){
         font = ui->delList->font();
         font.setPointSize(10);
         ui->delList->setFont(font);
+
+        font = ui->historyFileList->font();
+        font.setPointSize(10);
+        ui->historyFileList->setFont(font);
 
         multiple = 1;
     }
@@ -745,6 +798,33 @@ void MainWindow::on_numSpinBox_valueChanged(int num)
     }
 }
 
+void MainWindow::ChangeToHistoryFile(){
+    //获取当前点击的单元格的指针
+    QTableWidgetItem* curItem = ui->historyFileList->currentItem(); // ui->tableWidget->currentItem();
+    if(curItem->column() != 0){
+        return;
+    }
+    //获取单元格内的内容
+    QString text = curItem->text();
+    QStringList testList = text.split("/");
+    if(testList.size() != 2){
+        return;
+    }
+    subDirName_ = testList.at(0);
+    ui->subPathComBox->setCurrentText(subDirName_);
+
+    QStringList nameArr = testList.at(1).split("-");
+    if(nameArr.size() < 2){
+        return;
+    }
+    int num =nameArr.at(0).toInt();
+    ui->numSpinBox->setValue(num);
+    currentFile_ = testList.at(1);
+    fullTarPath_ = tarPath_ + "/" + text;
+    setStatusBar("", true);
+    whoIsBoxSelection(BoxSelect::NumSpinBox);
+}
+
 void MainWindow::whoIsBoxSelection(BoxSelect select)
 {
     boxSelect_ = select;
@@ -808,11 +888,11 @@ void MainWindow::reNameSlot()
 }
 
 void MainWindow::setSampleView(){
-    ui->logWgt->hide();
+    ui->tabWgt->hide();
     ui->delList->hide();
     ui->openWgt->hide();
     ui->updateConfPbn->hide();
-//    ui->filePbnWgt->hide();
+    //    ui->filePbnWgt->hide();
     ui->syncPbn->hide();
     ui->modePbn->hide();
 
@@ -820,11 +900,11 @@ void MainWindow::setSampleView(){
 }
 
 void MainWindow::setNormalView(){
-    ui->logWgt->show();
+    ui->tabWgt->show();
     ui->delList->show();
     ui->openWgt->show();
     ui->updateConfPbn->show();
-//    ui->filePbnWgt->show();
+    //    ui->filePbnWgt->show();
     ui->syncPbn->show();
     ui->modePbn->show();
 

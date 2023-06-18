@@ -34,8 +34,6 @@ int main(int argc, char *argv[])
         font.setPointSize(10);
         a.setFont(font);
     }
-
-
     w.show();
 
     return a.exec();
