@@ -89,7 +89,7 @@ MainWindow::MainWindow(QWidget *parent) :
 }
 
 void MainWindow::initHistoryFileList() {
-    ui->historyFileList->setColumnCount(2);    //设置列数
+    ui->historyFileList->setColumnCount(2);     //设置列数
     ui->historyFileList->setRowCount(20);        //设置行数/
     ui->historyFileList->setSelectionBehavior(QAbstractItemView::SelectRows);
     //设置每行内容不可编辑
@@ -102,11 +102,11 @@ void MainWindow::initHistoryFileList() {
     ui->historyFileList->setFrameShape(QFrame::NoFrame);
     //设置表格不显示格子线
     ui->historyFileList->setShowGrid(false); //设置不显示格子线
-
-    QStringList header;  //QString类型的List容器
-    header<<u8"文件名"<<u8"最近时间";
-    ui->historyFileList->setHorizontalHeaderLabels(header);//设置表头内容
+    // 不显示表头
+    ui->historyFileList->horizontalHeader()->setHidden(true);
     ui->historyFileList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+//    ui->historyFileList->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Interactive);
+//    ui->historyFileList->setColumnWidth(1, 100);
 }
 
 void MainWindow::startSlot()
@@ -116,8 +116,8 @@ void MainWindow::startSlot()
         return;
     }
     ui->subPathComBox->clear();
-
     ui->tarPathCombox->clear();
+//    ui->historyFileList->clear();
     confDialog_.readConf(configFilePath_);
     openExPro_.setSoftWarePath(confDialog_.getSoftWarePathMap());
     addDelListData_.setAssetsTypes(confDialog_.getAssetsTypes());
@@ -139,6 +139,7 @@ void MainWindow::startSlot()
 
 void MainWindow::updateHistoryFileList(){
     QFileInfoList fileListTop20;
+    ui->historyFileList->clear();
     fileOp_.getHistoryFileList(tarPath_, fileListTop20);
     for(int i = 0; i < fileListTop20.size(); ++i){
         QFileInfo fileInfo = fileListTop20.at(i);
@@ -146,11 +147,12 @@ void MainWindow::updateHistoryFileList(){
         QString modifyTime = fileInfo.lastModified().toString("yyyy-MM-dd HH:mm:ss ddd");
         QTableWidgetItem *pItem1 = new QTableWidgetItem(name);
         QTableWidgetItem *pItem2 = new QTableWidgetItem(modifyTime);
+//        pItem2->setTextAlignment(Qt::AlignCenter);
         ui->historyFileList->setItem(i, 0, pItem1);
         ui->historyFileList->setItem(i, 1, pItem2);
     }
-    ui->historyFileList->setColumnWidth(0,1300*0.66);
-    ui->historyFileList->setColumnWidth(1, 1300*0.33);
+    ui->historyFileList->setColumnWidth(0, 1300 * 0.66);
+    ui->historyFileList->setColumnWidth(1, 1300 * 0.33);
 }
 
 void MainWindow::setConfigFilePathByUserName(const IniFile& iniFile){
@@ -183,7 +185,7 @@ void MainWindow::InitMainWindowMenu(){
 
     ui->actionClearLog->setShortcut(QKeySequence::Refresh);
     ui->actionClearLog->setShortcutContext(Qt::ApplicationShortcut);
-    connect(ui->actionClearLog,&QAction::triggered, this, &MainWindow::clearLogSlot);
+    connect(ui->actionClearLog,&QAction::triggered, this, &MainWindow::clearTabWgtSlot);
 
     ui->actionRename->setShortcut(QKeySequence::Replace);
     ui->actionRename->setShortcutContext(Qt::ApplicationShortcut);
@@ -221,9 +223,13 @@ void MainWindow::openRecentFileSlot(){
     startSlot();
 }
 
-void MainWindow::clearLogSlot()
+void MainWindow::clearTabWgtSlot()
 {
-    ui->logText->clear();
+    if(ui->tabWgt->currentIndex() == 0) {
+          ui->logText->clear();
+    }else{
+        updateHistoryFileList();
+    }
 }
 
 void MainWindow::setConfigFilePath()
@@ -416,6 +422,7 @@ void MainWindow::setTarPathSlot(QString currentStr){
     whoIsBoxSelection(BoxSelect::TarCombox);
     updateSubDirCombox();
     updateLastModifyFile();
+    updateHistoryFileList();
 }
 
 void MainWindow::setSubPathSlot(QString currentStr){
@@ -820,7 +827,7 @@ void MainWindow::ChangeToHistoryFile(){
     int num =nameArr.at(0).toInt();
     ui->numSpinBox->setValue(num);
     currentFile_ = testList.at(1);
-    fullTarPath_ = tarPath_ + "/" + text;
+    fullTarPath_ = tarPath_ + "/" + subDirName_;
     setStatusBar("", true);
     whoIsBoxSelection(BoxSelect::NumSpinBox);
 }

@@ -89,7 +89,7 @@ private slots:
     void simpleViewSlot();
 
     void startSlot();
-    void clearLogSlot();
+    void clearTabWgtSlot();
 
     void setConfigFilePath();
 
@@ -107,10 +107,10 @@ private:
     bool isIconMode_{false};
     unsigned int clickNum_{0};
     QString imgPath_;
-    QString tarPath_;
-    QString subDirName_;
-    QString fullTarPath_;
-    QString currentFile_;
+    QString tarPath_;       // D:/YangWeiBin/01-sync-file-level-1/02-ramses-composer
+    QString subDirName_;    // 05-test
+    QString fullTarPath_;   // D:/YangWeiBin/01-sync-file-level-1/02-ramses-composer/05-test
+    QString currentFile_;   // 63-车模2-IDC测试.md
     QString labelPath_;
     VideoThr* videoThr_;
     FileOperation fileOp_;

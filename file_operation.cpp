@@ -313,7 +313,7 @@ void FileOperation::getLastmodifiedTop20Files(const QString& path, QFileInfoList
     QFileInfo lastModifiedTimeFileName;
     if (!fileList.isEmpty())
     {
-        for(int i = fileList.size()-1, num = 0; i >=0 && num < topFileCount; --i, ++num){
+        for(int i = 0; i < fileList.size() && i < topFileCount; ++i){
             if(isMarkdownFile(fileList.at(i).fileName())){ // 只遍历markdown文件
                 fileListTemp.append(fileList.at(i));
             }
