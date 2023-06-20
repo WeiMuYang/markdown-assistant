@@ -351,3 +351,50 @@ void FileOperation::getHistoryFileList(const QString &dirPath, QFileInfoList& fi
         fileListTop20.append(resultFileList.at(i));
     }
 }
+
+bool FileOperation::createMarkdownFile(const QString& FullPath){
+    QDir dir(FullPath);
+    QFileInfoList list = dir.entryInfoList(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    int max = -1;
+    QString templateFileName;
+    for(int i = 0; i < list.size(); ++i){
+        if(isMarkdownFile(list.at(i).fileName())){
+            QStringList nameArr = list.at(i).fileName().split("-");
+            int num = nameArr.at(0).toInt();
+            if(num > max){
+                max = num;
+            }
+            if(num == 0 && list.at(i).fileName().right(5) != "um.md"){
+                templateFileName =list.at(i).fileName();
+            }
+        }
+    }
+    int num = max+1;
+    QString fileName = QString("%1").arg(num, 2, 10, QLatin1Char('0')) + "-新建文件.md";
+    QString path =FullPath + "/" + fileName;
+    if(templateFileName.isEmpty()){
+        QString templateFile = FullPath + "/" + templateFileName;
+        if(!QFile::copy(templateFile, path))
+        {
+            emit sigFileOperationLog(templateFile + QString(" copy failed!"));
+        }
+        emit sigFileOperationLog(QString("Copy: "+templateFile+"\nTo Create:"+ path + "\nCreate File Success  !!!"));
+    }else{
+        QFile file(path);
+        if (file.exists()) {
+            emit sigFileOperationLog(QString("新建文件已存在！"));
+            return false;
+        }
+        file.open(QIODevice::WriteOnly);
+        QString text = "# [新建文件](./)  [img](./img)   \n" \
+                "\n" \
+                "> ######  _标签:_   ![](https://img.shields.io/badge/技术类-yellowgreen.svg)   ![ ](https://img.shields.io/badge/Protobuf-编译和使用-blue.svg)    [![](https://img.shields.io/badge/链接-github仓库-brightgreen.svg)](https://github.com/protocolbuffers/protobuf#protocol-compiler-installation)    [![](https://img.shields.io/badge/链接-代码文件-orange.svg)](../02-code/)    [![](https://img.shields.io/badge/链接-本地仓库-orange.svg)](../04-repo/)    [![](https://img.shields.io/badge/链接-数据文件-orange.svg)](../03-data/)  \n"   \
+                ">  \n\n\n";
+        QByteArray str = text.toUtf8();
+        file.write(str);
+        emit sigFileOperationLog(QString("Create File") + path + "\nCreate File Success");
+        file.close();
+    }
+    return true;
+}
+

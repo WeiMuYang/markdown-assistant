@@ -898,7 +898,7 @@ void MainWindow::setSampleView(){
     ui->tabWgt->hide();
     ui->delList->hide();
     ui->openWgt->hide();
-    ui->updateConfPbn->hide();
+    ui->createMarkdownPbn->hide();
     //    ui->filePbnWgt->hide();
     ui->syncPbn->hide();
     ui->modePbn->hide();
@@ -910,7 +910,7 @@ void MainWindow::setNormalView(){
     ui->tabWgt->show();
     ui->delList->show();
     ui->openWgt->show();
-    ui->updateConfPbn->show();
+    ui->createMarkdownPbn->show();
     //    ui->filePbnWgt->show();
     ui->syncPbn->show();
     ui->modePbn->show();
@@ -942,3 +942,10 @@ void MainWindow::searchAssetsByCodeSlot(QString code,QString rename)
     QString result;
     fileOp_.getSearchResultFromMarkdownCode(fullTarPath_, code,rename, result);
 }
+
+
+void MainWindow::on_createMarkdownPbn_clicked()
+{
+    fileOp_.createMarkdownFile(fullTarPath_);
+}
+

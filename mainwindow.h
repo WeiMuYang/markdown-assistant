@@ -95,6 +95,9 @@ private slots:
 
     void openRecentFileSlot();
 
+
+    void on_createMarkdownPbn_clicked();
+
 protected:
     // 窗口设置为随着窗口变化而变化
     virtual void resizeEvent(QResizeEvent *event) override;
