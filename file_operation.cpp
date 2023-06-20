@@ -352,7 +352,7 @@ void FileOperation::getHistoryFileList(const QString &dirPath, QFileInfoList& fi
     }
 }
 
-bool FileOperation::createMarkdownFile(const QString& FullPath){
+bool FileOperation::createMarkdownFile(const QString& FullPath, QString& currentFileName){
     QDir dir(FullPath);
     QFileInfoList list = dir.entryInfoList(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
     int max = -1;
@@ -372,6 +372,7 @@ bool FileOperation::createMarkdownFile(const QString& FullPath){
     int num = max+1;
     QString fileName = QString("%1").arg(num, 2, 10, QLatin1Char('0')) + "-新建文件.md";
     QString path =FullPath + "/" + fileName;
+
     if(templateFileName.isEmpty()){
         QString templateFile = FullPath + "/" + templateFileName;
         if(!QFile::copy(templateFile, path))
@@ -379,6 +380,7 @@ bool FileOperation::createMarkdownFile(const QString& FullPath){
             emit sigFileOperationLog(templateFile + QString(" copy failed!"));
         }
         emit sigFileOperationLog(QString("Copy: "+templateFile+"\nTo Create:"+ path + "\nCreate File Success  !!!"));
+        currentFileName = fileName;
     }else{
         QFile file(path);
         if (file.exists()) {
@@ -393,6 +395,7 @@ bool FileOperation::createMarkdownFile(const QString& FullPath){
         QByteArray str = text.toUtf8();
         file.write(str);
         emit sigFileOperationLog(QString("Create File") + path + "\nCreate File Success");
+        currentFileName = fileName;
         file.close();
     }
     return true;

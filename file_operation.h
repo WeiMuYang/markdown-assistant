@@ -38,7 +38,7 @@ public:
     void getHistoryFileList(const QString &dirPath, QFileInfoList& fileListTop20);
 //    bool compare(const QFileInfo &stu1, const QFileInfo &stu2);
     void getLastmodifiedTop20Files(const QString& path, QFileInfoList& fileListTemp);
-    bool createMarkdownFile(const QString& FullPath);
+    bool createMarkdownFile(const QString& FullPath, QString& currentFileName);
 
 signals:
     void sigFileOperationLog(QString log);
