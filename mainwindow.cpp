@@ -79,6 +79,7 @@ MainWindow::MainWindow(QWidget *parent) :
 
     // history List click
     connect(ui->historyFileList,&QTableWidget::itemClicked,this,&MainWindow::ChangeToHistoryFile);
+    connect(ui->historyFileList,&QTableWidget::itemDoubleClicked,this,&MainWindow::OpenHistoryFile);
 
     InitMainWindowMenu();
     // 根据用户名设置路径
@@ -832,6 +833,11 @@ void MainWindow::ChangeToHistoryFile(){
     whoIsBoxSelection(BoxSelect::NumSpinBox);
 }
 
+void MainWindow::OpenHistoryFile(){
+    ChangeToHistoryFile();
+    on_toolPbn_clicked(); // 打开文件
+}
+
 void MainWindow::whoIsBoxSelection(BoxSelect select)
 {
     boxSelect_ = select;
@@ -946,6 +952,10 @@ void MainWindow::searchAssetsByCodeSlot(QString code,QString rename)
 
 void MainWindow::on_createMarkdownPbn_clicked()
 {
-    fileOp_.createMarkdownFile(fullTarPath_);
+    QString currentFileName;
+    if(fileOp_.createMarkdownFile(fullTarPath_, currentFileName)){
+        on_lastFileNumPbn_clicked();
+        openExPro_.OpenMarkdownAndDirSlot(fullTarPath_+"/" + currentFile_);
+    }
 }
 

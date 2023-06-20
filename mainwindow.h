@@ -64,6 +64,7 @@ private slots:
     void itemEnteredSlot(QListWidgetItem *item);
 
     void ChangeToHistoryFile();
+    void OpenHistoryFile();
 
     void on_clipPbn_clicked();
     void on_lastFileNumPbn_clicked();
