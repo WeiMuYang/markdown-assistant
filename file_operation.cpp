@@ -237,10 +237,28 @@ QString FileOperation::newNumFileName(QString path, QString fileName, QString su
     return tmpName;
 }
 
-bool FileOperation::copyImgVideo(QDir& CurrentPath, const QStringList& fileNameArr, const QString & name, QString &searchResult)
+bool FileOperation::copyImgVideo(QDir& CurrentPath, const QStringList& fileNameArr, const QString & nameList, QString &searchResult)
 {
     QDir tmpCurPath = CurrentPath;
+    QStringList nameStrList;
+    if(nameList.contains(",",Qt::CaseSensitive)){
+        nameStrList = nameList.split(",");
+    }else if(nameList.contains("，",Qt::CaseSensitive)){
+        nameStrList = nameList.split("，");
+    }else{
+       nameStrList = nameList.split(" ");
+    }
+
     for(int i = 0; i< fileNameArr.size(); ++i){
+        QString name;
+        if(!nameList.isEmpty()){
+            if(nameStrList.size() > i){
+                name = nameStrList.at(i);
+            }else{
+                name = nameStrList.last();
+            }
+        }
+
         CurrentPath = tmpCurPath;
         QString fileName = fileNameArr.at(i);
         if(fileName.right(3) != "mp4"){
@@ -275,7 +293,8 @@ bool FileOperation::copyImgVideo(QDir& CurrentPath, const QStringList& fileNameA
     return true;
 }
 
-bool FileOperation::getSearchResultFromMarkdownCode(const QString &currentFullPath, const QString &codeText, const QString& name, QString &searchResult)
+
+bool FileOperation::getSearchResultFromMarkdownCode(const QString &currentFullPath, const QString &codeText, const QString& nameList, QString &searchResult)
 {
     if(currentFullPath.isEmpty()){
         emit sigFileOperationLog("Current FullPath is empty!");
@@ -300,7 +319,7 @@ bool FileOperation::getSearchResultFromMarkdownCode(const QString &currentFullPa
         return false;
     }
 
-    return copyImgVideo(CurrentPath, fileNameArr,name , searchResult);
+    return copyImgVideo(CurrentPath, fileNameArr,nameList , searchResult);
 }
 
 // -------------------------- get file List of last two weeks 一共  15 files

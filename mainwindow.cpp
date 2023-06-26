@@ -943,10 +943,10 @@ void MainWindow::openAboutSlot()
     aboutDialog_->show();
 }
 
-void MainWindow::searchAssetsByCodeSlot(QString code,QString rename)
+void MainWindow::searchAssetsByCodeSlot(QString code,QString renameList)
 {
     QString result;
-    fileOp_.getSearchResultFromMarkdownCode(fullTarPath_, code,rename, result);
+    fileOp_.getSearchResultFromMarkdownCode(fullTarPath_, code,renameList, result);
 }
 
 
