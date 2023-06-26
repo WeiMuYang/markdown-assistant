@@ -236,6 +236,19 @@ QString FileOperation::newNumFileName(QString path, QString fileName, QString su
     }
     return tmpName;
 }
+QString FileOperation::makeDirPath(QString dirPath)
+{
+    QString tmpName ="Picture";
+    int AssetNum = 0;
+    QDir newDir(dirPath);
+    while(newDir.exists(dirPath+"/"+tmpName)){
+        AssetNum++;
+        tmpName = "Picture";
+        tmpName += "-" + QString("%1").arg(AssetNum, 2, 10, QLatin1Char('0'));
+    }
+    newDir.mkpath(dirPath+"/"+tmpName);
+   return dirPath+"/"+tmpName;
+}
 
 bool FileOperation::copyImgVideo(QDir& CurrentPath, const QStringList& fileNameArr, const QString & nameList, QString &searchResult)
 {
@@ -248,6 +261,12 @@ bool FileOperation::copyImgVideo(QDir& CurrentPath, const QStringList& fileNameA
     }else{
        nameStrList = nameList.split(" ");
     }
+    QString Path;
+    if(nameList.isEmpty()){
+        Path = makeDirPath(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+    }else{
+        Path = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+    }
 
     for(int i = 0; i< fileNameArr.size(); ++i){
         QString name;
@@ -258,7 +277,6 @@ bool FileOperation::copyImgVideo(QDir& CurrentPath, const QStringList& fileNameA
                 name = nameStrList.last();
             }
         }
-
         CurrentPath = tmpCurPath;
         QString fileName = fileNameArr.at(i);
         if(fileName.right(3) != "mp4"){
@@ -276,12 +294,10 @@ bool FileOperation::copyImgVideo(QDir& CurrentPath, const QStringList& fileNameA
         QString suffix =fileName.split(".").last();
         QString desPath;
         if(name.isEmpty()){
-            QString time = QDateTime::currentDateTime().toString("yyyy-MM-dd hh-mm-ss.zzz");
-            desPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/99-" + time + "-" + fileName;
-
+            desPath = Path + "/" + QString("%1").arg(i+1, 2, 10, QLatin1Char('0'))+"."+ suffix;
         }else{
             QString newName = newNumFileName(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), name, suffix);
-            desPath = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation) + "/" + newName+"."+ suffix;
+            desPath = Path + "/" + newName+"."+ suffix;
         }
         if(!QFile::copy(searchResult, desPath))
         {
