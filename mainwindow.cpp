@@ -33,9 +33,6 @@ MainWindow::MainWindow(QWidget *parent) :
     videoThr_ = new VideoThr;
     clip_ = QApplication::clipboard();
 
-    if(!confDialog_.readIniFile()){
-        appendTextToLog(QString("iniFile读取失败 !"));
-    }
     DebugBox logBoxVideoThr;
     getAssetsDialog_ = new GetAssetsDialog(this);
     aboutDialog_ = new AboutDialog(this);
@@ -80,13 +77,21 @@ MainWindow::MainWindow(QWidget *parent) :
     // history List click
     connect(ui->historyFileList,&QTableWidget::itemClicked,this,&MainWindow::ChangeToHistoryFile);
     connect(ui->historyFileList,&QTableWidget::itemDoubleClicked,this,&MainWindow::OpenHistoryFile);
-
     InitMainWindowMenu();
+    startSlot();
+}
+
+void MainWindow::startSlot() {
+    confDialog_.clearAll();
+    if(!confDialog_.readIniFile()){
+        appendTextToLog(QString("iniFile读取失败 !"));
+    }
+    updateActionConfFileList();
     // 根据用户名设置路径
     setConfigFilePathByUserName(confDialog_.getIniFile());
     // 必须初始化StatusBar，否则第一个菜单栏的菜单单击不到
     setStatusBar("",false);
-    startSlot();
+    updateConfFileSlot();
 }
 
 void MainWindow::initHistoryFileList() {
@@ -108,7 +113,7 @@ void MainWindow::initHistoryFileList() {
     ui->historyFileList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
-void MainWindow::startSlot()
+void MainWindow::updateConfFileSlot()
 {
     if(configFilePath_.isEmpty()){
         appendTextToLog(QString("请选择配置文件 !"));
@@ -173,9 +178,19 @@ void MainWindow::setConfigFilePathByUserName(const IniFile& iniFile){
     }
 }
 
-void MainWindow::InitMainWindowMenu(){
+void MainWindow::updateActionConfFileList()  {
     IniFile iniFile = confDialog_.getIniFile();
+    confFileList_->clear();
+    for (int i = 0; i < iniFile.recentFileList.size(); ++i) {
+        QAction *actionFileName = new QAction(confFileList_);
+        actionFileName->setText(iniFile.iniAndJsonPath+"/"+iniFile.recentFileList.at(i));
+        connect(actionFileName, &QAction::triggered, this, &MainWindow::openConfFileSlot);
+        confFileList_->addAction(actionFileName);
+    }
+    ui->menuFile->addMenu(confFileList_);
+}
 
+void MainWindow::InitMainWindowMenu(){
     // TODO： restart  about
     ui->actionGetAssets->setShortcut(QKeySequence::Find);
     ui->actionGetAssets->setShortcutContext(Qt::ApplicationShortcut);
@@ -183,7 +198,7 @@ void MainWindow::InitMainWindowMenu(){
     connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::openAboutSlot);
 
     ui->actionRestart->setShortcut(QKeySequence("Ctrl+R"));
-    connect(ui->actionRestart,&QAction::triggered, this, &MainWindow::startSlot);
+    connect(ui->actionRestart,&QAction::triggered, this, &MainWindow::updateConfFileSlot);
 
     ui->actionClearLog->setShortcut(QKeySequence::Refresh);
     ui->actionClearLog->setShortcutContext(Qt::ApplicationShortcut);
@@ -197,6 +212,9 @@ void MainWindow::InitMainWindowMenu(){
     ui->actionAddConfFile->setShortcutContext(Qt::ApplicationShortcut);
     connect(ui->actionAddConfFile, &QAction::triggered, this, &MainWindow::newConfFileSlot);
 
+    ui->actionModifySysFile->setShortcut(QKeySequence("Ctrl+O"));
+    connect(ui->actionModifySysFile, &QAction::triggered, this, &MainWindow::modifyIniFileSlot);
+
     if(simpleViewNum_ % 2 != 0){
         setSampleView();
         ui->actionSimpleView->setText(u8"正常窗口");
@@ -208,21 +226,14 @@ void MainWindow::InitMainWindowMenu(){
     }
     connect(ui->actionSimpleView, &QAction::triggered, this, &MainWindow::simpleViewSlot,Qt::UniqueConnection);
 
-    ui->actionSysFile->setShortcut(QKeySequence("Ctrl+O"));
-    connect(ui->actionSysFile, &QAction::triggered, this, &MainWindow::openIniFileSlot);
+//    ui->actionSysFile->setShortcut(QKeySequence("Ctrl+O"));
+//    connect(ui->actionSysFile, &QAction::triggered, this, &MainWindow::openIniFileSlot);
 
     ui->actionModifyConf->setShortcut(QKeySequence("Ctrl+M"));
     connect(ui->actionModifyConf, &QAction::triggered, this, &MainWindow::modifyConfSlot);
 
-    QMenu *recentMenu = new QMenu;
-    recentMenu->setTitle(u8"配置文件");
-    for (int i = 0; i < iniFile.recentFileList.size(); ++i) {
-        QAction *actionFileName = new QAction(recentMenu);
-        actionFileName->setText(iniFile.iniAndJsonPath+"/"+iniFile.recentFileList.at(i));
-        connect(actionFileName, &QAction::triggered, this, &MainWindow::openConfFileSlot);
-        recentMenu->addAction(actionFileName);
-    }
-    ui->menuFile->addMenu(recentMenu);
+    confFileList_ = new QMenu;
+    confFileList_->setTitle(u8"配置文件列表");
 }
 
 void MainWindow::openConfFileSlot(){
@@ -246,10 +257,15 @@ void MainWindow::openIniFileSlot()
     openExPro_.OpenMarkdownAndDirSlot(confDialog_.getIniFile().iniAndJsonPath+ "/conf.ini");
 }
 
+void MainWindow::modifyIniFileSlot(){
+    openExPro_.OpenJsonAndIniSlot(confDialog_.getIniFile().iniAndJsonPath+ "/conf.ini");
+    startSlot();
+}
+
 void MainWindow::modifyConfSlot()
 {
     openExPro_.OpenJsonAndIniSlot(configFilePath_);
-    startSlot();
+    updateConfFileSlot();
 }
 
 void MainWindow::initStatusBar(){

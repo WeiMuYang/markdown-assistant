@@ -598,9 +598,9 @@
     <property name="title">
      <string>文件</string>
     </property>
+    <addaction name="actionModifySysFile"/>
     <addaction name="actionModifyConf"/>
     <addaction name="actionAddConfFile"/>
-    <addaction name="actionSysFile"/>
     <addaction name="actionRestart"/>
     <addaction name="actionSimpleView"/>
    </widget>
@@ -666,6 +666,11 @@
   <action name="actionModifyConf">
    <property name="text">
     <string>修改当前配置</string>
+   </property>
+  </action>
+  <action name="actionModifySysFile">
+   <property name="text">
+    <string>修改系统文件</string>
    </property>
   </action>
  </widget>

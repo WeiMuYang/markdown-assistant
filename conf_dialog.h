@@ -46,6 +46,7 @@ public:
         return iniFile_;
     }
     void confDataClear();
+    void clearAll();
 private: // need to change to private
     QList<NamePath> imgNamePathMap_;
     QList<NamePath> tarNamePathMap_;

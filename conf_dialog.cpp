@@ -192,3 +192,17 @@ void confDialog::confDataClear(){
     //    iniFile_.version.clear();
     //    iniFile_.date.clear();
 }
+
+void confDialog::clearAll(){
+    imgNamePathMap_.clear();
+    tarNamePathMap_.clear();
+    intervalArr_.clear();
+    assetsType_.clear();
+    typoraExePath_.clear();
+    vsCodePath_.clear();
+    softWarePathMap_.clear();
+    iniFile_.iniAndJsonPath.clear();
+    iniFile_.recentFileList.clear();
+    iniFile_.version.clear();
+    iniFile_.date.clear();
+}

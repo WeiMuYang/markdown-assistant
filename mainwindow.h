@@ -38,6 +38,7 @@ public:
     void setWindowStyle();
     void initStatusBar();
     void InitMainWindowMenu();
+    void updateActionConfFileList();
     void initHistoryFileList();
     void setScreenWitdh(int w);
     int getScreenWitdh();
@@ -90,10 +91,12 @@ private slots:
     void searchAssetsByCodeSlot(QString s,QString r);
     void simpleViewSlot();
 
+    void updateConfFileSlot();
     void startSlot();
     void clearTabWgtSlot();
 
     void openIniFileSlot();
+    void modifyIniFileSlot();
     void modifyConfSlot();
 
     void openConfFileSlot();
@@ -135,6 +138,7 @@ private:
     ModifyNameDialog* modifyNameDialog_;
     int simpleViewNum_{0};
     QString configFilePath_;
+    QMenu *confFileList_;
 };
 
 #endif // MAINWINDOW_H
