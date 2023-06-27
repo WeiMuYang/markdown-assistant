@@ -37,6 +37,15 @@ void OpenExProgram::OpenMarkdownAndDirSlot(QString fileName){
     }
 }
 
+void OpenExProgram::OpenJsonAndIniSlot(QString fileName){
+    QProcess* pProcess = new QProcess;
+    QString pathVsCode = getPathByKey("Vscode");
+    if(!pathVsCode.isEmpty()){
+        pProcess->start(pathVsCode, QStringList(fileName));
+        pProcess->waitForFinished();
+    }
+}
+
 void OpenExProgram::OpenDirSlot(QString dirName)
 {
     dirName = QString("file:") +dirName;

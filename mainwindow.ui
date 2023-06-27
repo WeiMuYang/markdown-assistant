@@ -591,14 +591,16 @@
      <x>0</x>
      <y>0</y>
      <width>835</width>
-     <height>19</height>
+     <height>17</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>文件</string>
     </property>
-    <addaction name="actionConfFile"/>
+    <addaction name="actionModifyConf"/>
+    <addaction name="actionAddConfFile"/>
+    <addaction name="actionSysFile"/>
     <addaction name="actionRestart"/>
     <addaction name="actionSimpleView"/>
    </widget>
@@ -651,9 +653,19 @@
     <string>极简窗口</string>
    </property>
   </action>
-  <action name="actionConfFile">
+  <action name="actionSysFile">
    <property name="text">
-    <string>配置文件</string>
+    <string>打开系统文件</string>
+   </property>
+  </action>
+  <action name="actionAddConfFile">
+   <property name="text">
+    <string>添加配置文件</string>
+   </property>
+  </action>
+  <action name="actionModifyConf">
+   <property name="text">
+    <string>修改当前配置</string>
    </property>
   </action>
  </widget>

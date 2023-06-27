@@ -106,8 +106,6 @@ void MainWindow::initHistoryFileList() {
     // 不显示表头
     ui->historyFileList->horizontalHeader()->setHidden(true);
     ui->historyFileList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-//    ui->historyFileList->horizontalHeader()->setSectionResizeMode(1, QHeaderView::Interactive);
-//    ui->historyFileList->setColumnWidth(1, 100);
 }
 
 void MainWindow::startSlot()
@@ -116,9 +114,12 @@ void MainWindow::startSlot()
         appendTextToLog(QString("请选择配置文件 !"));
         return;
     }
+    disconnect(ui->tarPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setTarPathSlot);
+    disconnect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
     ui->subPathComBox->clear();
     ui->tarPathCombox->clear();
-//    ui->historyFileList->clear();
+    connect(ui->tarPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setTarPathSlot);
+    connect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
     confDialog_.readConf(configFilePath_);
     openExPro_.setSoftWarePath(confDialog_.getSoftWarePathMap());
     addDelListData_.setAssetsTypes(confDialog_.getAssetsTypes());
@@ -162,7 +163,7 @@ void MainWindow::setConfigFilePathByUserName(const IniFile& iniFile){
     for (int i = 0; i < iniFile.recentFileList.size(); ++i) {
         if(iniFile.recentFileList.at(i).indexOf(userName) != -1){
             // todo: Lenovo  or BMW
-            configFilePath_= iniFile.jsonPath+"/"+iniFile.recentFileList.at(i);
+            configFilePath_= iniFile.iniAndJsonPath+"/"+iniFile.recentFileList.at(i);
             hasUserConf = true;
             break;
         }
@@ -192,6 +193,10 @@ void MainWindow::InitMainWindowMenu(){
     ui->actionRename->setShortcutContext(Qt::ApplicationShortcut);
     connect(ui->actionRename, &QAction::triggered, this, &MainWindow::reNameSlot);
 
+    ui->actionAddConfFile->setShortcut(QKeySequence::New);
+    ui->actionAddConfFile->setShortcutContext(Qt::ApplicationShortcut);
+    connect(ui->actionAddConfFile, &QAction::triggered, this, &MainWindow::newConfFileSlot);
+
     if(simpleViewNum_ % 2 != 0){
         setSampleView();
         ui->actionSimpleView->setText(u8"正常窗口");
@@ -203,25 +208,28 @@ void MainWindow::InitMainWindowMenu(){
     }
     connect(ui->actionSimpleView, &QAction::triggered, this, &MainWindow::simpleViewSlot,Qt::UniqueConnection);
 
-    ui->actionConfFile->setShortcut(QKeySequence("Ctrl+O"));
-    connect(ui->actionConfFile, &QAction::triggered, this, &MainWindow::setConfigFilePath);
+    ui->actionSysFile->setShortcut(QKeySequence("Ctrl+O"));
+    connect(ui->actionSysFile, &QAction::triggered, this, &MainWindow::openIniFileSlot);
+
+    ui->actionModifyConf->setShortcut(QKeySequence("Ctrl+M"));
+    connect(ui->actionModifyConf, &QAction::triggered, this, &MainWindow::modifyConfSlot);
 
     QMenu *recentMenu = new QMenu;
-    recentMenu->setTitle(u8"最近文件");
+    recentMenu->setTitle(u8"配置文件");
     for (int i = 0; i < iniFile.recentFileList.size(); ++i) {
         QAction *actionFileName = new QAction(recentMenu);
-        actionFileName->setText(iniFile.jsonPath+"/"+iniFile.recentFileList.at(i));
-        connect(actionFileName, &QAction::triggered, this, &MainWindow::openRecentFileSlot);
+        actionFileName->setText(iniFile.iniAndJsonPath+"/"+iniFile.recentFileList.at(i));
+        connect(actionFileName, &QAction::triggered, this, &MainWindow::openConfFileSlot);
         recentMenu->addAction(actionFileName);
     }
     ui->menuFile->addMenu(recentMenu);
 }
 
-void MainWindow::openRecentFileSlot(){
+void MainWindow::openConfFileSlot(){
     QAction *action=qobject_cast<QAction *>(sender());
     QString fileName = action->text();
     configFilePath_ = fileName;
-    startSlot();
+    openExPro_.OpenJsonAndIniSlot(fileName);
 }
 
 void MainWindow::clearTabWgtSlot()
@@ -233,19 +241,15 @@ void MainWindow::clearTabWgtSlot()
     }
 }
 
-void MainWindow::setConfigFilePath()
+void MainWindow::openIniFileSlot()
 {
-    configFilePath_ = QFileDialog::getOpenFileName(
-                this, "选择配置文件",
-                "../../",
-                "Json文件 (*.json);; 所有文件 (*.*);; ");
-    if (configFilePath_.isEmpty())
-    {
-        appendTextToLog(QString("配置文件不存在 !"));
-        return;
-    }else{
-        startSlot();
-    }
+    openExPro_.OpenMarkdownAndDirSlot(confDialog_.getIniFile().iniAndJsonPath+ "/conf.ini");
+}
+
+void MainWindow::modifyConfSlot()
+{
+    openExPro_.OpenJsonAndIniSlot(configFilePath_);
+    startSlot();
 }
 
 void MainWindow::initStatusBar(){
@@ -898,6 +902,14 @@ void MainWindow::getAssetsSlot()
 void MainWindow::reNameSlot()
 {
     modifyNameDialog_->show();
+}
+
+void MainWindow::newConfFileSlot()
+{
+    QString newFileName;
+    if(fileOp_.createJsonFile(confDialog_.getIniFile().iniAndJsonPath, newFileName)){
+        openExPro_.OpenMarkdownAndDirSlot(confDialog_.getIniFile().iniAndJsonPath+"/" + newFileName);
+    }
 }
 
 void MainWindow::setSampleView(){

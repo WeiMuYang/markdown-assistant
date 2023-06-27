@@ -247,7 +247,7 @@ QString FileOperation::makeDirPath(QString dirPath)
         tmpName += "-" + QString("%1").arg(AssetNum, 2, 10, QLatin1Char('0'));
     }
     newDir.mkpath(dirPath+"/"+tmpName);
-   return dirPath+"/"+tmpName;
+    return dirPath+"/"+tmpName;
 }
 
 bool FileOperation::copyImgVideo(QDir& CurrentPath, const QStringList& fileNameArr, const QString & nameList, QString &searchResult)
@@ -259,7 +259,7 @@ bool FileOperation::copyImgVideo(QDir& CurrentPath, const QStringList& fileNameA
     }else if(nameList.contains("，",Qt::CaseSensitive)){
         nameStrList = nameList.split("，");
     }else{
-       nameStrList = nameList.split(" ");
+        nameStrList = nameList.split(" ");
     }
     QString Path;
     if(nameList.isEmpty()){
@@ -408,7 +408,7 @@ bool FileOperation::createMarkdownFile(const QString& FullPath, QString& current
     QString fileName = QString("%1").arg(num, 2, 10, QLatin1Char('0')) + "-新建文件.md";
     QString path =FullPath + "/" + fileName;
 
-    if(templateFileName.isEmpty()){
+    if(!templateFileName.isEmpty()){
         QString templateFile = FullPath + "/" + templateFileName;
         if(!QFile::copy(templateFile, path))
         {
@@ -424,9 +424,9 @@ bool FileOperation::createMarkdownFile(const QString& FullPath, QString& current
         }
         file.open(QIODevice::WriteOnly);
         QString text = "# [新建文件](./)  [img](./img)   \n" \
-                "\n" \
-                "> ######  _标签:_   ![](https://img.shields.io/badge/技术类-yellowgreen.svg)   ![ ](https://img.shields.io/badge/Protobuf-编译和使用-blue.svg)    [![](https://img.shields.io/badge/链接-github仓库-brightgreen.svg)](https://github.com/protocolbuffers/protobuf#protocol-compiler-installation)    [![](https://img.shields.io/badge/链接-代码文件-orange.svg)](../02-code/)    [![](https://img.shields.io/badge/链接-本地仓库-orange.svg)](../04-repo/)    [![](https://img.shields.io/badge/链接-数据文件-orange.svg)](../03-data/)  \n"   \
-                ">  \n\n\n";
+                       "\n" \
+                       "> ######  _标签:_   ![](https://img.shields.io/badge/技术类-yellowgreen.svg)   ![ ](https://img.shields.io/badge/Protobuf-编译和使用-blue.svg)    [![](https://img.shields.io/badge/链接-github仓库-brightgreen.svg)](https://github.com/protocolbuffers/protobuf#protocol-compiler-installation)    [![](https://img.shields.io/badge/链接-代码文件-orange.svg)](../02-code/)    [![](https://img.shields.io/badge/链接-本地仓库-orange.svg)](../04-repo/)    [![](https://img.shields.io/badge/链接-数据文件-orange.svg)](../03-data/)  \n"   \
+                       ">  \n\n\n";
         QByteArray str = text.toUtf8();
         file.write(str);
         emit sigFileOperationLog(QString("Create File") + path + "\nCreate File Success");
@@ -436,3 +436,36 @@ bool FileOperation::createMarkdownFile(const QString& FullPath, QString& current
     return true;
 }
 
+bool FileOperation::createJsonFile(const QString& FullPath, QString& newFileName){
+    QDir dir(FullPath);
+    QFileInfoList list = dir.entryInfoList(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    int max = -1;
+    QString templateFileName;
+    for(int i = 0; i < list.size(); ++i){
+        if(list.at(i).fileName().indexOf("-新建文件.json")!=-1){
+            int num = list.at(i).fileName().split("-").at(0).toInt();
+            if(num > max){
+                max = num;
+            }
+        }
+        if(list.at(i).fileName().left(3) == "00-" && list.at(i).fileName().right(5) == ".json" ){
+            templateFileName =list.at(i).fileName();
+        }
+    }
+    int num = max+1;
+    QString fileName = QString("%1").arg(num, 2, 10, QLatin1Char('0')) + "-新建文件.json";
+    QString path =FullPath + "/" + fileName;
+
+    if(!templateFileName.isEmpty()){
+        QString templateFile = FullPath + "/" + templateFileName;
+        if(!QFile::copy(templateFile, path))
+        {
+            emit sigFileOperationLog(templateFile + QString(" copy failed!"));
+        }
+        emit sigFileOperationLog(QString("Copy: "+templateFile+"\nTo Create:"+ path + "\nCreate File Success  !!!"));
+        newFileName = fileName;
+        return true;
+    }
+    emit sigFileOperationLog(QString("Copy templateFile To Create:"+ path + " Failed  !!!"));
+    return false;
+}

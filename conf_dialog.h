@@ -45,7 +45,7 @@ public:
     IniFile getIniFile(){
         return iniFile_;
     }
-    void dataClear();
+    void confDataClear();
 private: // need to change to private
     QList<NamePath> imgNamePathMap_;
     QList<NamePath> tarNamePathMap_;

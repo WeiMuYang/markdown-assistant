@@ -85,6 +85,7 @@ private slots:
 
     void getAssetsSlot();
     void reNameSlot();
+    void newConfFileSlot();
     void openAboutSlot();
     void searchAssetsByCodeSlot(QString s,QString r);
     void simpleViewSlot();
@@ -92,9 +93,10 @@ private slots:
     void startSlot();
     void clearTabWgtSlot();
 
-    void setConfigFilePath();
+    void openIniFileSlot();
+    void modifyConfSlot();
 
-    void openRecentFileSlot();
+    void openConfFileSlot();
 
 
     void on_createMarkdownPbn_clicked();

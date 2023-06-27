@@ -17,7 +17,7 @@ bool confDialog::readConf(QString path)
         DebugBox(__FUNCTION__, __LINE__,"read json error");
         return false;
     }
-    dataClear();
+    confDataClear();
     QByteArray data(file.readAll());
     file.close();
 
@@ -85,6 +85,9 @@ QString confDialog::getImgPathByKey(QString key){
 }
 
 QString confDialog::getTarPathByKey(QString key){
+    if(key.isEmpty()){
+        return QString("");
+    }
     for(auto it = tarNamePathMap_.begin(); it != tarNamePathMap_.end(); ++it)
     {
         if(it->key == key)
@@ -120,30 +123,21 @@ bool confDialog::findImgPath(QString key, NamePath& data){
     return false;
 }
 
-bool iniFilePath(QString& iniPath, QString& jsonPath){
+bool iniFilePath(QString& iniPath, QString& iniAndjsonPath){
     QString iniFileName = "conf.ini";
+    QString iniFileDir = "conf";
     QString dotPath = QDir::currentPath();;
-    QDir dir1(dotPath+"/conf");
-    if(dir1.exists(iniFileName)){
-        jsonPath =dir1.absolutePath();
-        iniPath = dir1.absolutePath() +"/"+iniFileName;
-        return true;
+    QDir dir1(dotPath);
+    while(!dir1.exists(iniFileDir) && !dir1.isRoot()){
+        dir1.cdUp();
     }
-    dir1.cdUp();
-    dir1.cdUp();
-    dir1.cd("conf");
-    if(dir1.exists(iniFileName)){
-        jsonPath =dir1.absolutePath();
-        iniPath = dir1.absolutePath()+"/"+iniFileName;
-        return true;
-    }
-    dir1.cdUp();
-    dir1.cdUp();
-    dir1.cd("conf");
-    if(dir1.exists(iniFileName)){
-        jsonPath =dir1.absolutePath();
-        iniPath = dir1.absolutePath()+"/"+iniFileName;
-        return true;
+    if(dir1.exists(iniFileDir)){
+        dir1.cd(iniFileDir);
+        if(dir1.exists(iniFileName)){
+            iniAndjsonPath =dir1.absolutePath();
+            iniPath = dir1.absolutePath()+"/"+iniFileName;
+            return true;
+        }
     }
     return false;
 }
@@ -151,8 +145,8 @@ bool iniFilePath(QString& iniPath, QString& jsonPath){
 bool confDialog::readIniFile()
 {
     QString iniPath;
-    QString jsonPath;
-    if(!iniFilePath(iniPath,jsonPath)){
+    QString iniAndjsonPath;
+    if(!iniFilePath(iniPath,iniAndjsonPath)){
         return false;
     }
     QFile file(iniPath);
@@ -181,11 +175,11 @@ bool confDialog::readIniFile()
     iniFile_.hostName = rootObj["HostName"].toString();
     iniFile_.version = rootObj["Version"].toString();
     iniFile_.date = rootObj["Date"].toString();
-    iniFile_.jsonPath = jsonPath;
+    iniFile_.iniAndJsonPath = iniAndjsonPath;
     return true;
 }
 
-void confDialog::dataClear(){
+void confDialog::confDataClear(){
     imgNamePathMap_.clear();
     tarNamePathMap_.clear();
     intervalArr_.clear();
@@ -193,8 +187,8 @@ void confDialog::dataClear(){
     typoraExePath_.clear();
     vsCodePath_.clear();
     softWarePathMap_.clear();
-    iniFile_.jsonPath.clear();
-    iniFile_.recentFileList.clear();
-    iniFile_.version.clear();
-    iniFile_.date.clear();
+    //    iniFile_.iniAndjsonPath.clear();
+    //    iniFile_.recentFileList.clear();
+    //    iniFile_.version.clear();
+    //    iniFile_.date.clear();
 }

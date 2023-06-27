@@ -24,7 +24,7 @@ struct IniFile{
     QVector<QString> recentFileList;
     QString version;
     QString date;
-    QString jsonPath;
+    QString iniAndJsonPath;
 };
 
 typedef enum {
