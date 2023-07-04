@@ -6,6 +6,7 @@
 #include <QStandardPaths>
 #include <QDateTime>
 #include <QSortFilterProxyModel>
+#include <QTextStream>
 #include "debug_box.h"
 
 FileOperation::FileOperation(QObject *parent)
@@ -415,6 +416,12 @@ bool FileOperation::createMarkdownFile(const QString& FullPath, QString& current
             emit sigFileOperationLog(templateFile + QString(" copy failed!"));
         }
         emit sigFileOperationLog(QString("Copy: "+templateFile+"\nTo Create:"+ path + "\nCreate File Success  !!!"));
+        // 将拷贝的文件追加回车，成为最近修改文件
+        QFile file(path);
+        file.open(QIODevice::ReadWrite | QIODevice::Append);
+        QTextStream txtOutput(&file);
+        txtOutput << "\n";
+        file.close();
         currentFileName = fileName;
     }else{
         QFile file(path);
