@@ -65,4 +65,26 @@
 - 添加拖拽整理的功能，自动生成序号     不做 
 - 添加时间：1小时，当天，前一天     
 - 添加到托盘，或者添加精简窗口  -->  托盘隐藏      
-- 给找不到的图片，添加默认图标   
+- 给找不到的图片，添加默认图标     
+
+## 乱码问题  
+
+```C++
++//msvc编译器指定执行字符集
++msvc:QMAKE_CXXFLAGS += -execution-charset:utf-8
+
+```
+
+```C++
+
+@@ -256,7 +256,7 @@ bool FileOperation::copyImgVideo(QDir& CurrentPath, const QStringList& fileNameA
+     QStringList nameStrList;
+     if(nameList.contains(",",Qt::CaseSensitive)){
+         nameStrList = nameList.split(",");
+-    }else if(nameList.contains("，",Qt::CaseSensitive)){
++    }else if(nameList.contains(QString::fromLocal8Bit("，"),Qt::CaseSensitive)){
+         nameStrList = nameList.split("，");
+     }else{
+         nameStrList = nameList.split(" ");
+
+```
