@@ -75,7 +75,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(getAssetsDialog_,&GetAssetsDialog::sigSearchMarkdownCode,this,&MainWindow::searchAssetsByCodeSlot);
 
     // history List click
-    connect(ui->historyFileList,&QTableWidget::itemClicked,this,&MainWindow::ChangeToHistoryFile);
+//    connect(ui->historyFileList,&QTableWidget::itemClicked,this,&MainWindow::ChangeToHistoryFile);
     connect(ui->historyFileList,&QTableWidget::itemDoubleClicked,this,&MainWindow::OpenHistoryFile);
     InitMainWindowMenu();
     startSlot();
@@ -96,7 +96,7 @@ void MainWindow::startSlot() {
 
 void MainWindow::initHistoryFileList() {
     ui->historyFileList->setColumnCount(2);     //设置列数
-    ui->historyFileList->setRowCount(20);        //设置行数/
+//    ui->historyFileList->setRowCount(40);        //设置行数/
     ui->historyFileList->setSelectionBehavior(QAbstractItemView::SelectRows);
     //设置每行内容不可编辑
     ui->historyFileList->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -111,6 +111,40 @@ void MainWindow::initHistoryFileList() {
     // 不显示表头
     ui->historyFileList->horizontalHeader()->setHidden(true);
     ui->historyFileList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
+}
+
+void MainWindow::copyHistoryFilePathSlot()
+{
+    QList<QTableWidgetItem*> list = ui->historyFileList->selectedItems();
+    if(list.isEmpty()){
+        return;
+    }
+    QString path =list.at(0)->text();
+//    qDebug() << path;
+//    qDebug() << fullTarPath_;
+    QDir curDir(fullTarPath_);
+    curDir.setCurrent(fullTarPath_);
+    QString filePath = curDir.relativeFilePath(tarPath_ + "/" + path);
+    QString clipFileName =path.split("/").last().split("-").last().split(".").first();
+    QString text = "[" + clipFileName + "]("+filePath+")  \n\n";
+    clip_->setText(text);
+    appendTextToLog(u8"剪切: \"" + QString::fromStdString("[") + clipFileName + "]("+filePath+")" +  "\" 完成 !");
+}
+
+void MainWindow::copyHistoryFilePathOfMeetFileSlot()
+{
+    QList<QTableWidgetItem*> list = ui->historyFileList->selectedItems();
+    if(list.isEmpty() || confDialog_.getMeetFilePath().isEmpty()){
+        return;
+    }
+    QString path =list.at(0)->text();
+    QDir curDir(confDialog_.getMeetFilePath());
+    curDir.setCurrent(fullTarPath_);
+    QString filePath = curDir.relativeFilePath(tarPath_ + "/" + path);
+    QString clipFileName =path.split("/").last().split("-").last().split(".").first();
+    QString text = "[" + clipFileName + "]("+filePath+")  \n\n";
+    clip_->setText(text);
+    appendTextToLog(u8"剪切: \"" + QString::fromStdString("[") + clipFileName + "]("+filePath+")" +  "\" 完成 !");
 }
 
 void MainWindow::updateConfFileSlot()
@@ -140,14 +174,15 @@ void MainWindow::updateConfFileSlot()
     updateLastModifyFile();
 
     // 5 更新 Top20文件列表
-    updateHistoryFileList();
+    updateRepoHistoryFileList();
     ui->tabWgt->setCurrentIndex(0);
 }
 
-void MainWindow::updateHistoryFileList(){
+void MainWindow::updateRepoHistoryFileList(){
     QFileInfoList fileListTop20;
     ui->historyFileList->clear();
     fileOp_.getHistoryFileList(tarPath_, fileListTop20);
+    ui->historyFileList->setRowCount(fileListTop20.size());        //设置行数/
     for(int i = 0; i < fileListTop20.size(); ++i){
         QFileInfo fileInfo = fileListTop20.at(i);
         QString name = fileInfo.filePath().split(tarPath_).last().remove(0,1);
@@ -155,6 +190,24 @@ void MainWindow::updateHistoryFileList(){
         QTableWidgetItem *pItem1 = new QTableWidgetItem(name);
         QTableWidgetItem *pItem2 = new QTableWidgetItem(modifyTime);
 //        pItem2->setTextAlignment(Qt::AlignCenter);
+        ui->historyFileList->setItem(i, 0, pItem1);
+        ui->historyFileList->setItem(i, 1, pItem2);
+    }
+    ui->historyFileList->setColumnWidth(0, 1300 * 0.66);
+    ui->historyFileList->setColumnWidth(1, 1300 * 0.33);
+}
+
+void MainWindow::updateSubDirHistoryFileListSlot() {
+    QFileInfoList fileListTop20;
+    ui->historyFileList->clear();
+    fileOp_.getHistorySubDirFileList(tarPath_ + "/" + subDirName_, fileListTop20);
+    ui->historyFileList->setRowCount(fileListTop20.size());        //设置行数/
+    for(int i = 0; i < fileListTop20.size(); ++i){
+        QFileInfo fileInfo = fileListTop20.at(i);
+        QString name = fileInfo.filePath().split(tarPath_).last().remove(0,1);
+        QString modifyTime = fileInfo.lastModified().toString("yyyy-MM-dd HH:mm:ss ddd");
+        QTableWidgetItem *pItem1 = new QTableWidgetItem(name);
+        QTableWidgetItem *pItem2 = new QTableWidgetItem(modifyTime);
         ui->historyFileList->setItem(i, 0, pItem1);
         ui->historyFileList->setItem(i, 1, pItem2);
     }
@@ -226,11 +279,18 @@ void MainWindow::InitMainWindowMenu(){
     }
     connect(ui->actionSimpleView, &QAction::triggered, this, &MainWindow::simpleViewSlot,Qt::UniqueConnection);
 
-//    ui->actionSysFile->setShortcut(QKeySequence("Ctrl+O"));
-//    connect(ui->actionSysFile, &QAction::triggered, this, &MainWindow::openIniFileSlot);
-
     ui->actionModifyConf->setShortcut(QKeySequence("Ctrl+M"));
     connect(ui->actionModifyConf, &QAction::triggered, this, &MainWindow::modifyConfSlot);
+
+    ui->actionCopyHistoryFilePath->setShortcut(QKeySequence("Ctrl+C"));
+    connect(ui->actionCopyHistoryFilePath,&QAction::triggered, this, &MainWindow::copyHistoryFilePathSlot);
+
+    ui->actionSubDirHistoryFile->setShortcut(QKeySequence("Ctrl+L"));
+    connect(ui->actionSubDirHistoryFile,&QAction::triggered, this, &MainWindow::updateSubDirHistoryFileListSlot);
+//actionGetRelativePathOfMeetFile
+
+    ui->actionGetRelativePathOfMeetFile->setShortcut(QKeySequence("Ctrl+P"));
+    connect(ui->actionGetRelativePathOfMeetFile,&QAction::triggered, this, &MainWindow::copyHistoryFilePathOfMeetFileSlot);
 
     confFileList_ = new QMenu;
     confFileList_->setTitle(u8"配置文件列表");
@@ -248,7 +308,7 @@ void MainWindow::clearTabWgtSlot()
     if(ui->tabWgt->currentIndex() == 0) {
           ui->logText->clear();
     }else{
-        updateHistoryFileList();
+        updateRepoHistoryFileList();
     }
 }
 
@@ -368,7 +428,6 @@ void MainWindow::setWindowStyle()
 void MainWindow::appendTextToLog(QString log)
 {
     ui->logText->append(log.toUtf8());
-
 }
 
 // 3.
@@ -443,7 +502,7 @@ void MainWindow::setTarPathSlot(QString currentStr){
     whoIsBoxSelection(BoxSelect::TarCombox);
     updateSubDirCombox();
     updateLastModifyFile();
-    updateHistoryFileList();
+    updateRepoHistoryFileList();
 }
 
 void MainWindow::setSubPathSlot(QString currentStr){

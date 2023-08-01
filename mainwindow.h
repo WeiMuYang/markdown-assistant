@@ -34,7 +34,7 @@ public:
     void initImgPathTarPathCombox();
     void sycImgDataByOldName(QString name);
     void updateLastModifyFile();
-    void updateHistoryFileList();
+    void updateRepoHistoryFileList();
     void setWindowStyle();
     void initStatusBar();
     void InitMainWindowMenu();
@@ -92,6 +92,8 @@ private slots:
     void simpleViewSlot();
 
     void updateConfFileSlot();
+    void copyHistoryFilePathSlot();
+    void copyHistoryFilePathOfMeetFileSlot();
     void startSlot();
     void clearTabWgtSlot();
 
@@ -100,7 +102,7 @@ private slots:
     void modifyConfSlot();
 
     void openConfFileSlot();
-
+    void updateSubDirHistoryFileListSlot();
 
     void on_createMarkdownPbn_clicked();
 

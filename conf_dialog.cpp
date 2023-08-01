@@ -70,6 +70,8 @@ void confDialog::analysisJson(QJsonObject &rootObj){
         QString value = SoftPathMap[key].toString();
         softWarePathMap_.insert(key, value);
     }
+
+    meetFilePath_ = rootObj["MeetFilePath"].toString();
 }
 
 QString confDialog::getImgPathByKey(QString key){
@@ -184,8 +186,9 @@ void confDialog::confDataClear(){
     tarNamePathMap_.clear();
     intervalArr_.clear();
     assetsType_.clear();
-    typoraExePath_.clear();
-    vsCodePath_.clear();
+//    typoraExePath_.clear();
+//    vsCodePath_.clear();
+    meetFilePath_.clear();
     softWarePathMap_.clear();
     //    iniFile_.iniAndjsonPath.clear();
     //    iniFile_.recentFileList.clear();
@@ -198,8 +201,9 @@ void confDialog::clearAll(){
     tarNamePathMap_.clear();
     intervalArr_.clear();
     assetsType_.clear();
-    typoraExePath_.clear();
-    vsCodePath_.clear();
+//    typoraExePath_.clear();
+    meetFilePath_.clear();
+//    vsCodePath_.clear();
     softWarePathMap_.clear();
     iniFile_.iniAndJsonPath.clear();
     iniFile_.recentFileList.clear();

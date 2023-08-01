@@ -383,8 +383,22 @@ void FileOperation::getHistoryFileList(const QString &dirPath, QFileInfoList& fi
         }
     }
     qSort(resultFileList.begin(),resultFileList.end(),compare);
-    for(int i = 0; i < resultFileList.size() && i < topFileCount; ++i){
+    for(int i = 0; i < resultFileList.size() && i < topFileCount*2; ++i){
         fileListTop20.append(resultFileList.at(i));
+    }
+}
+
+void FileOperation::getHistorySubDirFileList(const QString &dirPath, QFileInfoList& fileListTop20){
+    QDir dir(dirPath);
+    QFileInfoList fileListTemp;
+    QFileInfoList list = dir.entryInfoList(QDir::Files |QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    qSort(list.begin(),list.end(),compare);
+    for(int i = 0, j = 0; i < list.size() && j < topFileCount; ++i){
+        qDebug() <<list.at(i).fileName();
+        if(list.at(i).fileName() != "img" && list.at(i).fileName() != "video") {
+            fileListTop20.append(list.at(i));
+            j++;
+        }
     }
 }
 

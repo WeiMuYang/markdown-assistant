@@ -1,5 +1,6 @@
 {
-    "HostName": "BMW",  
+    "HostName": "BMW",
+    "MeetFilePath": "D:/YangWeiBin/01-sync-file-level-1/01-thunder-bmw/01-study",  
     "ImagePath": [
         {
             "Desktop": "Desktop"
@@ -11,6 +12,9 @@
         },
         {
             "Android": "D:/YangWeiBin/01-sync-file-level-1/05-Android"
+        },
+        {
+            "BMW&Thunder": "D:/YangWeiBin/01-sync-file-level-1/01-thunder-bmw"
         },
         {
             "BMW PngTest": "D:/YangWeiBin/png/test"

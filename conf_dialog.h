@@ -20,17 +20,14 @@ public:
 
     bool findTarPath(QString key, NamePath& data);
     bool findImgPath(QString key, NamePath& data);
-
-
     const QList<NamePath>& getTarPaths(){
         return tarNamePathMap_;
     }
-
     const QList<NamePath>& getImgPaths(){
         return imgNamePathMap_;
     }
-    QString getTyporaPath(){
-        return typoraExePath_;
+    QString getMeetFilePath(){
+        return meetFilePath_;
     }
     const QStringList& getAssetsTypes(){
         return assetsType_;
@@ -52,11 +49,8 @@ private: // need to change to private
     QList<NamePath> tarNamePathMap_;
     QVector<QString> intervalArr_;
     QStringList assetsType_;
-    QString typoraExePath_;
-    QString vsCodePath_;
     QMap<QString,QString> softWarePathMap_;
-
-
+    QString meetFilePath_;
     IniFile iniFile_;
 };
 
