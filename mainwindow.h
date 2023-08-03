@@ -106,6 +106,10 @@ private slots:
 
     void on_createMarkdownPbn_clicked();
 
+    void on_historySearchPbn_clicked();
+
+    void updateRepoHistoryFileListBySearchSlot(QString txt);
+
 protected:
     // 窗口设置为随着窗口变化而变化
     virtual void resizeEvent(QResizeEvent *event) override;

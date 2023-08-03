@@ -490,3 +490,40 @@ bool FileOperation::createJsonFile(const QString& FullPath, QString& newFileName
     emit sigFileOperationLog(QString("Copy templateFile To Create:"+ path + " Failed  !!!"));
     return false;
 }
+
+void FileOperation::getSearchDirFiles(const QString& path, QFileInfoList& fileListTemp, QString txt)
+{
+    QDir dir(path);
+    QFileInfoList fileList = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files|QDir::Dirs, QDir::Time);
+    QFileInfo lastModifiedTimeFileName;
+    if (!fileList.isEmpty())
+    {
+        for(int i = 0; i < fileList.size(); ++i){
+            if(-1 != fileList.at(i).filePath().indexOf(txt) || fileList.at(i).filePath().contains(txt,Qt::CaseInsensitive)){
+                fileListTemp.append(fileList.at(i));
+            }
+        }
+    }
+}
+
+void FileOperation::getSearchFileList(const QString &dirPath, QFileInfoList& fileList, QString txt){
+    QDir dir(dirPath);
+    QFileInfoList resultFileList;
+    QFileInfoList fileListTemp;
+    QFileInfoList list = dir.entryInfoList(QDir::Files | QDir::AllDirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    foreach(QFileInfo fileInfo, list)
+    {
+        if(fileInfo.isDir()) //book  study  test目录
+        {
+            fileListTemp.clear();
+            getSearchDirFiles(fileInfo.absoluteFilePath(),fileListTemp,txt );
+            for(int i = 0; i < fileListTemp.size(); ++i){
+                resultFileList.append(fileListTemp.at(i));
+            }
+        }
+    }
+    qSort(resultFileList.begin(),resultFileList.end(),compare);
+    for(int i = 0; i < resultFileList.size() && i < topFileCount; ++i){
+        fileList.append(resultFileList.at(i));
+    }
+}

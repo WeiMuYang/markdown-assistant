@@ -73,6 +73,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&openExPro_,&OpenExProgram::sigOpenExProLog,this,&MainWindow::appendTextToLog);
     // dialog --> fileOp
     connect(getAssetsDialog_,&GetAssetsDialog::sigSearchMarkdownCode,this,&MainWindow::searchAssetsByCodeSlot);
+    // historyLineEdit
+    connect(ui->historySearchLineEditor, &QLineEdit::returnPressed, this, &MainWindow::on_historySearchPbn_clicked);
 
     // history List click
 //    connect(ui->historyFileList,&QTableWidget::itemClicked,this,&MainWindow::ChangeToHistoryFile);
@@ -1044,5 +1046,31 @@ void MainWindow::on_createMarkdownPbn_clicked()
         on_lastFileNumPbn_clicked();
         openExPro_.OpenMarkdownAndDirSlot(fullTarPath_+"/" + currentFile_);
     }
+}
+
+
+void MainWindow::on_historySearchPbn_clicked()
+{
+    QString txt = ui->historySearchLineEditor->text();
+    updateRepoHistoryFileListBySearchSlot(txt);
+}
+
+void MainWindow::updateRepoHistoryFileListBySearchSlot(QString txt){
+    QFileInfoList fileListTop20;
+    ui->historyFileList->clear();
+    fileOp_.getSearchFileList(tarPath_, fileListTop20, txt);
+    ui->historyFileList->setRowCount(fileListTop20.size());        //设置行数/
+    for(int i = 0; i < fileListTop20.size(); ++i){
+        QFileInfo fileInfo = fileListTop20.at(i);
+        QString name = fileInfo.filePath().split(tarPath_).last().remove(0,1);
+        QString modifyTime = fileInfo.lastModified().toString("yyyy-MM-dd HH:mm:ss ddd");
+        QTableWidgetItem *pItem1 = new QTableWidgetItem(name);
+        QTableWidgetItem *pItem2 = new QTableWidgetItem(modifyTime);
+//        pItem2->setTextAlignment(Qt::AlignCenter);
+        ui->historyFileList->setItem(i, 0, pItem1);
+        ui->historyFileList->setItem(i, 1, pItem2);
+    }
+    ui->historyFileList->setColumnWidth(0, 1300 * 0.66);
+    ui->historyFileList->setColumnWidth(1, 1300 * 0.33);
 }
 
