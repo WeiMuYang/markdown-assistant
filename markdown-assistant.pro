@@ -24,6 +24,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 CONFIG += c++11
 
+msvc:QMAKE_CXXFLAGS += -execution-charset:utf-8
+
 SOURCES += \
     about_dialog.cpp \
     assets_data.cpp \

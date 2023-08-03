@@ -1,4 +1,4 @@
-#include "file_operation.h"
+﻿#include "file_operation.h"
 #include <QDir>
 #include <QDebug>
 #include <QDateTime>
@@ -94,12 +94,12 @@ int FileOperation::getLastmodifiedTimeFileNumSubDir(const QString &path,const QS
     int num;
     QDir dir(path+"/"+dirName);
     QStringList filters;
-    filters << "*.md"<< "\?\?-*";
-    dir.setNameFilters(filters);
+//    filters << "*.md"<< "\?\?-*";
+//    dir.setNameFilters(filters);
     QFileInfoList list = dir.entryInfoList(QDir::AllEntries, QDir::Time);
     if(list.isEmpty()){
-        DebugBox(__FUNCTION__, __LINE__,"Directory: \"" + path + dirName + "\" does not exist markdown files!");
-        emit sigFileOperationLog("Directory: \"" + path +dirName + "\" does not exist markdown files!");
+//        DebugBox(__FUNCTION__, __LINE__,"Directory: \"" + path + dirName + "\" does not exist files!");
+        emit sigFileOperationLog("Directory: \"" + path +dirName + "\" does not exist files!");
         return -1;
     }
     lastModefyFile = list.first().fileName();
@@ -257,7 +257,7 @@ bool FileOperation::copyImgVideo(QDir& CurrentPath, const QStringList& fileNameA
     QStringList nameStrList;
     if(nameList.contains(",",Qt::CaseSensitive)){
         nameStrList = nameList.split(",");
-    }else if(nameList.contains("，",Qt::CaseSensitive)){
+    }else if(nameList.contains(QString::fromLocal8Bit("，"),Qt::CaseSensitive)){
         nameStrList = nameList.split("，");
     }else{
         nameStrList = nameList.split(" ");
