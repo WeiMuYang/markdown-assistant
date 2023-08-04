@@ -577,7 +577,7 @@
              </size>
             </property>
             <property name="text">
-             <string>查找</string>
+             <string>仓库查找</string>
             </property>
            </widget>
           </item>

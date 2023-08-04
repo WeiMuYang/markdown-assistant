@@ -94,11 +94,10 @@ int FileOperation::getLastmodifiedTimeFileNumSubDir(const QString &path,const QS
     int num;
     QDir dir(path+"/"+dirName);
     QStringList filters;
-//    filters << "*.md"<< "\?\?-*";
-//    dir.setNameFilters(filters);
+    filters << "*.md"<< "\?\?-*";
+    dir.setNameFilters(filters);
     QFileInfoList list = dir.entryInfoList(QDir::AllEntries, QDir::Time);
     if(list.isEmpty()){
-//        DebugBox(__FUNCTION__, __LINE__,"Directory: \"" + path + dirName + "\" does not exist files!");
         emit sigFileOperationLog("Directory: \"" + path +dirName + "\" does not exist files!");
         return -1;
     }
