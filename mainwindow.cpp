@@ -1066,7 +1066,6 @@ void MainWindow::updateRepoHistoryFileListBySearchSlot(QString txt){
         QString modifyTime = fileInfo.lastModified().toString("yyyy-MM-dd HH:mm:ss ddd");
         QTableWidgetItem *pItem1 = new QTableWidgetItem(name);
         QTableWidgetItem *pItem2 = new QTableWidgetItem(modifyTime);
-//        pItem2->setTextAlignment(Qt::AlignCenter);
         ui->historyFileList->setItem(i, 0, pItem1);
         ui->historyFileList->setItem(i, 1, pItem2);
     }

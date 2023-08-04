@@ -14,17 +14,7 @@ FileOperation::FileOperation(QObject *parent)
 {
 
 }
-
-bool isEditFileDir(QString dirName){
-    QStringList editFileDirList;
-    editFileDirList << "-study" << "-Study" << "-book" << "-Book" << "-test";
-    for(int i = 0;i < editFileDirList.size(); ++i){
-        if(dirName.indexOf(editFileDirList.at(i)) == 2){
-            return true;
-        }
-    }
-    return false;
-}
+bool isNumFile(QString nameNum);
 
 bool isMarkdownFile(QString fileName){
     if(fileName.size() >= 5 && fileName.right(3) == ".md"){
@@ -102,9 +92,9 @@ int FileOperation::getLastmodifiedTimeFileNumSubDir(const QString &path,const QS
         return -1;
     }
     lastModefyFile = list.first().fileName();
-    qDebug()<<lastModefyFile;
+//    qDebug()<<lastModefyFile;
     fullPath = list.first().path();
-    qDebug()<<fullPath;
+//    qDebug()<<fullPath;
     QStringList nameArr = lastModefyFile.split("-");
     num = nameArr.at(0).toInt();
     return num;
@@ -356,11 +346,6 @@ void FileOperation::getLastmodifiedTop20Files(const QString& path, QFileInfoList
     }
 }
 
-//bool FileOperation::compareTimeData(const QFileInfo &stu1, const QFileInfo &stu2)
-//{
-//    return stu1.lastModified() > stu2.lastModified();
-//}
-
 bool compare(const QFileInfo &file1, const QFileInfo &file2){
     return file1.lastModified().toTime_t() > file2.lastModified().toTime_t();
 }
@@ -490,6 +475,12 @@ bool FileOperation::createJsonFile(const QString& FullPath, QString& newFileName
     return false;
 }
 
+bool isNumFile(QString nameNum){
+    bool ok;
+    int num = nameNum.toInt(&ok);
+    return ok;
+}
+
 void FileOperation::getSearchDirFiles(const QString& path, QFileInfoList& fileListTemp, QString txt)
 {
     QDir dir(path);
@@ -499,7 +490,9 @@ void FileOperation::getSearchDirFiles(const QString& path, QFileInfoList& fileLi
     {
         for(int i = 0; i < fileList.size(); ++i){
             if(-1 != fileList.at(i).filePath().indexOf(txt) || fileList.at(i).filePath().contains(txt,Qt::CaseInsensitive)){
-                fileListTemp.append(fileList.at(i));
+                if(isNumFile(fileList.at(i).fileName().split("-").at(0))){
+                    fileListTemp.append(fileList.at(i));
+                }
             }
         }
     }
@@ -515,7 +508,7 @@ void FileOperation::getSearchFileList(const QString &dirPath, QFileInfoList& fil
         if(fileInfo.isDir()) //book  study  test目录
         {
             fileListTemp.clear();
-            getSearchDirFiles(fileInfo.absoluteFilePath(),fileListTemp,txt );
+            getSearchDirFiles(fileInfo.absoluteFilePath(), fileListTemp, txt);
             for(int i = 0; i < fileListTemp.size(); ++i){
                 resultFileList.append(fileListTemp.at(i));
             }
