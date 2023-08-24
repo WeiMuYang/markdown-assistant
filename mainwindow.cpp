@@ -296,6 +296,9 @@ void MainWindow::InitMainWindowMenu(){
 
     confFileList_ = new QMenu;
     confFileList_->setTitle(u8"配置文件列表");
+
+    ui->actionOpenREADME->setShortcut(QKeySequence("Ctrl+Space"));
+    connect(ui->actionOpenREADME, &QAction::triggered, this, &MainWindow::openReadMeSlot);
 }
 
 void MainWindow::openConfFileSlot(){
@@ -328,6 +331,17 @@ void MainWindow::modifyConfSlot()
 {
     openExPro_.OpenJsonAndIniSlot(configFilePath_);
     updateConfFileSlot();
+}
+
+void MainWindow::openReadMeSlot()
+{
+    QString readMeFilePath;
+    if(fileOp_.getReadMePath(tarPath_,readMeFilePath)){
+        openExPro_.OpenMarkdownAndDirSlot(readMeFilePath);
+        appendTextToLog(QString("打开ReadMe文件: " + readMeFilePath +" 成功 !"));
+    }else{
+        appendTextToLog(QString("未找到ReadMe文件 !"));
+    }
 }
 
 void MainWindow::initStatusBar(){

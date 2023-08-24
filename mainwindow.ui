@@ -634,6 +634,7 @@
     <addaction name="actionRename"/>
     <addaction name="actionCopyHistoryFilePath"/>
     <addaction name="actionGetRelativePathOfMeetFile"/>
+    <addaction name="actionOpenREADME"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -715,6 +716,11 @@
   <action name="actionGetRelativePathOfMeetFile">
    <property name="text">
     <string>会议获取相对路径</string>
+   </property>
+  </action>
+  <action name="actionOpenREADME">
+   <property name="text">
+    <string>打开README</string>
    </property>
   </action>
  </widget>

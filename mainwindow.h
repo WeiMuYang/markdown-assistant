@@ -100,6 +100,7 @@ private slots:
     void openIniFileSlot();
     void modifyIniFileSlot();
     void modifyConfSlot();
+    void openReadMeSlot();
 
     void openConfFileSlot();
     void updateSubDirHistoryFileListSlot();

@@ -519,3 +519,25 @@ void FileOperation::getSearchFileList(const QString &dirPath, QFileInfoList& fil
         fileList.append(resultFileList.at(i));
     }
 }
+
+bool FileOperation::getReadMePath(QString dirPath, QString& markdownFile){
+    QDir dir(dirPath);
+    QStringList filters;
+    filters << "*.md";
+    dir.setNameFilters(filters);
+    QFileInfoList list = dir.entryInfoList(QDir::AllEntries, QDir::Time);
+    if(list.size() > 1){
+        for(int i = 0; i < list.size(); ++i){
+            if(list.at(i).fileName().compare("readme.md", Qt::CaseInsensitive)){
+                markdownFile = list.at(i).filePath();
+                return true;
+            }
+        }
+        markdownFile = list.at(0).filePath();
+        return true;
+    }else if(list.size() == 1){
+        markdownFile = list.at(0).filePath();
+        return true;
+    }
+    return false;
+}

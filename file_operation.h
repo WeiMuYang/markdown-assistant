@@ -42,6 +42,7 @@ public:
     bool createJsonFile(const QString& FullPath, QString& currentFileName);
     void getSearchDirFiles(const QString& path, QFileInfoList& fileListTemp, QString txt);
     void getSearchFileList(const QString &dirPath, QFileInfoList& fileList, QString txt);
+    bool getReadMePath(QString dirPath, QString& markdownFile);
 
 signals:
     void sigFileOperationLog(QString log);
