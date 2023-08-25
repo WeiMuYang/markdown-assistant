@@ -143,7 +143,10 @@ void MainWindow::copyHistoryFilePathOfMeetFileSlot()
     QDir curDir(confDialog_.getMeetFilePath());
     curDir.setCurrent(fullTarPath_);
     QString filePath = curDir.relativeFilePath(tarPath_ + "/" + path);
-    QString clipFileName =path.split("/").last().split("-").last().split(".").first();
+    //
+    QString FileName = path.split("/").last();
+    int n = FileName.indexOf("-");
+    QString clipFileName =FileName.mid(n+1, FileName.length()).split(".").first();
     QString text = "[" + clipFileName + "]("+filePath+")  \n\n";
     clip_->setText(text);
     appendTextToLog(u8"剪切: \"" + QString::fromStdString("[") + clipFileName + "]("+filePath+")" +  "\" 完成 !");
@@ -297,7 +300,7 @@ void MainWindow::InitMainWindowMenu(){
     confFileList_ = new QMenu;
     confFileList_->setTitle(u8"配置文件列表");
 
-    ui->actionOpenREADME->setShortcut(QKeySequence("Ctrl+Space"));
+    ui->actionOpenREADME->setShortcut(QKeySequence("F1"));
     connect(ui->actionOpenREADME, &QAction::triggered, this, &MainWindow::openReadMeSlot);
 }
 
