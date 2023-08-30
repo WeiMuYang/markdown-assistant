@@ -477,7 +477,7 @@ bool FileOperation::createJsonFile(const QString& FullPath, QString& newFileName
 
 bool isNumFile(QString nameNum){
     bool ok;
-    int num = nameNum.toInt(&ok);
+    nameNum.toInt(&ok);
     return ok;
 }
 

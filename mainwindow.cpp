@@ -18,7 +18,7 @@ int printscreeninfo()
     QDesktopWidget *dwsktopwidget = QApplication::desktop();
     QRect deskrect = dwsktopwidget->availableGeometry();
     QRect screenrect = dwsktopwidget->screenGeometry();
-    int scrcount = dwsktopwidget->screenCount();
+//    int scrcount = dwsktopwidget->screenCount();
     return deskrect.width();
 }
 
