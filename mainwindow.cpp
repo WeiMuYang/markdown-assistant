@@ -43,8 +43,12 @@ MainWindow::MainWindow(QWidget *parent) :
 
     ui->addList->setMovement(QListWidget::Static);
     ui->addList->setSelectionMode(QAbstractItemView::MultiSelection);
+    ui->addList->setContextMenuPolicy(Qt::CustomContextMenu);
+    addListMenu_ = new QMenu(this);
     ui->delList->setMovement(QListWidget::Static);
     ui->delList->setSelectionMode(QAbstractItemView::MultiSelection);
+    ui->delList->setContextMenuPolicy(Qt::CustomContextMenu);
+    delListMenu_ = new QMenu(this);
     QSplitter *splitterList = new QSplitter(Qt::Vertical,nullptr); // 水平布置
     splitterList->addWidget(ui->addList);
     splitterList->addWidget(ui->delList);
@@ -59,6 +63,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // doubleClick
     connect(ui->delList,&QListWidget::doubleClicked,this, &MainWindow::moveDelItemToAddListSlot);
     connect(ui->addList,&QListWidget::doubleClicked,this, &MainWindow::moveAddItemToDelListSlot);
+    // rightClickMenu
+    connect(ui->addList,&QListWidget::customContextMenuRequested,this,&MainWindow::showAddListMenuSlot);
+    connect(ui->delList,&QListWidget::customContextMenuRequested,this,&MainWindow::showDelListMenuSlot);
+
     // Combox
     connect(ui->imgPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setImgPathSlot);
     connect(ui->tarPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setTarPathSlot);
@@ -77,9 +85,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->historySearchLineEditor, &QLineEdit::returnPressed, this, &MainWindow::on_historySearchPbn_clicked);
 
     // history List click
-//    connect(ui->historyFileList,&QTableWidget::itemClicked,this,&MainWindow::ChangeToHistoryFile);
+    //    connect(ui->historyFileList,&QTableWidget::itemClicked,this,&MainWindow::ChangeToHistoryFile);
     connect(ui->historyFileList,&QTableWidget::itemDoubleClicked,this,&MainWindow::OpenHistoryFile);
     InitMainWindowMenu();
+    initAddDelListMenu();
     startSlot();
 }
 
@@ -98,7 +107,7 @@ void MainWindow::startSlot() {
 
 void MainWindow::initHistoryFileList() {
     ui->historyFileList->setColumnCount(2);     //设置列数
-//    ui->historyFileList->setRowCount(40);        //设置行数/
+    //    ui->historyFileList->setRowCount(40);        //设置行数/
     ui->historyFileList->setSelectionBehavior(QAbstractItemView::SelectRows);
     //设置每行内容不可编辑
     ui->historyFileList->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -115,6 +124,28 @@ void MainWindow::initHistoryFileList() {
     ui->historyFileList->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 }
 
+void MainWindow::initAddDelListMenu() {
+    QAction *actDelAddList = new QAction("删除资源",addListMenu_);
+    QAction *actMoveAddList = new QAction("移除资源",addListMenu_);
+//    actDelAddList->setShortcut(QKeySequence("Ctrl+D"));
+//    actMoveAddList->setShortcut(QKeySequence("Ctrl+M"));
+    addListMenu_->addAction(actDelAddList);
+    addListMenu_->addAction(actMoveAddList);
+    connect(actDelAddList, &QAction::triggered, this, &MainWindow::delFromAddListSlot);
+    connect(actMoveAddList, &QAction::triggered, this, &MainWindow::moveFromAddListSlot);
+
+
+    QAction *actDelDelList = new QAction("删除资源",this);
+    QAction *actMoveDelList = new QAction("移除资源",this);
+//    actDelDelList->setShortcut(QKeySequence("Ctrl+D"));
+//    actMoveDelList->setShortcut(QKeySequence("Ctrl+M"));
+    delListMenu_->addAction(actDelDelList);
+    delListMenu_->addAction(actMoveDelList);
+    connect(actDelDelList, &QAction::triggered, this, &MainWindow::delFromDelListSlot);
+    connect(actMoveDelList, &QAction::triggered, this, &MainWindow::moveFromDelListSlot);
+
+}
+
 void MainWindow::copyHistoryFilePathSlot()
 {
     QList<QTableWidgetItem*> list = ui->historyFileList->selectedItems();
@@ -122,8 +153,6 @@ void MainWindow::copyHistoryFilePathSlot()
         return;
     }
     QString path =list.at(0)->text();
-//    qDebug() << path;
-//    qDebug() << fullTarPath_;
     QDir curDir(fullTarPath_);
     curDir.setCurrent(fullTarPath_);
     QString filePath = curDir.relativeFilePath(tarPath_ + "/" + path);
@@ -194,7 +223,7 @@ void MainWindow::updateRepoHistoryFileList(){
         QString modifyTime = fileInfo.lastModified().toString("yyyy-MM-dd HH:mm:ss ddd");
         QTableWidgetItem *pItem1 = new QTableWidgetItem(name);
         QTableWidgetItem *pItem2 = new QTableWidgetItem(modifyTime);
-//        pItem2->setTextAlignment(Qt::AlignCenter);
+        //        pItem2->setTextAlignment(Qt::AlignCenter);
         ui->historyFileList->setItem(i, 0, pItem1);
         ui->historyFileList->setItem(i, 1, pItem2);
     }
@@ -292,7 +321,7 @@ void MainWindow::InitMainWindowMenu(){
 
     ui->actionSubDirHistoryFile->setShortcut(QKeySequence("Ctrl+L"));
     connect(ui->actionSubDirHistoryFile,&QAction::triggered, this, &MainWindow::updateSubDirHistoryFileListSlot);
-//actionGetRelativePathOfMeetFile
+    //actionGetRelativePathOfMeetFile
 
     ui->actionGetRelativePathOfMeetFile->setShortcut(QKeySequence("Ctrl+P"));
     connect(ui->actionGetRelativePathOfMeetFile,&QAction::triggered, this, &MainWindow::copyHistoryFilePathOfMeetFileSlot);
@@ -314,7 +343,7 @@ void MainWindow::openConfFileSlot(){
 void MainWindow::clearTabWgtSlot()
 {
     if(ui->tabWgt->currentIndex() == 0) {
-          ui->logText->clear();
+        ui->logText->clear();
     }else{
         updateRepoHistoryFileList();
     }
@@ -810,6 +839,78 @@ void MainWindow::moveAddItemToDelListSlot(const QModelIndex &index)
     addDelListData_.insertDataDelImageList(data);
     updateListWgt();
     appendTextToLog(u8"移动\""+ oldName + u8"\"文件完毕 !");
+}
+void MainWindow::showAddListMenuSlot(QPoint pos){
+    addListMenu_->move(cursor().pos());
+    addListMenu_->show();
+    int x = pos.x();
+    int y = pos.y();
+    QModelIndex index = ui->addList->indexAt(QPoint(x,y));
+    addDelListMenuRow_ = index.row();//获得QTableWidget列表点击的行数
+}
+void MainWindow::delFromAddListSlot() {
+    if(addDelListMenuRow_ > -1 && addDelListMenuRow_ < ui->addList->count()) {
+        // 1. del file
+        QString oldName = ui->addList->item(addDelListMenuRow_)->text();
+        fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
+        // 2. del ui
+        // 注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。
+        ui->addList->takeItem(addDelListMenuRow_);
+        // 3. del data
+        ImgData data;
+        addDelListData_.delAddImageListByOldName(oldName, data);
+        ui->imgLabel->setPixmap(QString(""));
+    }
+    addDelListMenuRow_ = -1;
+}
+
+void MainWindow::moveFromAddListSlot() {
+    if(addDelListMenuRow_ > -1 && addDelListMenuRow_ < ui->addList->count()) {
+        QString oldName = ui->addList->item(addDelListMenuRow_)->text();
+        ImgData data;
+        addDelListData_.delAddImageListByOldName(oldName, data);
+        addDelListData_.insertDataDelImageList(data);
+        updateListWgt();
+        appendTextToLog(u8"移动\""+ oldName + u8"\"文件完毕 !");
+    }
+    addDelListMenuRow_ = -1;
+}
+
+void MainWindow::showDelListMenuSlot(QPoint pos){
+    delListMenu_->move(cursor().pos());
+    delListMenu_->show();
+    int x = pos.x();
+    int y = pos.y();
+    QModelIndex index = ui->delList->indexAt(QPoint(x,y));
+    addDelListMenuRow_ = index.row();//获得QTableWidget列表点击的行数
+}
+
+void MainWindow::delFromDelListSlot() {
+    if(addDelListMenuRow_ > -1 && addDelListMenuRow_ < ui->delList->count()) {
+        // 1. del file
+        QString oldName = ui->delList->item(addDelListMenuRow_)->text();
+        fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
+        // 2. del ui
+        //注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。
+        ui->delList->takeItem(addDelListMenuRow_);
+        // 3. del data
+        ImgData data;
+        addDelListData_.delDelImageListByOldName(oldName, data);
+        ui->imgLabel->setPixmap(QString(""));
+    }
+    addDelListMenuRow_ = -1;
+}
+
+void MainWindow::moveFromDelListSlot() {
+    if(addDelListMenuRow_ > -1 && addDelListMenuRow_ < ui->delList->count()) {
+        QString oldName = ui->delList->item(addDelListMenuRow_)->text();
+        ImgData data;
+        addDelListData_.delDelImageListByOldName(oldName, data);
+        addDelListData_.insertDataAddImageList(data);
+        updateListWgt();
+        appendTextToLog(u8"移动\""+ oldName + u8"\"文件完毕 !");
+    }
+    addDelListMenuRow_ = -1;
 }
 // 需要todo
 void MainWindow::on_clipPbn_clicked()

@@ -541,3 +541,15 @@ bool FileOperation::getReadMePath(QString dirPath, QString& markdownFile){
     }
     return false;
 }
+
+bool FileOperation::delDesktopFile(QString dirPath, QString fileName){
+    QDir folder(dirPath);
+    QFile file(folder.filePath(fileName));
+    if (file.exists()) {
+        file.remove();
+        emit sigFileOperationLog(QString("删除桌面资源: "+ dirPath+"/"+fileName+" 成功 !"));
+        return true;
+    }
+    emit sigFileOperationLog(QString("未找到桌面资源: "+ dirPath+"/"+fileName+" !"));
+    return false;
+}

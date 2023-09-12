@@ -40,6 +40,7 @@ public:
     void InitMainWindowMenu();
     void updateActionConfFileList();
     void initHistoryFileList();
+    void initAddDelListMenu();
     void setScreenWitdh(int w);
     int getScreenWitdh();
     void initScreenResNormal();
@@ -62,6 +63,12 @@ private slots:
 
     void moveDelItemToAddListSlot(const QModelIndex &index);
     void moveAddItemToDelListSlot(const QModelIndex &index);
+    void showAddListMenuSlot(QPoint pos);
+    void delFromAddListSlot();
+    void moveFromAddListSlot();
+    void showDelListMenuSlot(QPoint pos);
+    void delFromDelListSlot();
+    void moveFromDelListSlot();
     void itemEnteredSlot(QListWidgetItem *item);
 
     void ChangeToHistoryFile();
@@ -146,6 +153,9 @@ private:
     int simpleViewNum_{0};
     QString configFilePath_;
     QMenu *confFileList_;
+    QMenu *addListMenu_;
+    int addDelListMenuRow_{-1};
+    QMenu *delListMenu_;
 };
 
 #endif // MAINWINDOW_H
