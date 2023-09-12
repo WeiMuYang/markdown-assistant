@@ -43,6 +43,7 @@ public:
     void getSearchDirFiles(const QString& path, QFileInfoList& fileListTemp, QString txt);
     void getSearchFileList(const QString &dirPath, QFileInfoList& fileList, QString txt);
     bool getReadMePath(QString dirPath, QString& markdownFile);
+    bool delDesktopFile(QString dirPath, QString fileName);
 
 signals:
     void sigFileOperationLog(QString log);
