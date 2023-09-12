@@ -127,8 +127,8 @@ void MainWindow::initHistoryFileList() {
 void MainWindow::initAddDelListMenu() {
     QAction *actDelAddList = new QAction("删除资源",addListMenu_);
     QAction *actMoveAddList = new QAction("移除资源",addListMenu_);
-//    actDelAddList->setShortcut(QKeySequence("Ctrl+D"));
-//    actMoveAddList->setShortcut(QKeySequence("Ctrl+M"));
+//    actDelAddList->setShortcut(QKeySequence::Delete);
+//    actMoveAddList->setShortcut(QKeySequence::MoveToNextPage);
     addListMenu_->addAction(actDelAddList);
     addListMenu_->addAction(actMoveAddList);
     connect(actDelAddList, &QAction::triggered, this, &MainWindow::delFromAddListSlot);
@@ -849,7 +849,23 @@ void MainWindow::showAddListMenuSlot(QPoint pos){
     addDelListMenuRow_ = index.row();//获得QTableWidget列表点击的行数
 }
 void MainWindow::delFromAddListSlot() {
-    if(addDelListMenuRow_ > -1 && addDelListMenuRow_ < ui->addList->count()) {
+    bool isSelectDel = false;
+    for (int i = 0; i < ui->addList->count(); ++i) {
+        if(ui->addList->item(i)->isSelected()){
+            QString oldName = ui->addList->item(i)->text();
+            fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
+            // 2. del ui
+            // 注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。
+            ui->addList->takeItem(i--);
+            // 3. del data
+            ImgData data;
+            addDelListData_.delAddImageListByOldName(oldName, data);
+            isSelectDel = true;
+        }
+    }
+    if(isSelectDel) {
+        ui->imgLabel->setPixmap(QString(""));
+    }else if(addDelListMenuRow_ > -1 && addDelListMenuRow_ < ui->addList->count()) {
         // 1. del file
         QString oldName = ui->addList->item(addDelListMenuRow_)->text();
         fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
@@ -886,7 +902,23 @@ void MainWindow::showDelListMenuSlot(QPoint pos){
 }
 
 void MainWindow::delFromDelListSlot() {
-    if(addDelListMenuRow_ > -1 && addDelListMenuRow_ < ui->delList->count()) {
+    bool isSelectDel = false;
+    for (int i = 0; i < ui->delList->count(); ++i) {
+        if(ui->delList->item(i)->isSelected()){
+            QString oldName = ui->delList->item(i)->text();
+//            qDebug() <<ui->delList->item(i)->text();
+            fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
+            // 2. del ui
+            //注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。
+            ui->delList->takeItem(i--);
+            // 3. del data
+            ImgData data;
+            addDelListData_.delDelImageListByOldName(oldName, data);
+        }
+    }
+    if(isSelectDel) {
+        ui->imgLabel->setPixmap(QString(""));
+    }else if(addDelListMenuRow_ > -1 && addDelListMenuRow_ < ui->delList->count()) {
         // 1. del file
         QString oldName = ui->delList->item(addDelListMenuRow_)->text();
         fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
