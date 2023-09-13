@@ -67,9 +67,11 @@ private slots:
     void showAddListMenuSlot(QPoint pos);
     void delFromAddListSlot();
     void moveFromAddListSlot();
+    void clearFromAddListSlot();
     void showDelListMenuSlot(QPoint pos);
     void delFromDelListSlot();
     void moveFromDelListSlot();
+    void clearFromDelListSlot();
     void itemEnteredSlot(QListWidgetItem *item);
 
     void ChangeToHistoryFile();

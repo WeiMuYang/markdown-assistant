@@ -131,22 +131,24 @@ void MainWindow::initHistoryFileList() {
 void MainWindow::initAddDelListMenu() {
     QAction *actDelAddList = new QAction("删除资源",addListMenu_);
     QAction *actMoveAddList = new QAction("移除资源",addListMenu_);
-    //    actDelAddList->setShortcut(QKeySequence::Delete);
-    //    actMoveAddList->setShortcut(QKeySequence::MoveToNextPage);
+    QAction *actClearAddList = new QAction("删除全部",addListMenu_);
     addListMenu_->addAction(actDelAddList);
     addListMenu_->addAction(actMoveAddList);
+    addListMenu_->addAction(actClearAddList);
     connect(actDelAddList, &QAction::triggered, this, &MainWindow::delFromAddListSlot);
     connect(actMoveAddList, &QAction::triggered, this, &MainWindow::moveFromAddListSlot);
+    connect(actClearAddList, &QAction::triggered, this, &MainWindow::clearFromAddListSlot);
 
 
     QAction *actDelDelList = new QAction("删除资源",this);
     QAction *actMoveDelList = new QAction("移除资源",this);
-    //    actDelDelList->setShortcut(QKeySequence("Ctrl+D"));
-    //    actMoveDelList->setShortcut(QKeySequence("Ctrl+M"));
+    QAction *actClearDelList = new QAction("删除全部",this);
     delListMenu_->addAction(actDelDelList);
     delListMenu_->addAction(actMoveDelList);
+    delListMenu_->addAction(actClearDelList);
     connect(actDelDelList, &QAction::triggered, this, &MainWindow::delFromDelListSlot);
     connect(actMoveDelList, &QAction::triggered, this, &MainWindow::moveFromDelListSlot);
+    connect(actClearDelList, &QAction::triggered, this, &MainWindow::clearFromDelListSlot);
 
 }
 
@@ -859,6 +861,7 @@ void MainWindow::syncAddListTimelySlot() {
             pItem->setToolTip(data.oldName);
         }
         ui->addList->addItem(pItem);
+        appendTextToLog(u8"自动添加: " + data.oldName + " 成功 ！");
     }
 }
 
@@ -954,6 +957,20 @@ void MainWindow::moveFromAddListSlot() {
     addDelListMenuRow_ = -1;
 }
 
+void MainWindow::clearFromAddListSlot(){
+    for (int i = 0; i < ui->addList->count(); ++i) {
+        QString oldName = ui->addList->item(i)->text();
+        fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
+        // 2. del ui
+        // 注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。
+        ui->addList->takeItem(i--);
+        // 3. del data
+        ImgData data;
+        addDelListData_.delAddImageListByOldName(oldName, data);
+        ui->imgLabel->setPixmap(QString(""));
+    }
+}
+
 void MainWindow::showDelListMenuSlot(QPoint pos){
     delListMenu_->move(cursor().pos());
     delListMenu_->show();
@@ -1006,6 +1023,20 @@ void MainWindow::moveFromDelListSlot() {
         appendTextToLog(u8"移动\""+ oldName + u8"\"文件完毕 !");
     }
     addDelListMenuRow_ = -1;
+}
+
+void MainWindow::clearFromDelListSlot() {
+    for (int i = 0; i < ui->delList->count(); ++i) {
+        QString oldName = ui->delList->item(i)->text();
+        fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
+        // 2. del ui
+        // 注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。
+        ui->delList->takeItem(i--);
+        // 3. del data
+        ImgData data;
+        addDelListData_.delDelImageListByOldName(oldName, data);
+        ui->imgLabel->setPixmap(QString(""));
+    }
 }
 // 需要todo
 void MainWindow::on_clipPbn_clicked()
