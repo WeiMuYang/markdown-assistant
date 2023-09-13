@@ -18,7 +18,7 @@ int printscreeninfo()
     QDesktopWidget *dwsktopwidget = QApplication::desktop();
     QRect deskrect = dwsktopwidget->availableGeometry();
     QRect screenrect = dwsktopwidget->screenGeometry();
-//    int scrcount = dwsktopwidget->screenCount();
+    //    int scrcount = dwsktopwidget->screenCount();
     return deskrect.width();
 }
 
@@ -40,6 +40,10 @@ MainWindow::MainWindow(QWidget *parent) :
     initScreenResNormal();
     initStatusBar();
     setWindowStyle();
+
+    timerSync_ = new QTimer(this);
+    connect(timerSync_, &QTimer::timeout, this, &MainWindow::syncAddListTimelySlot);
+    timerSync_->setInterval(1500);
 
     ui->addList->setMovement(QListWidget::Static);
     ui->addList->setSelectionMode(QAbstractItemView::MultiSelection);
@@ -127,8 +131,8 @@ void MainWindow::initHistoryFileList() {
 void MainWindow::initAddDelListMenu() {
     QAction *actDelAddList = new QAction("删除资源",addListMenu_);
     QAction *actMoveAddList = new QAction("移除资源",addListMenu_);
-//    actDelAddList->setShortcut(QKeySequence::Delete);
-//    actMoveAddList->setShortcut(QKeySequence::MoveToNextPage);
+    //    actDelAddList->setShortcut(QKeySequence::Delete);
+    //    actMoveAddList->setShortcut(QKeySequence::MoveToNextPage);
     addListMenu_->addAction(actDelAddList);
     addListMenu_->addAction(actMoveAddList);
     connect(actDelAddList, &QAction::triggered, this, &MainWindow::delFromAddListSlot);
@@ -137,8 +141,8 @@ void MainWindow::initAddDelListMenu() {
 
     QAction *actDelDelList = new QAction("删除资源",this);
     QAction *actMoveDelList = new QAction("移除资源",this);
-//    actDelDelList->setShortcut(QKeySequence("Ctrl+D"));
-//    actMoveDelList->setShortcut(QKeySequence("Ctrl+M"));
+    //    actDelDelList->setShortcut(QKeySequence("Ctrl+D"));
+    //    actMoveDelList->setShortcut(QKeySequence("Ctrl+M"));
     delListMenu_->addAction(actDelDelList);
     delListMenu_->addAction(actMoveDelList);
     connect(actDelDelList, &QAction::triggered, this, &MainWindow::delFromDelListSlot);
@@ -250,7 +254,7 @@ void MainWindow::delSrcFromListSlot() {
     for (int i = 0; i < ui->delList->count(); ++i) {
         if(ui->delList->item(i)->isSelected()){
             QString oldName = ui->delList->item(i)->text();
-//            qDebug() <<ui->delList->item(i)->text();
+            //            qDebug() <<ui->delList->item(i)->text();
             fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
             // 2. del ui
             //注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。
@@ -829,29 +833,49 @@ void MainWindow::sycImgDataByOldName(QString oldName){
     }
 }
 
+void MainWindow::syncAddListTimelySlot() {
+    QVector<ImgData> srcList = addDelListData_.getNewAddImgVideoFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+    for(auto it = srcList.begin(); it < srcList.end(); ++it){
+        ImgData data = *it;
+        addDelListData_.insertDataAddImageList(data);
+        QListWidgetItem *pItem = new QListWidgetItem;
+        if(data.oldName.right(4) != ".mp4"){
+            pItem->setIcon(QIcon(data.oldPath));
+        }else{
+            QIcon videoIcon;
+            if(videoThr_->getFirstVideoFrame(data.oldPath, videoIcon)){
+                pItem->setIcon(videoIcon);
+            }else{
+                pItem->setIcon(QIcon(":/qss/icon/markdown-assistant.ico"));
+            }
+        }
+        if(isIconMode_){
+            pItem->setSizeHint(QSize(200,100*multiple));
+            pItem->setText(data.oldName);
+            pItem->setToolTip(data.oldName);
+        }else{
+            pItem->setSizeHint(QSize(20,20*multiple));
+            pItem->setText(data.oldName);
+            pItem->setToolTip(data.oldName);
+        }
+        ui->addList->addItem(pItem);
+    }
+}
+
+
 void MainWindow::on_syncPbn_clicked()
 {
-    // 同步底层数据
-    for (int i = 0; i < ui->delList->count(); ++i) {
-        if(ui->delList->item(i)->isSelected()){
-            qDebug() <<ui->delList->item(i)->text();
-            QString oldName = ui->delList->item(i)->text();
-            ImgData data;
-            addDelListData_.delDelImageListByOldName(oldName, data);
-            addDelListData_.insertDataAddImageList(data);
-        }
+    isSyncStart_ = (!isSyncStart_);
+    if(isSyncStart_){
+        timerSync_->start();
+        appendTextToLog(QDateTime::currentDateTime().toString("[HH:mm:ss]") + u8" 启动自动同步 !");
+        ui->syncPbn->setStyleSheet("border: 1px solid #d9d5d2");
+    }else{
+        timerSync_->stop();
+        appendTextToLog(QDateTime::currentDateTime().toString("[HH:mm:ss]") + u8" 关闭自动同步 !");
+        ui->syncPbn->setStyleSheet("");
     }
-    for (int i = 0; i < ui->addList->count(); ++i) {
-        if(ui->addList->item(i)->isSelected()){
-            QString oldName = ui->addList->item(i)->text();
-            ImgData data;
-            addDelListData_.delAddImageListByOldName(oldName, data);
-            addDelListData_.insertDataDelImageList(data);
-        }
-    }
-    // 更新界面
-    updateListWgt();
-    appendTextToLog(u8"同步列表信息完毕 !");
+
 }
 
 // 双击移动 DelImageList -->  AddImageList
@@ -944,7 +968,7 @@ void MainWindow::delFromDelListSlot() {
     for (int i = 0; i < ui->delList->count(); ++i) {
         if(ui->delList->item(i)->isSelected()){
             QString oldName = ui->delList->item(i)->text();
-//            qDebug() <<ui->delList->item(i)->text();
+            //            qDebug() <<ui->delList->item(i)->text();
             fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
             // 2. del ui
             //注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。

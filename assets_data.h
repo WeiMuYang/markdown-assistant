@@ -33,6 +33,8 @@ public:
 
     void setAssetsTypes(QStringList assetsTypes);
 
+    QVector<ImgData> getNewAddImgVideoFile(QString path);
+
 private:
     QVector<ImgData> addImageList_;
     QVector<ImgData> delImageList_;

@@ -6,6 +6,7 @@
 #include <QListWidgetItem>
 #include <QLabel>
 #include <QComboBox>
+#include <QTimer>
 #include "conf_dialog.h"
 #include "video_thr.h"
 #include "file_operation.h"
@@ -80,6 +81,7 @@ private slots:
     void on_syncPbn_clicked();
     void on_modePbn_clicked();
     void on_toolPbn_clicked();
+    void syncAddListTimelySlot();
 
     void appendTextToLog(QString log);
     void setStatusBar(QString msg, bool isCorrect);
@@ -154,6 +156,8 @@ private:
     QMenu *addListMenu_;
     int addDelListMenuRow_{-1};
     QMenu *delListMenu_;
+    bool isSyncStart_{false};
+    QTimer *timerSync_;
 };
 
 #endif // MAINWINDOW_H

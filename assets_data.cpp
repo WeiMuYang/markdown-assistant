@@ -33,6 +33,41 @@ bool AssetsData::updateImgVideoFile(QString path, int index)
     return true;
 }
 
+QVector<ImgData> AssetsData::getNewAddImgVideoFile(QString path) {
+    QDir dir(path);
+    dir.setFilter(QDir::Files);
+    dir.setNameFilters(assetsTypeList_); // get from json
+    dir.setSorting(QDir::SortFlag::Name);
+    QFileInfoList list = dir.entryInfoList();
+    QVector<ImgData> result;
+    for (int i = 0; i < addImageList_.count(); ++i) {
+        QString oldName = addImageList_.at(i).oldName;
+        for(auto it = list.begin(); it < list.end(); ++it){
+            if(it->fileName() == oldName){
+                list.erase(it);
+                break;
+            }
+        }
+    }
+    for (int i = 0; i < delImageList_.count(); ++i) {
+        QString oldName = delImageList_.at(i).oldName;
+        for(auto it = list.begin(); it < list.end(); ++it){
+            if(it->fileName() == oldName){
+                list.erase(it);
+                break;
+            }
+        }
+    }
+    for(int i = 0; i < list.size(); ++i){
+        ImgData data;
+        data.oldName = list.at(i).fileName();
+        data.oldPath = list.at(i).absoluteFilePath();
+        data.oldFileInfo =list.at(i);
+        result.push_back(data);
+    }
+    return result;
+}
+
 // 根据oldName  -->  oldPath
 QString AssetsData::matchOldName(QString name){
     QString path;
