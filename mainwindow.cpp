@@ -231,6 +231,41 @@ void MainWindow::updateRepoHistoryFileList(){
     ui->historyFileList->setColumnWidth(1, 1300 * 0.33);
 }
 
+void MainWindow::delSrcFromListSlot() {
+    bool selectDel = false;
+    for (int i = 0; i < ui->addList->count(); ++i) {
+        if(ui->addList->item(i)->isSelected()){
+            QString oldName = ui->addList->item(i)->text();
+            fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
+            // 2. del ui
+            // 注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。
+            ui->addList->takeItem(i--);
+            // 3. del data
+            ImgData data;
+            addDelListData_.delAddImageListByOldName(oldName, data);
+            selectDel = true;
+        }
+    }
+
+    for (int i = 0; i < ui->delList->count(); ++i) {
+        if(ui->delList->item(i)->isSelected()){
+            QString oldName = ui->delList->item(i)->text();
+//            qDebug() <<ui->delList->item(i)->text();
+            fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
+            // 2. del ui
+            //注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。
+            ui->delList->takeItem(i--);
+            // 3. del data
+            ImgData data;
+            addDelListData_.delDelImageListByOldName(oldName, data);
+            selectDel = true;
+        }
+    }
+    if(selectDel){
+        ui->imgLabel->setPixmap(QString(""));
+    }
+}
+
 void MainWindow::updateSubDirHistoryFileListSlot() {
     QFileInfoList fileListTop20;
     ui->historyFileList->clear();
@@ -331,6 +366,9 @@ void MainWindow::InitMainWindowMenu(){
 
     ui->actionOpenREADME->setShortcut(QKeySequence("F1"));
     connect(ui->actionOpenREADME, &QAction::triggered, this, &MainWindow::openReadMeSlot);
+
+    ui->actionDelFromSrcList->setShortcut(QKeySequence::Delete);
+    connect(ui->actionDelFromSrcList, &QAction::triggered, this, &MainWindow::delSrcFromListSlot);
 }
 
 void MainWindow::openConfFileSlot(){
@@ -914,6 +952,7 @@ void MainWindow::delFromDelListSlot() {
             // 3. del data
             ImgData data;
             addDelListData_.delDelImageListByOldName(oldName, data);
+            isSelectDel = true;
         }
     }
     if(isSelectDel) {

@@ -611,7 +611,7 @@
      <x>0</x>
      <y>0</y>
      <width>835</width>
-     <height>17</height>
+     <height>25</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -634,6 +634,7 @@
     <addaction name="actionRename"/>
     <addaction name="actionCopyHistoryFilePath"/>
     <addaction name="actionGetRelativePathOfMeetFile"/>
+    <addaction name="actionDelFromSrcList"/>
     <addaction name="actionOpenREADME"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -721,6 +722,11 @@
   <action name="actionOpenREADME">
    <property name="text">
     <string>打开README</string>
+   </property>
+  </action>
+  <action name="actionDelFromSrcList">
+   <property name="text">
+    <string>删除资源文件</string>
    </property>
   </action>
  </widget>

@@ -443,8 +443,8 @@ background:#444444;
 }
 
 QTableView::item:selected,QListView::item:selected,QTreeView::item:selected{
-color:#DCDCDC;
-background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 #484848,stop:1 #383838);
+color:#DCDCDC; /*color:#DCDCDC; */
+background:qlineargradient(spread:pad,x1:0,y1:0,x2:0,y2:1,stop:0 #646464,stop:1 #383838);
 }
 
 QTableView::item:hover,QListView::item:hover,QTreeView::item:hover{

@@ -108,14 +108,12 @@ private slots:
     void modifyIniFileSlot();
     void modifyConfSlot();
     void openReadMeSlot();
+    void delSrcFromListSlot();
 
     void openConfFileSlot();
     void updateSubDirHistoryFileListSlot();
-
     void on_createMarkdownPbn_clicked();
-
     void on_historySearchPbn_clicked();
-
     void updateRepoHistoryFileListBySearchSlot(QString txt);
 
 protected:
