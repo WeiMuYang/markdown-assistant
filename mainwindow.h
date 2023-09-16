@@ -7,6 +7,7 @@
 #include <QLabel>
 #include <QComboBox>
 #include <QTimer>
+#include <QKeyEvent>
 #include "conf_dialog.h"
 #include "video_thr.h"
 #include "file_operation.h"
@@ -73,6 +74,7 @@ private slots:
     void moveFromDelListSlot();
     void clearFromDelListSlot();
     void itemEnteredSlot(QListWidgetItem *item);
+    void changeSelectSatusSlot();
 
     void ChangeToHistoryFile();
     void OpenHistoryFile();
@@ -119,10 +121,12 @@ private slots:
     void on_createMarkdownPbn_clicked();
     void on_historySearchPbn_clicked();
     void updateRepoHistoryFileListBySearchSlot(QString txt);
-
 protected:
     // 窗口设置为随着窗口变化而变化
     virtual void resizeEvent(QResizeEvent *event) override;
+    // 重写事件过滤接口
+    bool eventFilter(QObject *obj, QEvent *e);
+
 
 private:
     Ui::MainWindow *ui;

@@ -7,6 +7,7 @@
 #include <QDateTime>
 #include <QSortFilterProxyModel>
 #include <QTextStream>
+#include <QDesktopServices>
 #include "debug_box.h"
 
 FileOperation::FileOperation(QObject *parent)
@@ -546,8 +547,11 @@ bool FileOperation::delDesktopFile(QString dirPath, QString fileName){
     QDir folder(dirPath);
     QFile file(folder.filePath(fileName));
     if (file.exists()) {
-        file.remove();
-        emit sigFileOperationLog(QString("删除桌面资源: "+ dirPath+"/"+fileName+" 成功 !"));
+        if(file.moveToTrash()){
+            emit sigFileOperationLog(QString("将桌面资源: "+ dirPath+"/"+fileName+" 移动到回收站 !"));
+        }else{
+            emit sigFileOperationLog(QString("桌面资源: "+ dirPath+"/"+fileName+" 无法移动到回收站 !"));
+        }
         return true;
     }
     emit sigFileOperationLog(QString("未找到桌面资源: "+ dirPath+"/"+fileName+" !"));

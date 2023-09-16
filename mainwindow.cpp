@@ -46,11 +46,11 @@ MainWindow::MainWindow(QWidget *parent) :
     timerSync_->setInterval(1500);
 
     ui->addList->setMovement(QListWidget::Static);
-    ui->addList->setSelectionMode(QAbstractItemView::MultiSelection);
+    ui->addList->setSelectionMode(QAbstractItemView::ExtendedSelection);
     ui->addList->setContextMenuPolicy(Qt::CustomContextMenu);
     addListMenu_ = new QMenu(this);
     ui->delList->setMovement(QListWidget::Static);
-    ui->delList->setSelectionMode(QAbstractItemView::MultiSelection);
+    ui->delList->setSelectionMode(QAbstractItemView::ExtendedSelection);
     ui->delList->setContextMenuPolicy(Qt::CustomContextMenu);
     delListMenu_ = new QMenu(this);
     QSplitter *splitterList = new QSplitter(Qt::Vertical,nullptr); // 水平布置
@@ -60,10 +60,18 @@ MainWindow::MainWindow(QWidget *parent) :
     splitterList->show();
     initHistoryFileList();
 
+    ui->addList->installEventFilter(this);
+    ui->delList->installEventFilter(this);
+    ui->historyFileList->installEventFilter(this);
+
     ui->addList->setMouseTracking(true);
     connect(ui->addList,&QListWidget::itemEntered,this, &MainWindow::itemEnteredSlot);
+    connect(ui->addList,&QListWidget::clicked,this, &MainWindow::changeSelectSatusSlot);
+    connect(ui->addList,&QListWidget::currentItemChanged,this, &MainWindow::itemEnteredSlot);
     ui->delList->setMouseTracking(true);
     connect(ui->delList,&QListWidget::itemEntered,this, &MainWindow::itemEnteredSlot);
+    connect(ui->delList,&QListWidget::clicked,this, &MainWindow::changeSelectSatusSlot);
+    connect(ui->delList,&QListWidget::currentItemChanged,this, &MainWindow::itemEnteredSlot);
     // doubleClick
     connect(ui->delList,&QListWidget::doubleClicked,this, &MainWindow::moveDelItemToAddListSlot);
     connect(ui->addList,&QListWidget::doubleClicked,this, &MainWindow::moveAddItemToDelListSlot);
@@ -791,8 +799,20 @@ void MainWindow::on_modePbn_clicked()
     updateListDataAndWgtSlot();
 }
 
+void MainWindow::changeSelectSatusSlot() {
+    QObject* senderObj = sender(); // 获取发信号的对象
+    if (senderObj){
+        QListWidget* listWgt =dynamic_cast<QListWidget *>(senderObj);
+        listWgt->setSelectionMode(QAbstractItemView::MultiSelection);
+    }
+}
+
 void MainWindow::itemEnteredSlot(QListWidgetItem *item)
 {
+    if(item == Q_NULLPTR){
+//        qDebug() << "改变Item后，双击操作，清除了之前的item ";
+        return;
+    }
     QString name = item->text();
     QString path = addDelListData_.matchOldName(name);
     labelPath_ = path;
@@ -1065,6 +1085,8 @@ void MainWindow::on_clipPbn_clicked()
     updateListDataAndWgtSlot();
 }
 
+
+
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event)
@@ -1315,5 +1337,18 @@ void MainWindow::updateRepoHistoryFileListBySearchSlot(QString txt){
     }
     ui->historyFileList->setColumnWidth(0, 1300 * 0.66);
     ui->historyFileList->setColumnWidth(1, 1300 * 0.33);
+}
+
+bool MainWindow::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == ui->addList || obj == ui->delList)
+    {
+        if (event->type() == QEvent::KeyPress)
+        {
+            QListWidget* listWgt = dynamic_cast<QListWidget*>(obj);
+            listWgt->setSelectionMode(QAbstractItemView::ExtendedSelection);
+        }
+    }
+    return QWidget::eventFilter(obj, event);
 }
 
