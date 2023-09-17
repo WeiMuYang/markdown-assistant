@@ -17,7 +17,7 @@ public:
     QFileInfo getLastmodifiedTimeFileName(const QString& path);
     int getLastmodifiedTimeFileNum(const QString &path, QString& fullPath,QString& tarFile);
     int getLastmodifiedTimeFileNumSubDir(const QString &path,const QString &dirName, QString& fullPath,QString& lastModefyFile);
-    bool clipFilesByFileInfo(const QVector<ImgData> &fileInfoVec, QString fullTarPath,int fileNum, QString &clipText);
+    bool clipFilesByFileInfo(const QStringList addList, QVector<ImgData> &fileInfoVec, QString fullTarPath,int fileNum, QString &clipText);
     bool getFileNameByNum(QString fullPath, int fileNum, QString& fileName);
     void getDirAllFiles(const QString &dirPath);
     QStringList getSubDirNames(QString path);

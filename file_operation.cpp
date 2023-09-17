@@ -142,24 +142,30 @@ QString clipMarkdownCodeItem(QString newAssetsPath){
 }
 
 // 将fileInfoVec里面的所有文件的，放到相应目录
-bool FileOperation::clipFilesByFileInfo(const QVector<ImgData> &fileInfoVec, QString fullTarPath,int fileNum, QString &clipText)
+bool FileOperation::clipFilesByFileInfo(const QStringList addList, QVector<ImgData> &fileInfoVec, QString fullTarPath,int fileNum, QString &clipText)
 {
-    for(int i = 0; i < fileInfoVec.size(); ++i){
-        ImgData data = fileInfoVec.at(i);
-        QDir dir(data.oldPath);
-        QString newAssetsPath = getNewFileName(fullTarPath, data, fileNum);
-        // clip file
-        if(!dir.rename(data.oldPath, newAssetsPath)){
-            if(newAssetsPath.right(3) == "mp4"){
-                emit sigFileOperationLog( "视频文件可能在占用 !");
+    for(int n = 0; n < addList.size(); n++){
+        for(int i = 0; i < fileInfoVec.size(); ++i){
+            ImgData data = fileInfoVec.at(i);
+            if(addList.at(n) == data.oldName){
+                QDir dir(data.oldPath);
+                QString newAssetsPath = getNewFileName(fullTarPath, data, fileNum);
+                // clip file
+                if(!dir.rename(data.oldPath, newAssetsPath)){
+                    if(newAssetsPath.right(3) == "mp4"){
+                        emit sigFileOperationLog( "视频文件可能在占用 !");
+                    }
+                    DebugBox(__FUNCTION__, __LINE__,"move file error");
+                    clipText = QString("<center>    \n")+clipText.chopped(2)+QString("\n</center>    \n");
+                    return false;
+                }
+                emit sigFileOperationLog( "Clip From" + data.oldPath + " \nTo " + newAssetsPath);
+                // Clip Markdown Code
+                clipText +=  clipMarkdownCodeItem(newAssetsPath) + QString("    \n");
+                fileInfoVec.removeAt(i);
+                break;
             }
-            DebugBox(__FUNCTION__, __LINE__,"move file error");
-            clipText = QString("<center>    \n")+clipText.chopped(2)+QString("\n</center>    \n");
-            return false;
         }
-        emit sigFileOperationLog( "Clip From" + data.oldPath + " \nTo " + newAssetsPath);
-        // Clip Markdown Code
-        clipText +=  clipMarkdownCodeItem(newAssetsPath) + QString("    \n");
     }
     clipText = QString("<center>    \n")+clipText.chopped(2)+QString("\n</center>    \n");
     return true;

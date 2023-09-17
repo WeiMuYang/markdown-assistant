@@ -611,7 +611,7 @@
      <x>0</x>
      <y>0</y>
      <width>835</width>
-     <height>25</height>
+     <height>17</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -622,7 +622,6 @@
     <addaction name="actionModifyConf"/>
     <addaction name="actionAddConfFile"/>
     <addaction name="actionRestart"/>
-    <addaction name="actionSimpleView"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -643,8 +642,16 @@
     </property>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menu">
+    <property name="title">
+     <string>视图</string>
+    </property>
+    <addaction name="actionSimpleView"/>
+    <addaction name="actionStayTop"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
+   <addaction name="menu"/>
    <addaction name="menuHelp"/>
   </widget>
   <widget class="QStatusBar" name="statusBar"/>
@@ -727,6 +734,11 @@
   <action name="actionDelFromSrcList">
    <property name="text">
     <string>删除资源文件</string>
+   </property>
+  </action>
+  <action name="actionStayTop">
+   <property name="text">
+    <string>最上面显示</string>
    </property>
   </action>
  </widget>

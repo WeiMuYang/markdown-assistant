@@ -32,7 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     scrrenWidth_ = printscreeninfo();
     videoThr_ = new VideoThr;
     clip_ = QApplication::clipboard();
-
+//    setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
     DebugBox logBoxVideoThr;
     getAssetsDialog_ = new GetAssetsDialog(this);
     aboutDialog_ = new AboutDialog(this);
@@ -48,10 +48,14 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->addList->setMovement(QListWidget::Static);
     ui->addList->setSelectionMode(QAbstractItemView::ExtendedSelection);
     ui->addList->setContextMenuPolicy(Qt::CustomContextMenu);
+    // 拖拽调整次序
+    ui->addList->setDragDropMode(QAbstractItemView::InternalMove);
+
     addListMenu_ = new QMenu(this);
     ui->delList->setMovement(QListWidget::Static);
     ui->delList->setSelectionMode(QAbstractItemView::ExtendedSelection);
     ui->delList->setContextMenuPolicy(Qt::CustomContextMenu);
+//    ui->delList->setDragDropMode(QAbstractItemView::InternalMove);
     delListMenu_ = new QMenu(this);
     QSplitter *splitterList = new QSplitter(Qt::Vertical,nullptr); // 水平布置
     splitterList->addWidget(ui->addList);
@@ -65,6 +69,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->historyFileList->installEventFilter(this);
 
     ui->addList->setMouseTracking(true);
+    // 鼠标掠过事件
     connect(ui->addList,&QListWidget::itemEntered,this, &MainWindow::itemEnteredSlot);
     connect(ui->addList,&QListWidget::clicked,this, &MainWindow::changeSelectSatusSlot);
     connect(ui->addList,&QListWidget::currentItemChanged,this, &MainWindow::itemEnteredSlot);
@@ -151,13 +156,15 @@ void MainWindow::initAddDelListMenu() {
     QAction *actDelDelList = new QAction("删除资源",this);
     QAction *actMoveDelList = new QAction("移除资源",this);
     QAction *actClearDelList = new QAction("删除全部",this);
+    QAction *actClipDelList = new QAction("剪切资源",this);
     delListMenu_->addAction(actDelDelList);
     delListMenu_->addAction(actMoveDelList);
     delListMenu_->addAction(actClearDelList);
+    delListMenu_->addAction(actClipDelList);
     connect(actDelDelList, &QAction::triggered, this, &MainWindow::delFromDelListSlot);
     connect(actMoveDelList, &QAction::triggered, this, &MainWindow::moveFromDelListSlot);
     connect(actClearDelList, &QAction::triggered, this, &MainWindow::clearFromDelListSlot);
-
+    connect(actClipDelList, &QAction::triggered, this, &MainWindow::clipFromDelListSlot);
 }
 
 void MainWindow::copyHistoryFilePathSlot()
@@ -350,6 +357,19 @@ void MainWindow::InitMainWindowMenu(){
 
     ui->actionModifySysFile->setShortcut(QKeySequence("Ctrl+O"));
     connect(ui->actionModifySysFile, &QAction::triggered, this, &MainWindow::modifyIniFileSlot);
+
+    ui->actionStayTop->setShortcut(QKeySequence("Ctrl+F1"));
+    connect(ui->actionStayTop,&QAction::triggered,[this]() {
+        isStayTop_ = !isStayTop_;
+        if(isStayTop_) {
+            setWindowFlag(Qt::WindowStaysOnTopHint, true);
+            show();
+        }else {
+            setWindowFlag(Qt::WindowStaysOnTopHint, false);
+            show();
+        }
+    });
+//    connect(ui->actionStayTop, &QAction::triggered, this, &MainWindow::stayTopSlot);
 
     if(simpleViewNum_ % 2 != 0){
         setSampleView();
@@ -1058,6 +1078,37 @@ void MainWindow::clearFromDelListSlot() {
         ui->imgLabel->setPixmap(QString(""));
     }
 }
+
+void MainWindow::clipFromDelListSlot() {
+    if(addDelListData_.getDelList().isEmpty()){
+        appendTextToLog(u8"列表为空 ! ! !");
+        return;
+    }
+    if(fullTarPath_.isEmpty()){
+        DebugBox(__FUNCTION__, __LINE__, "path error");
+        appendTextToLog(u8"当前的目标路径不存在 ! ! !");
+        return;
+    }
+    // 防止视频还在播放无法复制MP4
+    videoThr_->stop();
+    // 文件剪切，并返回Markdown代码
+    QStringList list;
+    for(int n = 0; n < ui->delList->count(); ++n){
+        list.append(ui->delList->item(n)->text());
+    }
+
+    QString clipText;
+    if(fileOp_.clipFilesByFileInfo(list, addDelListData_.getDelList(), fullTarPath_,ui->numSpinBox->value(), clipText)){
+        clip_->setText(clipText);
+        appendTextToLog(u8"剪切文件完成 !");
+    }else{
+        clip_->setText(clipText);
+        appendTextToLog(u8"剪切文件失败 ! ! !");
+    }
+
+    updateListDataAndWgtSlot();
+}
+
 // 需要todo
 void MainWindow::on_clipPbn_clicked()
 {
@@ -1073,8 +1124,13 @@ void MainWindow::on_clipPbn_clicked()
     // 防止视频还在播放无法复制MP4
     videoThr_->stop();
     // 文件剪切，并返回Markdown代码
+    QStringList list;
+    for(int n = 0; n < ui->addList->count(); ++n){
+        list.append(ui->addList->item(n)->text());
+    }
+
     QString clipText;
-    if(fileOp_.clipFilesByFileInfo(addDelListData_.getAddList(), fullTarPath_,ui->numSpinBox->value(), clipText)){
+    if(fileOp_.clipFilesByFileInfo(list, addDelListData_.getAddList(), fullTarPath_,ui->numSpinBox->value(), clipText)){
         clip_->setText(clipText);
         appendTextToLog(u8"剪切文件完成 !");
     }else{
@@ -1351,4 +1407,3 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
     }
     return QWidget::eventFilter(obj, event);
 }
-

@@ -73,6 +73,7 @@ private slots:
     void delFromDelListSlot();
     void moveFromDelListSlot();
     void clearFromDelListSlot();
+    void clipFromDelListSlot();
     void itemEnteredSlot(QListWidgetItem *item);
     void changeSelectSatusSlot();
 
@@ -127,7 +128,6 @@ protected:
     // 重写事件过滤接口
     bool eventFilter(QObject *obj, QEvent *e);
 
-
 private:
     Ui::MainWindow *ui;
     AssetsData addDelListData_;
@@ -164,6 +164,7 @@ private:
     QMenu *delListMenu_;
     bool isSyncStart_{false};
     QTimer *timerSync_;
+    bool isStayTop_{false};
 };
 
 #endif // MAINWINDOW_H
