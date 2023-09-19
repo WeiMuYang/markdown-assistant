@@ -177,7 +177,10 @@ void MainWindow::copyHistoryFilePathSlot()
     QDir curDir(fullTarPath_);
     curDir.setCurrent(fullTarPath_);
     QString filePath = curDir.relativeFilePath(tarPath_ + "/" + path);
-    QString clipFileName =path.split("/").last().split("-").last().split(".").first();
+    QString FileName = path.split("/").last();
+    int start = FileName.indexOf("-");
+    int num =FileName.lastIndexOf(".") - start - 1;
+    QString clipFileName =FileName.mid(start + 1, num);
     QString text = "[" + clipFileName + "]("+filePath+")  \n\n";
     clip_->setText(text);
     appendTextToLog(u8"剪切: \"" + QString::fromStdString("[") + clipFileName + "]("+filePath+")" +  "\" 完成 !");
@@ -195,8 +198,9 @@ void MainWindow::copyHistoryFilePathOfMeetFileSlot()
     QString filePath = curDir.relativeFilePath(tarPath_ + "/" + path);
     //
     QString FileName = path.split("/").last();
-    int n = FileName.indexOf("-");
-    QString clipFileName =FileName.mid(n+1, FileName.length()).split(".").first();
+    int start = FileName.indexOf("-");
+    int num =FileName.lastIndexOf(".") - start - 1;
+    QString clipFileName =FileName.mid(start + 1, num);
     QString text = "[" + clipFileName + "]("+filePath+")  \n\n";
     clip_->setText(text);
     appendTextToLog(u8"剪切: \"" + QString::fromStdString("[") + clipFileName + "]("+filePath+")" +  "\" 完成 !");
