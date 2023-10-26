@@ -16,6 +16,7 @@
 #include "get_assets_dialog.h"
 #include "about_dialog.h"
 #include "modify_name_dialog.h"
+#include "rename_file_name.h"
 
 
 namespace Ui {
@@ -165,6 +166,8 @@ private:
     bool isSyncStart_{false};
     QTimer *timerSync_;
     bool isStayTop_{false};
+
+    RenameFileName renameFileName_;
 };
 
 #endif // MAINWINDOW_H

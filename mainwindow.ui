@@ -546,7 +546,7 @@
     <item>
      <widget class="QTabWidget" name="tabWgt">
       <property name="currentIndex">
-       <number>1</number>
+       <number>0</number>
       </property>
       <widget class="QWidget" name="logWgt">
        <attribute name="title">
@@ -739,6 +739,11 @@
   <action name="actionStayTop">
    <property name="text">
     <string>最上面显示</string>
+   </property>
+  </action>
+  <action name="actionModifyName">
+   <property name="text">
+    <string>修改文件名</string>
    </property>
   </action>
  </widget>

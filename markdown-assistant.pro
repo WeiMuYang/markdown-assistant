@@ -36,6 +36,7 @@ SOURCES += \
     conf_dialog.cpp \
     modify_name_dialog.cpp \
     open_ex_program.cpp \
+    rename_file_name.cpp \
     video_thr.cpp \
     debug_box.cpp
 
@@ -48,6 +49,7 @@ HEADERS += \
     conf_dialog.h \
     modify_name_dialog.h \
     open_ex_program.h \
+    rename_file_name.h \
     video_thr.h \
     data_type.h \
     debug_box.h
@@ -56,7 +58,8 @@ FORMS += \
         about_dialog.ui \
         get_assets_dialog.ui \
         mainwindow.ui \
-        modify_name_dialog.ui
+        modify_name_dialog.ui \
+        rename_file_name.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
