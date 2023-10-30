@@ -634,6 +634,7 @@
     <addaction name="actionCopyHistoryFilePath"/>
     <addaction name="actionGetRelativePathOfMeetFile"/>
     <addaction name="actionDelFromSrcList"/>
+    <addaction name="actionModifyName"/>
     <addaction name="actionOpenREADME"/>
    </widget>
    <widget class="QMenu" name="menuHelp">

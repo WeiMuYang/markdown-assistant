@@ -37,6 +37,20 @@ void OpenExProgram::OpenMarkdownAndDirSlot(QString fileName){
     }
 }
 
+void OpenExProgram::CompareFileSlot(QString fileNameA, QString fileNameB){
+    QProcess* pProcess = new QProcess;
+    QString pathVsCode = getPathByKey("Vscode");
+    if(!pathVsCode.isEmpty()){
+        QStringList list;
+        list.append("--diff");
+        list.append(fileNameA);
+        list.append(fileNameB);
+        pProcess->start(pathVsCode, list);
+        pProcess->waitForFinished();
+    }
+
+}
+
 void OpenExProgram::OpenJsonAndIniSlot(QString fileName){
     QProcess* pProcess = new QProcess;
     QString pathVsCode = getPathByKey("Vscode");

@@ -80,6 +80,8 @@ private slots:
 
     void ChangeToHistoryFile();
     void OpenHistoryFile();
+    void CompareRenameFileList(QString , QString);
+    void CompareRenameOpenFilePath(QString path);
 
     void on_clipPbn_clicked();
     void on_lastFileNumPbn_clicked();
@@ -123,6 +125,8 @@ private slots:
     void on_createMarkdownPbn_clicked();
     void on_historySearchPbn_clicked();
     void updateRepoHistoryFileListBySearchSlot(QString txt);
+
+    void showModifyNameDlg();
 protected:
     // 窗口设置为随着窗口变化而变化
     virtual void resizeEvent(QResizeEvent *event) override;
@@ -167,7 +171,7 @@ private:
     QTimer *timerSync_;
     bool isStayTop_{false};
 
-    RenameFileName renameFileName_;
+    RenameFileName* renameFileName_;
 };
 
 #endif // MAINWINDOW_H

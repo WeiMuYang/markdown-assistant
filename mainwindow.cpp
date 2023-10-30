@@ -37,6 +37,7 @@ MainWindow::MainWindow(QWidget *parent) :
     getAssetsDialog_ = new GetAssetsDialog(this);
     aboutDialog_ = new AboutDialog(this);
     modifyNameDialog_ = new ModifyNameDialog(this);
+    renameFileName_ = new RenameFileName(this);
     initScreenResNormal();
     initStatusBar();
     setWindowStyle();
@@ -96,6 +97,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(&fileOp_,&FileOperation::sigFileOperationLog,this,&MainWindow::appendTextToLog);
     connect(getAssetsDialog_,&GetAssetsDialog::sigGetAssetsDlgLogText,this,&MainWindow::appendTextToLog);
     connect(&openExPro_,&OpenExProgram::sigOpenExProLog,this,&MainWindow::appendTextToLog);
+    connect(renameFileName_,&RenameFileName::sigRenameFileNameLog,this,&MainWindow::appendTextToLog);
     // dialog --> fileOp
     connect(getAssetsDialog_,&GetAssetsDialog::sigSearchMarkdownCode,this,&MainWindow::searchAssetsByCodeSlot);
     // historyLineEdit
@@ -104,6 +106,10 @@ MainWindow::MainWindow(QWidget *parent) :
     // history List click
     //    connect(ui->historyFileList,&QTableWidget::itemClicked,this,&MainWindow::ChangeToHistoryFile);
     connect(ui->historyFileList,&QTableWidget::itemDoubleClicked,this,&MainWindow::OpenHistoryFile);
+    // RenameFileName --> OpenVScode
+    connect(renameFileName_,&RenameFileName::sigRenameFileVSCodeOpenList,this,&MainWindow::CompareRenameFileList);
+    //
+    connect(renameFileName_,&RenameFileName::sigRenameFileOpenPath,this,&MainWindow::CompareRenameOpenFilePath);
     InitMainWindowMenu();
     initAddDelListMenu();
     startSlot();
@@ -361,6 +367,9 @@ void MainWindow::InitMainWindowMenu(){
 
     ui->actionModifySysFile->setShortcut(QKeySequence("Ctrl+O"));
     connect(ui->actionModifySysFile, &QAction::triggered, this, &MainWindow::modifyIniFileSlot);
+
+    ui->actionModifyName->setShortcut(QKeySequence("Ctrl+F10"));
+    connect(ui->actionModifyName, &QAction::triggered, this, &MainWindow::showModifyNameDlg);
 
     ui->actionStayTop->setShortcut(QKeySequence("Ctrl+F1"));
     connect(ui->actionStayTop,&QAction::triggered,[this]() {
@@ -1244,6 +1253,13 @@ void MainWindow::OpenHistoryFile(){
     ChangeToHistoryFile();
     on_toolPbn_clicked(); // 打开文件
 }
+void MainWindow::CompareRenameFileList(QString pathA, QString pathB){
+    openExPro_.CompareFileSlot(pathA, pathB);
+}
+
+void MainWindow::CompareRenameOpenFilePath(QString path){
+    openExPro_.OpenDirSlot(path);
+}
 
 void MainWindow::whoIsBoxSelection(BoxSelect select)
 {
@@ -1410,4 +1426,13 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
         }
     }
     return QWidget::eventFilter(obj, event);
+}
+
+void MainWindow::showModifyNameDlg(){
+//    renameFileName_->setPath(tarPath_);
+    renameFileName_->setPath("D:/Markdown-Assistant-Version/test");
+    renameFileName_->setMinimumSize(QSize(1100, 900));
+    renameFileName_->resize(QSize(1100, 900));
+    renameFileName_->renameFileListClear();
+    renameFileName_->show();
 }

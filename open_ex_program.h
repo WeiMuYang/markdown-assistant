@@ -14,6 +14,7 @@ public:
     QString getPathByKey(QString key);
 public slots:
     void OpenMarkdownAndDirSlot(QString fileName);
+    void CompareFileSlot(QString fileNameA, QString fileNameB);
     void OpenJsonAndIniSlot(QString fileName);
     void OpenDirSlot(QString dirName);
 
