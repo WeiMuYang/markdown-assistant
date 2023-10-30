@@ -15,7 +15,6 @@
 #include "data_type.h"
 #include "get_assets_dialog.h"
 #include "about_dialog.h"
-#include "modify_name_dialog.h"
 #include "rename_file_name.h"
 
 
@@ -102,7 +101,6 @@ private slots:
     void changTarPathStyle(bool flags);
 
     void getAssetsSlot();
-    void reNameSlot();
     void newConfFileSlot();
     void openAboutSlot();
     void searchAssetsByCodeSlot(QString s,QString r);
@@ -160,7 +158,6 @@ private:
 
     GetAssetsDialog* getAssetsDialog_;
     AboutDialog* aboutDialog_;
-    ModifyNameDialog* modifyNameDialog_;
     int simpleViewNum_{0};
     QString configFilePath_;
     QMenu *confFileList_;

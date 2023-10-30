@@ -10,6 +10,12 @@
     <height>700</height>
    </rect>
   </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
   <property name="minimumSize">
    <size>
     <width>750</width>
@@ -17,9 +23,9 @@
    </size>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>重命名</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_5">
+  <layout class="QVBoxLayout" name="verticalLayout_5" stretch="2,1,4">
    <item>
     <widget class="QGroupBox" name="pathWgt">
      <property name="sizePolicy">
@@ -31,7 +37,7 @@
      <property name="minimumSize">
       <size>
        <width>0</width>
-       <height>126</height>
+       <height>190</height>
       </size>
      </property>
      <property name="maximumSize">
@@ -43,7 +49,7 @@
      <property name="title">
       <string>文件名修改</string>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,4,0">
+     <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,5,1">
       <item>
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
@@ -145,7 +151,7 @@
         <item>
          <widget class="QToolButton" name="ChoosePbn">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -158,7 +164,7 @@
         <item>
          <widget class="QPushButton" name="ReplaceByListPbn">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -181,6 +187,12 @@
    </item>
    <item>
     <widget class="QGroupBox" name="groupBox_2">
+     <property name="maximumSize">
+      <size>
+       <width>16777215</width>
+       <height>120</height>
+      </size>
+     </property>
      <property name="title">
       <string>导入文件</string>
      </property>
@@ -190,7 +202,7 @@
         <item>
          <widget class="QPushButton" name="ModifyNameFilePbn">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -198,7 +210,7 @@
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>50</height>
+            <height>70</height>
            </size>
           </property>
           <property name="text">
@@ -222,7 +234,7 @@
         <item>
          <widget class="QPushButton" name="ReplaceByFilePbn">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -230,7 +242,7 @@
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>50</height>
+            <height>70</height>
            </size>
           </property>
           <property name="text">
@@ -254,7 +266,7 @@
         <item>
          <widget class="QPushButton" name="OpenFilePathPbn">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
@@ -262,7 +274,7 @@
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>50</height>
+            <height>70</height>
            </size>
           </property>
           <property name="text">

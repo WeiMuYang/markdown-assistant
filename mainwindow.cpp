@@ -18,7 +18,6 @@ int printscreeninfo()
     QDesktopWidget *dwsktopwidget = QApplication::desktop();
     QRect deskrect = dwsktopwidget->availableGeometry();
     QRect screenrect = dwsktopwidget->screenGeometry();
-    //    int scrcount = dwsktopwidget->screenCount();
     return deskrect.width();
 }
 
@@ -36,7 +35,6 @@ MainWindow::MainWindow(QWidget *parent) :
     DebugBox logBoxVideoThr;
     getAssetsDialog_ = new GetAssetsDialog(this);
     aboutDialog_ = new AboutDialog(this);
-    modifyNameDialog_ = new ModifyNameDialog(this);
     renameFileName_ = new RenameFileName(this);
     initScreenResNormal();
     initStatusBar();
@@ -357,10 +355,6 @@ void MainWindow::InitMainWindowMenu(){
     ui->actionClearLog->setShortcutContext(Qt::ApplicationShortcut);
     connect(ui->actionClearLog,&QAction::triggered, this, &MainWindow::clearTabWgtSlot);
 
-    ui->actionRename->setShortcut(QKeySequence::Replace);
-    ui->actionRename->setShortcutContext(Qt::ApplicationShortcut);
-    connect(ui->actionRename, &QAction::triggered, this, &MainWindow::reNameSlot);
-
     ui->actionAddConfFile->setShortcut(QKeySequence::New);
     ui->actionAddConfFile->setShortcutContext(Qt::ApplicationShortcut);
     connect(ui->actionAddConfFile, &QAction::triggered, this, &MainWindow::newConfFileSlot);
@@ -368,8 +362,8 @@ void MainWindow::InitMainWindowMenu(){
     ui->actionModifySysFile->setShortcut(QKeySequence("Ctrl+O"));
     connect(ui->actionModifySysFile, &QAction::triggered, this, &MainWindow::modifyIniFileSlot);
 
-    ui->actionModifyName->setShortcut(QKeySequence("Ctrl+F10"));
-    connect(ui->actionModifyName, &QAction::triggered, this, &MainWindow::showModifyNameDlg);
+    ui->actionRename->setShortcut(QKeySequence("Ctrl+F10"));
+    connect(ui->actionRename, &QAction::triggered, this, &MainWindow::showModifyNameDlg);
 
     ui->actionStayTop->setShortcut(QKeySequence("Ctrl+F1"));
     connect(ui->actionStayTop,&QAction::triggered,[this]() {
@@ -1316,11 +1310,6 @@ void MainWindow::changTarPathStyle(bool flags){
 void MainWindow::getAssetsSlot()
 {
     getAssetsDialog_->show();
-}
-
-void MainWindow::reNameSlot()
-{
-    modifyNameDialog_->show();
 }
 
 void MainWindow::newConfFileSlot()

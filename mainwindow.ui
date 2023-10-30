@@ -634,7 +634,6 @@
     <addaction name="actionCopyHistoryFilePath"/>
     <addaction name="actionGetRelativePathOfMeetFile"/>
     <addaction name="actionDelFromSrcList"/>
-    <addaction name="actionModifyName"/>
     <addaction name="actionOpenREADME"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -740,11 +739,6 @@
   <action name="actionStayTop">
    <property name="text">
     <string>最上面显示</string>
-   </property>
-  </action>
-  <action name="actionModifyName">
-   <property name="text">
-    <string>修改文件名</string>
    </property>
   </action>
  </widget>

@@ -34,7 +34,6 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     conf_dialog.cpp \
-    modify_name_dialog.cpp \
     open_ex_program.cpp \
     rename_file_name.cpp \
     video_thr.cpp \
@@ -47,7 +46,6 @@ HEADERS += \
     get_assets_dialog.h \
         mainwindow.h \
     conf_dialog.h \
-    modify_name_dialog.h \
     open_ex_program.h \
     rename_file_name.h \
     video_thr.h \
@@ -58,7 +56,6 @@ FORMS += \
         about_dialog.ui \
         get_assets_dialog.ui \
         mainwindow.ui \
-        modify_name_dialog.ui \
         rename_file_name.ui
 
 # Default rules for deployment.

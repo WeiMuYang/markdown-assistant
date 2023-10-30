@@ -88,7 +88,7 @@ void RenameFileName::on_ModifyNameFilePbn_clicked()
     // 1. 备份文件
     QString backUpPath = filePath_+".backup";
     if(!copyDirectoryFiles(filePath_, backUpPath, true)){
-        emit sigRenameFileNameLog(QString(" Complete data backup Failed"));
+        emit sigRenameFileNameLog(QString("Data backup Failed"));
         return;
     }
     // 2. 创建文件名修改文件
@@ -116,7 +116,7 @@ void RenameFileName::on_ModifyNameFilePbn_clicked()
         status_ = StatusType::EditNameFileError;
     }
     if(newFileAndDirNameList_.size() != oldFileAndDirNameList_.size()){
-        sigRenameFileNameLog(QString(" The number of renamed files is Not Equal !"));
+        sigRenameFileNameLog(QString("The number of renamed files is Not Equal !"));
         status_ = StatusType::NamesNumberError;
     }
     if(status_ == StatusType::OK){
@@ -185,10 +185,10 @@ void RenameFileName::on_ReplaceByFilePbn_clicked()
 {
     switch (status_) {
     case StatusType::EditNameFileError:
-        emit sigRenameFileNameLog(QString(" Please confirm whether to Edit name information !"));
+        emit sigRenameFileNameLog(QString("Please confirm whether to Edit name information !"));
         return;
     case StatusType::NamesNumberError:
-        emit sigRenameFileNameLog(QString(" The number of renamed files is Not Equal !"));
+        emit sigRenameFileNameLog(QString("The number of renamed files is Not Equal !"));
         return;
     default:
         ;
@@ -200,7 +200,7 @@ void RenameFileName::on_ReplaceByFilePbn_clicked()
             QString newFilePath = filePath_ +"/" + newFileAndDirNameList_.at(i);
             if(!QFile::rename(oldFilePath,newFilePath)){
                 status = false;
-                emit sigRenameFileNameLog(QString(" Move ") + oldFileAndDirNameList_.at(i) + " Failed ！");
+                emit sigRenameFileNameLog(QString("Move ") + oldFileAndDirNameList_.at(i) + " Failed ！");
             }
         }
     }
