@@ -50,7 +50,6 @@ public:
     void setSampleViewByScreenRes();
     ScreenRes getScrrenRes();
     void updateSubDirCombox();
-
     void setSampleView();
     void setNormalView();
     void setConfigFilePathByUserName(const IniFile& iniFile);
@@ -123,7 +122,6 @@ private slots:
     void on_createMarkdownPbn_clicked();
     void on_historySearchPbn_clicked();
     void updateRepoHistoryFileListBySearchSlot(QString txt);
-
     void showModifyNameDlg();
 protected:
     // 窗口设置为随着窗口变化而变化
