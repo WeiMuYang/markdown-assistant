@@ -2,6 +2,7 @@
 #include "ui_rename_file_name.h"
 #include <QDebug>
 #include <QMessageBox>
+#include <QTextCodec>
 
 RenameFileName::RenameFileName(QWidget *parent) :
     QDialog(parent),
@@ -15,7 +16,7 @@ RenameFileName::RenameFileName(QWidget *parent) :
 void RenameFileName::setPath(const QString& path){
     tarPath_ = path;
     filePath_ = tarPath_;
-    ui->PathEdit->setText(tarPath_);
+    ui->PathEdit->setText(filePath_);
 }
 
 RenameFileName::~RenameFileName()
@@ -25,13 +26,47 @@ RenameFileName::~RenameFileName()
 
 void RenameFileName::on_ChoosePbn_clicked()
 {
-    tarPath_ = QFileDialog::getExistingDirectory(this,"选择目录",tarPath_,QFileDialog::ShowDirsOnly);
+    filePath_ = QFileDialog::getExistingDirectory(this,"选择目录",tarPath_,QFileDialog::ShowDirsOnly);
+    ui->PathEdit->setText(filePath_);
 }
 
-// TODO:
+// TODO: 仅仅支持修改当前文件夹中的文件
 void RenameFileName::on_ReplaceByListPbn_clicked()
 {
+    QStringList nameList;
+    if(-1 != ui->NameListEdit->text().indexOf(',')){
+        nameList = ui->NameListEdit->text().split(',');
+    }else{
+        nameList = ui->NameListEdit->text().split(QRegularExpression("\\s+"));;
+    }
+    int n = 0;
+    QDir dir(filePath_);
+    QFileInfoList list = dir.entryInfoList(QDir::Files | QDir::AllDirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    ui->renameFileListWgt->clear();
+    foreach(QFileInfo fileInfo, list)
+    {
+        if(ui->dirRadioBtn->isChecked() && fileInfo.isDir() && n < nameList.size()){
 
+            ui->renameFileListWgt->setRowCount(n + 1);
+            QTableWidgetItem *pItem1 = new QTableWidgetItem(fileInfo.fileName());
+            QTableWidgetItem *pItem2 = new QTableWidgetItem(nameList.at(n) + fileInfo.suffix());
+            ui->renameFileListWgt->setItem(n, 0, pItem1);
+            ui->renameFileListWgt->setItem(n, 1, pItem2);
+            dir.rename(fileInfo.fileName(), nameList.at(n) + fileInfo.suffix());
+            n++;
+        }
+        if(ui->fileBtn->isChecked() && fileInfo.isFile() && n < nameList.size()) //book  study  test目录
+        {
+
+            ui->renameFileListWgt->setRowCount(n + 1);
+            QTableWidgetItem *pItem1 = new QTableWidgetItem(fileInfo.fileName());
+            QTableWidgetItem *pItem2 = new QTableWidgetItem(nameList.at(n) +"." + fileInfo.suffix());
+            ui->renameFileListWgt->setItem(n, 0, pItem1);
+            ui->renameFileListWgt->setItem(n, 1, pItem2);
+            dir.rename(fileInfo.fileName(), nameList.at(n) + nameList.at(n) + "."  + fileInfo.suffix());
+            n++;
+        }
+    }
 }
 
 //拷贝文件夹
@@ -57,9 +92,7 @@ bool RenameFileName::copyDirectoryFiles(const QString &fromDir, const QString &t
                 curDir.setCurrent(filePath_);
                 QString filePath = curDir.relativeFilePath(fileInfo.filePath());
                 QDir fileDir = QDir(fileInfo.filePath());
-                if(fileDir.isEmpty()){
-                    oldFileAndDirNameList_.append(filePath);
-                }
+                oldFileAndDirNameList_.append(filePath);
             }
         }
         else{
@@ -99,7 +132,15 @@ void RenameFileName::on_ModifyNameFilePbn_clicked()
     {
         QTextStream stream(&file);
         for(int i = 0; i < oldFileAndDirNameList_.size(); ++i){
-            QString txt = QString("%1").arg(i + 1, 2, 10, QLatin1Char('0')) + QString(" |") + oldFileAndDirNameList_.at(i);
+            QDir curFileDir(filePath_+"/" + oldFileAndDirNameList_.at(i));
+            QString str = curFileDir.dirName();
+            int desiredLength = 40;
+            // 使用UTF-8编码
+            QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+            int byteLength = codec->fromUnicode(str).length();
+            int numChineseChars = (byteLength - str.length()) / 2;
+            QString paddedStr = str.leftJustified(desiredLength - numChineseChars);
+            QString txt = QString("%1").arg(i + 1, 2, 10, QLatin1Char('0')) + QString(" |") + paddedStr + QString("|") + oldFileAndDirNameList_.at(i);
             stream << txt << "\n";
         }
         file.close();
@@ -140,11 +181,18 @@ bool RenameFileName::readNewFileList() {
         emit sigRenameFileNameLog(QString(" Read [" + NEW_FILE_NAME + "] Failed!"));
         return false;
     }
-
     QTextStream in(&file);
     while (!in.atEnd()) {
         QString line = in.readLine();
-        newFileAndDirNameList_.append(line.split(" |").last());
+        if(line.split(" |").size() < 3) {
+            return false;
+        }
+        QString name = line.split(" |").at(1);
+        QString path = line.split(" |").last();
+        int pos = path.lastIndexOf("/") + 1;
+        QString strName = path.mid(0, pos) + name;
+        strName = strName.trimmed();
+        newFileAndDirNameList_.append(strName);
     }
     file.close();
     return true;
@@ -158,7 +206,7 @@ void RenameFileName::updateRenameFileList(){
     ui->renameFileListWgt->clear();
     for(int i = 0, j = 0; i < oldFileAndDirNameList_.size(); ++i){
         if(oldFileAndDirNameList_.at(i) != newFileAndDirNameList_.at(i)) {
-            ui->renameFileListWgt->setRowCount(j + 1);        //设置行数/
+            ui->renameFileListWgt->setRowCount(j + 1);
             QTableWidgetItem *pItem1 = new QTableWidgetItem(oldFileAndDirNameList_.at(i));
             QTableWidgetItem *pItem2 = new QTableWidgetItem(newFileAndDirNameList_.at(i));
             ui->renameFileListWgt->setItem(j, 0, pItem1);
@@ -196,8 +244,6 @@ bool RenameFileName::isMarkdownFile(QString fileName) {
 bool getMarkdownQString(QString Path,QString oldFileName, int &n) {
     n = 0;
     QFile data(Path);
-    qDebug() << QString("oldFileName: ") << oldFileName;
-    qDebug() << QString("Path: ") << Path;
     if (!data.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         qDebug()<< "Can't open the file!";
@@ -220,7 +266,6 @@ void RenameFileName::getRefMarkdownFile(const QString& path, const QString& oldF
 {
     QDir dir(path);
     QFileInfoList fileList = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files, QDir::Time);
-    QString str;
     if (!fileList.isEmpty()) {
         for(int i = fileList.size() - 1; i >= 0; --i) {
             if(isMarkdownFile(fileList.at(i).fileName())) { // 只遍历markdown文件
@@ -318,7 +363,7 @@ QString RenameFileName::replaceNewFile(QDir newFileDir, QDir curFileDir, QString
 
 
 bool RenameFileName::modifyRefMarkdown(const QString& refFilePath, const QString& oldFileName,
-                       const QString& newFilePath){
+                                       const QString& newFilePath){
     QString strAll;
     QStringList strList;
     QDir curFileDir(refFilePath);
@@ -348,7 +393,7 @@ bool RenameFileName::modifyRefMarkdown(const QString& refFilePath, const QString
     strList = strAll.split("\n");           //以换行符为基准分割文本
     for(int i = 0;i < strList.count();i++)    //遍历每一行
     {
-        if(strList.at(i).contains(oldFileName))    //"123456789"是要修改的内容
+        if(strList.at(i).contains(oldFileName))
         {
             qDebug() << strList.at(i);
             wStream << replaceNewFile(newFileDir, curFileDir, strList.at(i), oldFileName) << '\n';

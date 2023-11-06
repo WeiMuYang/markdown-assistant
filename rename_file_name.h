@@ -49,8 +49,8 @@ signals:
     void sigRenameFileOpenPath(QString path);
 private:
     Ui::RenameFileName *ui;
-    QString tarPath_;
-    QString filePath_;
+    QString tarPath_;    // 仓库目录
+    QString filePath_;   // 选择的路径
     QStringList oldFileAndDirNameList_;
     QStringList newFileAndDirNameList_;
     StatusType status_;
