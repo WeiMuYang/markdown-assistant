@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
     scrrenWidth_ = printscreeninfo();
     videoThr_ = new VideoThr;
     clip_ = QApplication::clipboard();
-//    setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
+    //    setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
     DebugBox logBoxVideoThr;
     getAssetsDialog_ = new GetAssetsDialog(this);
     aboutDialog_ = new AboutDialog(this);
@@ -54,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->delList->setMovement(QListWidget::Static);
     ui->delList->setSelectionMode(QAbstractItemView::ExtendedSelection);
     ui->delList->setContextMenuPolicy(Qt::CustomContextMenu);
-//    ui->delList->setDragDropMode(QAbstractItemView::InternalMove);
+    //    ui->delList->setDragDropMode(QAbstractItemView::InternalMove);
     delListMenu_ = new QMenu(this);
     QSplitter *splitterList = new QSplitter(Qt::Vertical,nullptr); // 水平布置
     splitterList->addWidget(ui->addList);
@@ -235,7 +235,6 @@ void MainWindow::updateConfFileSlot()
     updateListDataAndWgtSlot();
     // 4 更新 最新的修改文件
     updateLastModifyFile();
-
     // 5 更新 Top20文件列表
     updateRepoHistoryFileList();
     ui->tabWgt->setCurrentIndex(0);
@@ -376,7 +375,7 @@ void MainWindow::InitMainWindowMenu(){
             show();
         }
     });
-//    connect(ui->actionStayTop, &QAction::triggered, this, &MainWindow::stayTopSlot);
+    //    connect(ui->actionStayTop, &QAction::triggered, this, &MainWindow::stayTopSlot);
 
     if(simpleViewNum_ % 2 != 0){
         setSampleView();
@@ -837,7 +836,7 @@ void MainWindow::changeSelectSatusSlot() {
 void MainWindow::itemEnteredSlot(QListWidgetItem *item)
 {
     if(item == Q_NULLPTR){
-//        qDebug() << "改变Item后，双击操作，清除了之前的item ";
+        //        qDebug() << "改变Item后，双击操作，清除了之前的item ";
         return;
     }
     QString name = item->text();
@@ -882,6 +881,18 @@ void MainWindow::sycImgDataByOldName(QString oldName){
     }
 }
 
+void MainWindow::writeCurrentFile(QString str) {
+    QFile file(fullTarPath_+ "/" + currentFile_);
+    if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
+        QTextStream stream(&file);
+        // 将文件光标移动到文件的末尾
+        stream.seek(file.size());
+        // 将QString写入文件
+        stream << str << "\n";
+        file.close();
+    }
+}
+
 void MainWindow::syncAddListTimelySlot() {
     QVector<ImgData> srcList = addDelListData_.getNewAddImgVideoFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
     for(auto it = srcList.begin(); it < srcList.end(); ++it){
@@ -910,8 +921,13 @@ void MainWindow::syncAddListTimelySlot() {
         ui->addList->addItem(pItem);
         appendTextToLog(u8"自动添加: " + data.oldName + " 成功 ！");
     }
+//    if(!addDelListData_.getAddList().isEmpty()){
+//        on_clipPbn_clicked();
+//        if(!clipText_.isEmpty()) {
+//            clipText_.clear();
+//        }
+//    }
 }
-
 
 void MainWindow::on_syncPbn_clicked()
 {
@@ -1112,7 +1128,6 @@ void MainWindow::clipFromDelListSlot() {
         clip_->setText(clipText);
         appendTextToLog(u8"剪切文件失败 ! ! !");
     }
-
     updateListDataAndWgtSlot();
 }
 
@@ -1136,15 +1151,14 @@ void MainWindow::on_clipPbn_clicked()
         list.append(ui->addList->item(n)->text());
     }
 
-    QString clipText;
-    if(fileOp_.clipFilesByFileInfo(list, addDelListData_.getAddList(), fullTarPath_,ui->numSpinBox->value(), clipText)){
-        clip_->setText(clipText);
+
+    if(fileOp_.clipFilesByFileInfo(list, addDelListData_.getAddList(), fullTarPath_,ui->numSpinBox->value(), clipText_)){
+        clip_->setText(clipText_);
         appendTextToLog(u8"剪切文件完成 !");
     }else{
-        clip_->setText(clipText);
+        clip_->setText(clipText_);
         appendTextToLog(u8"剪切文件失败 ! ! !");
     }
-
     updateListDataAndWgtSlot();
 }
 
@@ -1418,8 +1432,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 }
 
 void MainWindow::showModifyNameDlg(){
-//    renameFileName_->setPath(tarPath_);
-    renameFileName_->setPath("D:/Markdown-Assistant-Version/test");
+     renameFileName_->setPath(tarPath_);
+//    renameFileName_->setPath("D:/Markdown-Assistant-Version/test");
     renameFileName_->setMinimumSize(QSize(1100, 900));
     renameFileName_->resize(QSize(1100, 900));
     renameFileName_->renameFileListClear();

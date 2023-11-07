@@ -135,6 +135,7 @@ QString clipMarkdownCodeItem(QString newAssetsPath){
     QFileInfo fileInfo(newAssetsPath);
     if(fileInfo.suffix() == "mp4"){
         clipTextItem = "<video src=./video/"+ fileInfo.fileName() +" alt=" + fileInfo.baseName() + " width=50%;/>";
+        clipTextItem = QString("<center>    \n")+clipTextItem.chopped(2)+QString("\n</center>    \n");
     }else{
         clipTextItem = "<img src=./img/"+ fileInfo.fileName() +" alt=" + fileInfo.baseName() + " style=zoom:50%;/>";
     }
@@ -142,7 +143,7 @@ QString clipMarkdownCodeItem(QString newAssetsPath){
 }
 
 // 将fileInfoVec里面的所有文件的，放到相应目录
-bool FileOperation::clipFilesByFileInfo(const QStringList addList, QVector<ImgData> &fileInfoVec, QString fullTarPath,int fileNum, QString &clipText)
+bool FileOperation::clipFilesByFileInfo(const QStringList addList, QVector<ImgData> fileInfoVec, QString fullTarPath,int fileNum, QString &clipText)
 {
     for(int n = 0; n < addList.size(); n++){
         for(int i = 0; i < fileInfoVec.size(); ++i){
@@ -167,6 +168,8 @@ bool FileOperation::clipFilesByFileInfo(const QStringList addList, QVector<ImgDa
             }
         }
     }
+
+
     clipText = QString("<center>    \n")+clipText.chopped(2)+QString("\n</center>    \n");
     return true;
 }

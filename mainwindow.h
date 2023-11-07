@@ -54,6 +54,7 @@ public:
     void setNormalView();
     void setConfigFilePathByUserName(const IniFile& iniFile);
     void setComboBoxToolTip(QComboBox* box);
+    void writeCurrentFile(QString str);
 private slots:
     void updateListDataAndWgtSlot();
     void changeModeSlot();
@@ -167,6 +168,7 @@ private:
     bool isStayTop_{false};
 
     RenameFileName* renameFileName_;
+    QString clipText_;
 };
 
 #endif // MAINWINDOW_H
