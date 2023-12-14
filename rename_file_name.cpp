@@ -30,7 +30,7 @@ void RenameFileName::on_ChoosePbn_clicked()
     ui->PathEdit->setText(filePath_);
 }
 
-// TODO: 仅仅支持修改当前文件夹中的文件
+// TODO: 仅仅支持修改当前文件夹中的文件   修改列表修改： 不包括子目录
 void RenameFileName::on_ReplaceByListPbn_clicked()
 {
     QStringList nameList;
@@ -414,6 +414,7 @@ bool RenameFileName::modifyRefMarkdown(const QString& refFilePath, const QString
     return true;
 }
 
+// 修改所有文件，特殊符号替换所
 void RenameFileName::on_ReplaceByFilePbn_clicked()
 {
     switch (status_) {

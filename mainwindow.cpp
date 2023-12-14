@@ -1453,10 +1453,12 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 }
 
 void MainWindow::showModifyNameDlg(){
-     renameFileName_->setPath(tarPath_);
-//    renameFileName_->setPath("D:/Markdown-Assistant-Version/test");
-    renameFileName_->setMinimumSize(QSize(1100, 900));
-    renameFileName_->resize(QSize(1100, 900));
+//     renameFileName_->setPath(tarPath_);
+    renameFileName_->setPath("D:/Markdown-Assistant-Version/test");
+//    renameFileName_->setMinimumSize(QSize(1100, 900));
+//    renameFileName_->resize(QSize(1100, 900));
+     renameFileName_->setMinimumSize(QSize(700, 500));
+     renameFileName_->resize(QSize(700, 500));
     renameFileName_->renameFileListClear();
     renameFileName_->show();
 }
