@@ -611,7 +611,7 @@
      <x>0</x>
      <y>0</y>
      <width>835</width>
-     <height>17</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -621,6 +621,7 @@
     <addaction name="actionModifySysFile"/>
     <addaction name="actionModifyConf"/>
     <addaction name="actionAddConfFile"/>
+    <addaction name="actionOpenCurrentDir"/>
     <addaction name="actionRestart"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -688,9 +689,9 @@
     <string>极简窗口</string>
    </property>
   </action>
-  <action name="actionSysFile">
+  <action name="actionOpenCurrentDir">
    <property name="text">
-    <string>打开系统文件</string>
+    <string>打开当前目录</string>
    </property>
   </action>
   <action name="actionAddConfFile">

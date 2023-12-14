@@ -409,6 +409,10 @@ void MainWindow::InitMainWindowMenu(){
 
     ui->actionDelFromSrcList->setShortcut(QKeySequence::Delete);
     connect(ui->actionDelFromSrcList, &QAction::triggered, this, &MainWindow::delSrcFromListSlot);
+
+    // actionOpenCurrentDir
+    ui->actionOpenCurrentDir->setShortcut(QKeySequence("Alt+D"));
+    connect(ui->actionOpenCurrentDir, &QAction::triggered, this, &MainWindow::openCurrentDirSlot);
 }
 
 void MainWindow::openConfFileSlot(){
@@ -1190,6 +1194,23 @@ void MainWindow::on_toolPbn_clicked()
     switch (boxSelect_) {
     case BoxSelect::NumSpinBox:
         openExPro_.OpenMarkdownAndDirSlot(fullTarPath_+"/" + currentFile_);
+        break;
+    case BoxSelect::SubCombox:
+        openExPro_.OpenDirSlot(tarPath_+"/" + subDirName_);
+        break;
+    case BoxSelect::TarCombox:
+        openExPro_.OpenDirSlot(tarPath_);
+        break;
+    default:
+        appendTextToLog(u8"没有选中文件需要打开!");
+        break;
+    }
+}
+
+void MainWindow::openCurrentDirSlot(){
+    switch (boxSelect_) {
+    case BoxSelect::NumSpinBox:
+        openExPro_.OpenDirSlot(tarPath_+"/" + subDirName_);
         break;
     case BoxSelect::SubCombox:
         openExPro_.OpenDirSlot(tarPath_+"/" + subDirName_);

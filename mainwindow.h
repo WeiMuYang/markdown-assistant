@@ -124,6 +124,8 @@ private slots:
     void on_historySearchPbn_clicked();
     void updateRepoHistoryFileListBySearchSlot(QString txt);
     void showModifyNameDlg();
+
+    void openCurrentDirSlot();
 protected:
     // 窗口设置为随着窗口变化而变化
     virtual void resizeEvent(QResizeEvent *event) override;
