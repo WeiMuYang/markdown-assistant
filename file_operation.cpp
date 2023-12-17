@@ -574,7 +574,7 @@ bool FileOperation::getMarkdownQString(const QString& markdownAbsPath, const QSt
     QDir curDir(markdownAbsPath);
     curDir.setCurrent(markdownAbsPath);
     if(markdownAbsPath.contains("报告类举例.md") && markdownAbsPath.contains("PART1短语")) {
-        qDebug() <<markdownAbsPath;
+        qDebug() << markdownAbsPath;
     }
         //11-新东方-写作课程-第06讲-报告类举例.md
     QString relativePath1 = curDir.relativeFilePath(oldNameAbsolutePath);
@@ -653,8 +653,6 @@ QVector<ReFile> FileOperation::getDirAllFiles(const QString& repoPath, const QSt
 }
 
 
-
-
 ///////////////////////
 
 void FileOperation::getMarkdownQString(const QString& markdownAbsPath, const QString &repoPath, const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList
@@ -676,7 +674,6 @@ void FileOperation::getMarkdownQString(const QString& markdownAbsPath, const QSt
         context += line + "\n";
     }
     data.close();
-
 
     if(markdownAbsPath.contains("报告类举例.md")/* && replaceNameFileInfoList.at(i).oldFilePath.contains("03 PART1")*/) {
         //            qDebug() << markdownAbsPath;
@@ -764,4 +761,48 @@ void FileOperation::updateReplaceNameRefereceList(const QString &repoPath, const
                 getMarkdownQString(fileInfo.absoluteFilePath(), repoPath, renameDirPath, replaceNameDirInfoList, replaceNameFileInfoList);
         }
     }
+}
+
+void FileOperation::updateReplaceNameByList(const QString &listPathAbs, QVector<DirRenameInfo> &replaceNameDirInfoList, QVector<FileRenameInfo> &replaceNameFileInfoList)
+{
+    QFile data(listPathAbs);
+    if (!data.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug()<< "Can't open the file!";
+        return;
+    }
+    QString context;
+
+    while (!data.atEnd())
+    {
+        bool hasFind = false;
+        QByteArray line = data.readLine();
+        QString LineStr(line);
+        int len = LineStr.length();
+        for(int i = 0; i < replaceNameDirInfoList.size(); ++i) {
+                QString oldName = replaceNameDirInfoList.at(i).oldDirPath.split("/").last();
+                if(oldName.length() < len && LineStr.indexOf(oldName) == 0) {
+                QString newName = LineStr.remove(0, oldName.length()).trimmed();
+                if(!newName.isEmpty()) {
+                    //                QString newName = LineStr.split(oldName).last();
+                    replaceNameDirInfoList[i].newDirPath = newName;
+                    hasFind = true;
+                }
+                break;
+                }
+        }
+
+        for(int i = 0; i < replaceNameFileInfoList.size() && !hasFind; ++i) {
+                QString oldName = replaceNameFileInfoList.at(i).oldFilePath.split("/").last();
+                if(oldName.length() < len && LineStr.indexOf(oldName) == 0) {
+                QString newName = LineStr.remove(0, oldName.length()).trimmed();
+                if(!newName.isEmpty()) {
+                    replaceNameFileInfoList[i].newFilePath = newName;
+                    hasFind = true;
+                }
+                break;
+                }
+        }
+    }
+    data.close();
 }

@@ -112,9 +112,9 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(renameFileName_,&RenameFileName::sigRenameFileConfFile,[this](QString path) {
         openExPro_.OpenJsonAndIniSlot(path);
     });
-    // RenameFileName中对比完成后，才能读取修改后的文件
-    connect(&openExPro_, &OpenExProgram::sigCompareFinished, renameFileName_,&RenameFileName::updateReplaceInfoSlot);
-
+    connect(renameFileName_,&RenameFileName::sigRenameFileReferFile,[this](QString path) {
+        openExPro_.OpenMarkdownAndDirSlot(path);
+    });
     InitMainWindowMenu();
     initAddDelListMenu();
     startSlot();
@@ -1458,6 +1458,7 @@ void MainWindow::showModifyNameDlg(){
     renameFileName_->setRenameDirPath("C:/Users/Administrator/Desktop/IELTS-Test-rename/09-MP3");
     renameFileName_->setRenameConfPath("C:/Users/Administrator/Desktop/markdown-assistant/conf/rename.json");
     renameFileName_->setRepoPath("C:/Users/Administrator/Desktop/IELTS-Test-rename");
+    renameFileName_->setRenameListPath("C:/Users/Administrator/Desktop/markdown-assistant/conf/renameList.txt");
 
     if(getScrrenRes() == ScreenRes::High){
         renameFileName_->setMinimumSize(QSize(1600, 1000));

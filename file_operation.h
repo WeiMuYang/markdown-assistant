@@ -58,6 +58,9 @@ public:
                                            , QVector<FileRenameInfo> &replaceNameFileInfoList);
     void updateReplaceNameRefereceList(const QString &repoPath, const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList,
                                                       QVector<FileRenameInfo> &replaceNameFileInfoList);
+
+    void updateReplaceNameByList(const QString &listPathAbs, QVector<DirRenameInfo> &replaceNameDirInfoList
+                                       , QVector<FileRenameInfo> &replaceNameFileInfoList);
 signals:
     void sigFileOperationLog(QString log);
 

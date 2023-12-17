@@ -3,6 +3,9 @@
 #include <QDebug>
 #include <QMessageBox>
 #include <QTextCodec>
+#include <QClipboard>
+#include <QAction>
+
 
 RenameFileName::RenameFileName(QWidget *parent) :
     QDialog(parent),
@@ -11,8 +14,8 @@ RenameFileName::RenameFileName(QWidget *parent) :
     ui->setupUi(this);
     fileOperaton_ = new FileOperation(this);
     confFile_ = new confDialog;
+    renameListMenu_ = new QMenu(this);
     initRenameFileList();
-
 }
 
 void RenameFileName::setRepoPath(const QString& path){
@@ -27,6 +30,11 @@ void RenameFileName::setRenameDirPath(const QString& path){
 void RenameFileName::setRenameConfPath(const QString& path){
     renameConfPath_ = path;
     ui->NameConfFilePathEdit->setText(renameConfPath_);
+}
+
+void RenameFileName::setRenameListPath(const QString& path){
+    renameListPath_ = path;
+    ui->NameListPathEdit->setText(renameListPath_);
 }
 
 RenameFileName::~RenameFileName()
@@ -92,41 +100,12 @@ bool RenameFileName::updateOldPath(const QString &fromDir, QStringList& oldDirPa
     return true;
 }
 
-bool RenameFileName::readNewFileList() {
-    QFile file(backUpPath_ + "/" + NEW_FILE_NAME);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text)){
-        emit sigRenameFileNameLog(QString(" Read [" + NEW_FILE_NAME + "] Failed!"));
-        return false;
-    }
-    QTextStream in(&file);
-    in.setCodec("UTF-8");
-    int i = 0, j = 0;
-    while (!in.atEnd()) {
-        QString line = in.readLine();
-        if(line.split("|").size() < 3) {
-            emit sigRenameFileNameLog(QString(" Read [" + NEW_FILE_NAME + "] split line Error!"));
-            return false;
-        }
-        QString name = line.split("|").at(1);
-        QString path = line.split("|").last();
-        int pos = path.lastIndexOf("/") + 1;
-        QString strName = path.mid(0, pos) + name;
-        strName = strName.trimmed();
-        if(i < replaceNameDirInfoList_.size()){
-            replaceNameDirInfoList_[i].newDirPath = strName;
-            i++;
-        }else{
-            replaceNameFileInfoList_[j].newFilePath = strName;
-            j++;
-        }
-    }
-    file.close();
-    return true;
-}
 
 void RenameFileName::initRenameFileList() {
     ui->renameFileListWgt->setColumnCount(5);     //设置列数
     ui->renameFileListWgt->setSelectionBehavior(QAbstractItemView::SelectRows);
+    // 右击菜单
+    ui->renameFileListWgt->setContextMenuPolicy(Qt::CustomContextMenu);
     //设置每行内容不可编辑
 //    ui->renameFileListWgt->setEditTriggers(QAbstractItemView::NoEditTriggers);
     /*去掉每行的行号*/
@@ -141,7 +120,9 @@ void RenameFileName::initRenameFileList() {
     ui->renameFileListWgt->setMouseTracking(true);
 //    connect(ui->renameFileListWgt,&QTableWidget::itemEntered,this, &RenameFileName::updateReferListEnteredSlot);
     connect(ui->renameFileListWgt,&QTableWidget::clicked,this, &RenameFileName::updateReferListClickedSlot);
-
+    connect(ui->renameFileListWgt,&QTableWidget::itemChanged,this, &RenameFileName::updateReferListEditSlot);
+    // rightClickMenu
+    connect(ui->renameFileListWgt,&QTableWidget::customContextMenuRequested,this,&RenameFileName::showMenuSlot);
 // =======================================================================
     ui->referFileListWgt->setColumnCount(4);     //设置列数
     ui->referFileListWgt->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -154,10 +135,47 @@ void RenameFileName::initRenameFileList() {
     ui->referFileListWgt->setFrameShape(QFrame::NoFrame);
     //设置表格不显示格子线
     ui->referFileListWgt->setShowGrid(false); //设置不显示格子线
+
+    connect(ui->referFileListWgt,&QTableWidget::itemDoubleClicked,this,&RenameFileName::OpenReferFileSlot);
+    initListMenu();
+}
+
+void RenameFileName::OpenReferFileSlot(QTableWidgetItem *item) {
+    int row = ui->renameFileListWgt->currentItem()->row();
+    QVector<ReFile> reFiles;
+    int len = replaceNameDirInfoList_.size();
+    if(row < len) {
+        reFiles = replaceNameDirInfoList_.at(row).reDirList;
+    }else {
+        reFiles = replaceNameFileInfoList_.at(row - len).reFileList;
+    }
+    QString curRePathAbs = repoPath_ + "/" + reFiles.at(item->row()).reFilePath;
+    emit sigRenameFileReferFile(curRePathAbs);
+}
+
+void RenameFileName::initListMenu() {
+    QAction *actCopyAddList = new QAction("拷贝列表",renameListMenu_);
+    renameListMenu_->addAction(actCopyAddList);
+    connect(actCopyAddList, &QAction::triggered, this, &RenameFileName::copyOldFileListSlot);
+}
+
+void RenameFileName::showMenuSlot() {
+    renameListMenu_->move(cursor().pos());
+    renameListMenu_->show();
+}
+
+void RenameFileName::copyOldFileListSlot(){
+    QClipboard* clip = QApplication::clipboard();
+    QString clipText;
+    for(int i = 0; i < ui->renameFileListWgt->rowCount(); ++i){
+        clipText += ui->renameFileListWgt->item(i,2)->text() + "\n";
+    }
+    clip->setText(clipText);
 }
 
 void RenameFileName::updateRenameFileList(){
     renameListClear();
+    disconnect(ui->renameFileListWgt,&QTableWidget::itemChanged,this, &RenameFileName::updateReferListEditSlot);
     int n = 1;
     for(int j = 0; j < replaceNameDirInfoList_.size(); ++j) {
         ui->renameFileListWgt->setRowCount(j + 1);
@@ -171,15 +189,11 @@ void RenameFileName::updateRenameFileList(){
         if(dirInfo.reDirList.size() > 0){
             pItem0->setBackground(QBrush(Qt::gray));        // 设置背景色
             pItem0->setForeground(QBrush(Qt::red));         // 设置字体颜色
-            pItem1->setBackground(QBrush(Qt::gray));        // 设置背景色
-            pItem1->setForeground(QBrush(Qt::red));         // 设置字体颜色
-            pItem2->setBackground(QBrush(Qt::gray));        // 设置背景色
-            pItem2->setForeground(QBrush(Qt::red));         // 设置字体颜色
-            pItem3->setBackground(QBrush(Qt::gray));        // 设置背景色
-            pItem3->setForeground(QBrush(Qt::red));         // 设置字体颜色
-            pItem4->setBackground(QBrush(Qt::gray));        // 设置背景色
-            pItem4->setForeground(QBrush(Qt::red));         // 设置字体颜色
         }
+        if(dirInfo.newDirPath != dirInfo.oldDirPath) {
+            pItem1->setForeground(QBrush(Qt::yellow));         // 设置字体颜色
+        }
+
         pItem0->setFlags(pItem0->flags() & ~Qt::ItemIsEditable);
         pItem2->setFlags(pItem2->flags() & ~Qt::ItemIsEditable);
         pItem3->setFlags(pItem3->flags() & ~Qt::ItemIsEditable);
@@ -206,14 +220,9 @@ void RenameFileName::updateRenameFileList(){
         if(fileInfo.reFileList.size() > 0){
             pItem0->setBackground(QBrush(Qt::gray));        // 设置背景色
             pItem0->setForeground(QBrush(Qt::red));         // 设置字体颜色
-            pItem1->setBackground(QBrush(Qt::gray));        // 设置背景色
-            pItem1->setForeground(QBrush(Qt::red));         // 设置字体颜色
-            pItem2->setBackground(QBrush(Qt::gray));        // 设置背景色
-            pItem2->setForeground(QBrush(Qt::red));         // 设置字体颜色
-            pItem3->setBackground(QBrush(Qt::gray));        // 设置背景色
-            pItem3->setForeground(QBrush(Qt::red));         // 设置字体颜色
-            pItem4->setBackground(QBrush(Qt::gray));        // 设置背景色
-            pItem4->setForeground(QBrush(Qt::red));         // 设置字体颜色
+        }
+        if(fileInfo.newFilePath != fileInfo.oldFilePath) {
+            pItem1->setForeground(QBrush(Qt::yellow));         // 设置字体颜色
         }
         pItem0->setFlags(pItem0->flags() & ~Qt::ItemIsEditable);
         pItem2->setFlags(pItem2->flags() & ~Qt::ItemIsEditable);
@@ -227,6 +236,7 @@ void RenameFileName::updateRenameFileList(){
         ui->renameFileListWgt->setItem(num + j, 4, pItem4);
         n++;
     }
+    connect(ui->renameFileListWgt,&QTableWidget::itemChanged,this, &RenameFileName::updateReferListEditSlot);
     // 触发双击表头分割线信号，实现自动调整行宽
     emit ui->renameFileListWgt->horizontalHeader()->sectionHandleDoubleClicked(0);
     emit ui->renameFileListWgt->horizontalHeader()->sectionHandleDoubleClicked(1);
@@ -270,23 +280,38 @@ void RenameFileName::updateReferListByRenameFileListRow(int row) {
     }
 }
 
-//void RenameFileName::updateReferListEnteredSlot(QTableWidgetItem *item)
-//{
-//    if(item == Q_NULLPTR){
-//        return;
-//    }
-//    int row = ui->renameFileListWgt->row(item);
-//    updateReferListByRenameFileListRow(row);
-//}
-
 void RenameFileName::updateReferListClickedSlot(QModelIndex index)
 {
     int row = index.row();
     updateReferListByRenameFileListRow(row);
 }
 
+void RenameFileName::updateReferListEditSlot(QTableWidgetItem *item) {
+    int row = item->row();
+    QString name = item->text();
+    int len = replaceNameDirInfoList_.size();
+    if(row < len) {
+        QString oldPath = replaceNameDirInfoList_.at(row).oldDirPath;
+        oldPath.replace(oldPath.split("/").last(), name);
+        replaceNameDirInfoList_[row].newDirPath = oldPath;
+        if(oldPath != replaceNameDirInfoList_.at(row).oldDirPath) {
+            item->setForeground(QBrush(Qt::yellow));
+        }else{
+            item->setForeground(QBrush(Qt::white));
+        }
+    }else {
+        QString oldPath = replaceNameFileInfoList_.at(row - len).oldFilePath;
+        oldPath.replace(oldPath.split("/").last(), name);
+        replaceNameFileInfoList_[row - len].newFilePath = oldPath;
+        if(oldPath != replaceNameFileInfoList_.at(row - len).oldFilePath) {
+            item->setForeground(QBrush(Qt::yellow));
+        }else{
+            item->setForeground(QBrush(Qt::white));
+        }
+    }
+}
 
-void RenameFileName::renameDirPathByCharMap(const QStringList &oldDirPathList, QStringList &newDirPathList)
+void RenameFileName::renameDirPathByCharMap(const QStringList &oldDirPathList)
 {
     for(int i = 0; i < oldDirPathList.size(); ++i) {
         QString path = oldDirPathList.at(i);
@@ -298,10 +323,14 @@ void RenameFileName::renameDirPathByCharMap(const QStringList &oldDirPathList, Q
             name.replace(iter.key(), iter.value());
             iter++;
         }
-        newDirPathList.append(newPathParent + name);
+        DirRenameInfo dirRenameInfo;
+        dirRenameInfo.oldDirPath = oldDirPathList.at(i);
+        dirRenameInfo.newDirPath = newPathParent + name;
+        replaceNameDirInfoList_.append(dirRenameInfo);
     }
 }
-void RenameFileName::renameFilePathByCharMap(const QStringList &oldFilePathList, QStringList &newFilePathList) {
+
+void RenameFileName::renameFilePathByCharMap(const QStringList &oldFilePathList) {
     for(int i = 0; i < oldFilePathList.size(); ++i) {
         QString path = oldFilePathList.at(i);
         QString name = path.split("/").last();
@@ -318,7 +347,10 @@ void RenameFileName::renameFilePathByCharMap(const QStringList &oldFilePathList,
                 iter++;
             }
         }
-        newFilePathList.append(newPathParent + name);
+        FileRenameInfo fileRenameInfo;
+        fileRenameInfo.oldFilePath = oldFilePathList.at(i);
+        fileRenameInfo.newFilePath = newPathParent + name;
+        replaceNameFileInfoList_.append(fileRenameInfo);
     }
 }
 
@@ -368,63 +400,25 @@ void RenameFileName::renameByConfFile() {
     QStringList oldFilePathList;
     QDir dir(repoPath_);
     dir.cdUp();
-    backUpPath_ = dir.absolutePath() + "/" + repoPath_.split("/").last() +".backup/" + renameDirPath_.split("/").last();
-    dir.mkdir(dir.absolutePath() + "/" + repoPath_.split("/").last() +".backup");
-    if(!BackUp(renameDirPath_, backUpPath_, true)){
-        emit sigRenameFileNameLog(QString("Data backup Failed"));
-        return;
+    if(ui->backupCheckBox->isChecked()){
+        backUpPath_ = dir.absolutePath() + "/" + repoPath_.split("/").last() +".backup/" + renameDirPath_.split("/").last();
+        dir.mkdir(dir.absolutePath() + "/" + repoPath_.split("/").last() +".backup");
+        if(!BackUp(renameDirPath_, backUpPath_, true)){
+            emit sigRenameFileNameLog(QString("Data backup Failed"));
+            return;
+        }
     }
     updateOldPath(renameDirPath_, oldDirPathList, oldFilePathList);
-    // 2. 根据字符替换修改 Dir 和 File
-    QStringList newDirPathList;
-    QStringList newFilePathList;
-    renameDirPathByCharMap(oldDirPathList, newDirPathList);
-    renameFilePathByCharMap(oldFilePathList, newFilePathList);
+    // 2. 根据字符替换修改 Dir 和 File,更新新旧文件名
+    renameDirPathByCharMap(oldDirPathList);
+    renameFilePathByCharMap(oldFilePathList);
 
-    // 3. 根据修改结果更新数据信息  replaceNameDirInfoList_和 replaceNameFileInfoList_
-    for(int i = 0; i < oldDirPathList.size(); ++i) {
-        DirRenameInfo dirRenameInfo;
-        dirRenameInfo.oldDirPath = oldDirPathList.at(i);
-        replaceNameDirInfoList_.append(dirRenameInfo);
-    }
-    for(int i = 0; i < oldFilePathList.size(); ++i) {
-        FileRenameInfo fileRenameInfo;
-        fileRenameInfo.oldFilePath = oldFilePathList.at(i);
-        replaceNameFileInfoList_.append(fileRenameInfo);
-    }
-
-    // 4. 创建对比文件名修改文件
-    QFile::remove(backUpPath_ + "/" + NEW_FILE_NAME);
-    QFile::remove(backUpPath_ + "/" + OLD_FILE_NAME);
-    createCompareDirAndFileLog(backUpPath_ + "/" + OLD_FILE_NAME, oldDirPathList, oldFilePathList);
-    createCompareDirAndFileLog(backUpPath_ + "/" + NEW_FILE_NAME, newDirPathList, newFilePathList);
-    emit sigRenameFileNameLog(QString("Data backup and generate file list Success!"));
-//    emit sigRenameFileVSCodeOpenList(backUpPath_ + "/" + OLD_FILE_NAME, backUpPath_ + "/" + NEW_FILE_NAME);
-    updateReplaceInfoSlot();
-}
-
-void RenameFileName::updateReplaceInfoSlot() {
-
-    if(!readNewFileList()){
-        emit sigRenameFileNameLog(QString("Please confirm whether to Edit name information !"));
-    }
-    // 5. 只保留不同的项
-    for(int i = 0; i < replaceNameDirInfoList_.size(); ++i) {
-        if(replaceNameDirInfoList_.at(i).oldDirPath == replaceNameDirInfoList_.at(i).newDirPath) {
-            replaceNameDirInfoList_.remove(i);
-            --i;
-        }
-    }
-    for(int i = 0; i < replaceNameFileInfoList_.size(); ++i) {
-        if(replaceNameFileInfoList_.at(i).oldFilePath == replaceNameFileInfoList_.at(i).newFilePath) {
-            replaceNameFileInfoList_.remove(i);
-            --i;
-        }
-    }
+    // 3. 更新引用文件
     fileOperaton_->updateReplaceNameRefereceList(repoPath_ ,renameDirPath_, replaceNameDirInfoList_, replaceNameFileInfoList_);
-    updateRenameFileList();
-}
 
+
+    emit sigRenameFileNameLog(QString("更新文件命名数据完成!"));
+}
 
 void RenameFileName::renameListClear() {
     // 只删除内容，不删除表头
@@ -433,28 +427,29 @@ void RenameFileName::renameListClear() {
 }
 
 void RenameFileName::renameByListFile() {
-
-
+    fileOperaton_->updateReplaceNameByList(renameListPath_, replaceNameDirInfoList_, replaceNameFileInfoList_);
 }
 
-void RenameFileName::on_EditNameFilePbn_clicked()
+void RenameFileName::on_refreshPbn_clicked()
 {
     if(ui->charRadioBtn->isChecked()){
         renameByConfFile();
-    }else{
+    }
+    if(ui->listRadioBtn->isChecked()){
         renameByListFile();
     }
+    updateRenameFileList();
 }
 
 void RenameFileName::on_ChooseDirPbn_clicked()
 {
-    renameDirPath_ = QFileDialog::getExistingDirectory(this,"选择目录",repoPath_,QFileDialog::ShowDirsOnly);
+    renameDirPath_ = QFileDialog::getExistingDirectory(this,"选择重命名目录",repoPath_,QFileDialog::ShowDirsOnly);
     ui->RenameDirPathEdit->setText(renameDirPath_);
 }
 
 void RenameFileName::on_ChooseConfPbn_clicked()
 {
-    renameConfPath_ = QFileDialog::getExistingDirectory(this,"选择目录",repoPath_,QFileDialog::ShowDirsOnly);
+    renameConfPath_ = QFileDialog::getExistingDirectory(this,"选择配置文件",repoPath_,QFileDialog::ShowDirsOnly);
     ui->NameConfFilePathEdit->setText(renameConfPath_);
 }
 
@@ -468,9 +463,9 @@ void RenameFileName::on_OpenConfFilePbn_clicked()
     emit sigRenameFileConfFile(renameConfPath_);
 }
 
-///////////////////  replace   /////////////
-/*
-QString RenameFileName::replaceNewFile(QDir newFileDir, QDir curFileDir, QString line, QString oldFileName) {
+QString RenameFileName::replaceNewFile(QDir newFileDir, QDir curFileDir, QString line, QString oldFileAbsPath)
+{
+    QString oldFileName = oldFileAbsPath.split("/").last();
     QVector<QPoint> refPosArr;
     curFileDir.cdUp();
     // 上一级目录
@@ -523,29 +518,32 @@ QString RenameFileName::replaceNewFile(QDir newFileDir, QDir curFileDir, QString
     return lineSplicing;
 }
 
-
-bool RenameFileName::modifyRefMarkdown(const QString& refFilePath, const QString& oldFileName,
-                                       const QString& newFilePath){
+bool RenameFileName::modifyRefMarkdown(const QString& reFilePathAbs, const QString& oldFileAbsPath,
+                                       const QString& newFileAbsPath){
     QString strAll;
     QStringList strList;
-    QDir curFileDir(refFilePath);
-    QDir newFileDir(newFilePath);
-    if(curFileDir.path() == newFileDir.path()){
-        qDebug() << "This is itself";
+    QDir dir;
+
+    QDir newFileDir(newFileAbsPath);
+    QDir curFileDir(reFilePathAbs);
+
+    // 1. 自己引用自己
+    if(reFilePathAbs == newFileAbsPath) {
+        qDebug() << reFilePathAbs << ": This is itself!";
         return true;
     }
-
-    QFile readFile(refFilePath);		//PATH是自定义读取文件的地址
+    // 2. 读取文件中的内容
+    QFile readFile(reFilePathAbs);		//PATH是自定义读取文件的地址
     if(!readFile.open((QIODevice::ReadOnly|QIODevice::Text)))
     {
         qDebug()<< "Can't Read the RefMarkdown file!";
         return false;
     }
-    //把文件所有信息读出来
     QTextStream stream(&readFile);
     strAll = stream.readAll();
-    //    readFile.close();
-    QFile writeFile(refFilePath);	//PATH是自定义写文件的地址
+    readFile.close();
+    // 3. 重新打开，逐句写入
+    QFile writeFile(reFilePathAbs);	//PATH是自定义写文件的地址
     if(!writeFile.open(QIODevice::WriteOnly|QIODevice::Text))
     {
         qDebug()<< "Can't write the RefMarkdown file!";
@@ -553,21 +551,16 @@ bool RenameFileName::modifyRefMarkdown(const QString& refFilePath, const QString
     }
     QTextStream wStream(&writeFile);
     strList = strAll.split("\n");           //以换行符为基准分割文本
-    for(int i = 0;i < strList.count();i++)    //遍历每一行
+    for(int i = 0;i < strList.count();i++)  //遍历每一行
     {
-        if(strList.at(i).contains(oldFileName))
+        if(strList.at(i).contains(oldFileAbsPath.split("/").last()))
         {
             qDebug() << strList.at(i);
-            wStream << replaceNewFile(newFileDir, curFileDir, strList.at(i), oldFileName) << '\n';
-        } //如果没有找到要替换的内容，照常写入
-        else
-        {
-            if(i == strList.count()-1)
-            {
+            wStream << replaceNewFile(newFileDir, curFileDir, strList.at(i), oldFileAbsPath) << '\n';
+        }else{ // 如果没有找到要替换的内容，照常写入
+            if(i == strList.count() - 1) {
                 wStream << strList.at(i);
-            }
-            else
-            {
+            }else{
                 wStream << strList.at(i) << '\n';
             }
         }
@@ -575,39 +568,84 @@ bool RenameFileName::modifyRefMarkdown(const QString& refFilePath, const QString
     writeFile.close();
     return true;
 }
-*/
 
 void RenameFileName::on_ReplaceByListPbn_clicked()
 {
-//    bool status = true;
-//    for(int i = 0; i < replaceNameDirInfoList_.size(); ++i) {
-//            QDir dir = QDir(oldFilePath);
-//            QString oldFilePath = renameDirPath_ + "/" + replaceNameDirInfoList_.at(i).oldDirPath;
-//            QString oldFileName = dir.dirName();
-//            QString newFilePath = renameDirPath_ +"/" + replaceNameDirInfoList_.at(i).newDirPath;
-//            // 1. 移动之前需要检查父目录是否被修改
-//            while(dir.currentPath() != renameDirPath_) {
-//            dir.cdUp();
-//            QString path = dir.relativeFilePath(renameDirPath_);
-//            for(int j = 0; j < i; ++j) {
-//                if(replaceNameDirInfoList_.at(j).oldDirPath == path) {
-//                    replaceNameDirInfoList_.at(i).newDirPath
-//                }
-//            }
-//            }
+    QDir dir;
+    // 更新修改的目录
+    for(int i = 0; i < replaceNameDirInfoList_.size(); ++i) {
+        if(replaceNameDirInfoList_.at(i).oldDirPath != replaceNameDirInfoList_.at(i).newDirPath) {
+            QString oldPathAbs = renameDirPath_ + "/" + replaceNameDirInfoList_.at(i).oldDirPath;
+            QString newPathAbs = renameDirPath_ + "/" + replaceNameDirInfoList_.at(i).newDirPath;
+            if(!QFile::rename(oldPathAbs, newPathAbs)) {
+                emit sigRenameFileNameLog(QString("Move ") + replaceNameDirInfoList_.at(i).oldDirPath + " Failed ！");
+            } else {
+                QVector<ReFile> reFileDir = replaceNameDirInfoList_.at(i).reDirList;
+                for(int j = 0; j < reFileDir.size(); ++j) {
+                    QString reFilePathAbs = repoPath_ + "/" + reFileDir.at(j).reFilePath;
+                    // 2. 被引用的文件名字修改了
+                    if(!dir.exists(reFilePathAbs)) {
+                        int k;
+                        for(k = 0; k < replaceNameFileInfoList_.size(); ++k) {
+                            if(renameDirPath_ + "/" + replaceNameFileInfoList_.at(k).oldFilePath == reFilePathAbs) {
+                                reFilePathAbs.replace(replaceNameFileInfoList_.at(k).oldFilePath,replaceNameFileInfoList_.at(k).newFilePath);
+                                 modifyRefMarkdown(reFilePathAbs, oldPathAbs, newPathAbs);
+                                break;
+                            }
+                        }
+                        if(k >= replaceNameFileInfoList_.size()){
+                            emit sigRenameFileNameLog(QString("引用文件:[" + reFilePathAbs + "] 不存在!"));
+                        }
+                    } else {
+                        modifyRefMarkdown(reFilePathAbs, oldPathAbs, newPathAbs);
+                    }
+                }
+            }
+        }
+    }
 
-
-//            if(!QFile::rename(oldFilePath, newFilePath)){
-//                status = false;
-//                emit sigRenameFileNameLog(QString("Move ") + oldFileAndDirNameList_.at(i) + " Failed ！");
-//            }else{
-//                QMap<QString, int>::iterator iter = refFilePathAndNum_.begin();
-//                while (iter != refFilePathAndNum_.end())
-//                {
-//                    modifyRefMarkdown(iter.key(), oldFileName, newFilePath);
-//                    iter++;
-//                }
-//            }
-//    }
+    // 更新修改的文件
+    for(int i = 0; i < replaceNameFileInfoList_.size(); ++i) {
+        if(replaceNameFileInfoList_.at(i).oldFilePath != replaceNameFileInfoList_.at(i).newFilePath) {
+            QString oldPathAbs = renameDirPath_ + "/" + replaceNameFileInfoList_.at(i).oldFilePath;
+            QString newPathAbs = renameDirPath_ + "/" + replaceNameFileInfoList_.at(i).newFilePath;
+            if(!QFile::rename(oldPathAbs, newPathAbs)) {
+                emit sigRenameFileNameLog(QString("Move ") + replaceNameFileInfoList_.at(i).oldFilePath + " Failed ！");
+            } else {
+                QVector<ReFile> reFileDir = replaceNameFileInfoList_.at(i).reFileList;
+                for(int j = 0; j < reFileDir.size(); ++j) {
+                    QString reFilePathAbs = repoPath_ + "/" + reFileDir.at(j).reFilePath;
+                    // 2. 被引用的文件名字修改了
+                    if(!dir.exists(reFilePathAbs)) {
+                        int k;
+                        for(k = 0; k < replaceNameFileInfoList_.size(); ++k) {
+                            if(renameDirPath_ + "/" + replaceNameFileInfoList_.at(k).oldFilePath == reFilePathAbs) {
+                                reFilePathAbs.replace(replaceNameFileInfoList_.at(k).oldFilePath,replaceNameFileInfoList_.at(k).newFilePath);
+                                 modifyRefMarkdown(reFilePathAbs, oldPathAbs, newPathAbs);
+                                break;
+                            }
+                        }
+                        if(k >= replaceNameFileInfoList_.size()){
+                            emit sigRenameFileNameLog(QString("引用文件:[" + reFilePathAbs + "] 不存在!"));
+                        }
+                    } else {
+                        modifyRefMarkdown(reFilePathAbs, oldPathAbs, newPathAbs);
+                    }
+                }
+            }
+        }
+    }
 }
 
+
+
+void RenameFileName::on_ChooseListPbn_clicked()
+{
+    renameListPath_ = QFileDialog::getExistingDirectory(this,"选择命名列表",repoPath_,QFileDialog::ShowDirsOnly);
+    ui->NameListPathEdit->setText(renameListPath_);
+}
+
+void RenameFileName::on_OpenListFilePbn_clicked()
+{
+    emit sigRenameFileConfFile(renameListPath_);
+}
