@@ -106,8 +106,15 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(ui->historyFileList,&QTableWidget::itemDoubleClicked,this,&MainWindow::OpenHistoryFile);
     // RenameFileName --> OpenVScode
     connect(renameFileName_,&RenameFileName::sigRenameFileVSCodeOpenList,this,&MainWindow::CompareRenameFileList);
-    //
-    connect(renameFileName_,&RenameFileName::sigRenameFileOpenPath,this,&MainWindow::CompareRenameOpenFilePath);
+    // RenameFileName --> OpenExplore
+    connect(renameFileName_,&RenameFileName::sigRenameFileOpenPath,this,&MainWindow::OpenRenameDirPath);
+    // RenameFileName --> OpenrenameConf
+    connect(renameFileName_,&RenameFileName::sigRenameFileConfFile,[this](QString path) {
+        openExPro_.OpenJsonAndIniSlot(path);
+    });
+    // RenameFileName中对比完成后，才能读取修改后的文件
+    connect(&openExPro_, &OpenExProgram::sigCompareFinished, renameFileName_,&RenameFileName::updateReplaceInfoSlot);
+
     InitMainWindowMenu();
     initAddDelListMenu();
     startSlot();
@@ -183,8 +190,8 @@ void MainWindow::copyHistoryFilePathSlot()
     QString filePath = curDir.relativeFilePath(tarPath_ + "/" + path);
     QString FileName = path.split("/").last();
     int start = FileName.indexOf("-");
-    int num =FileName.lastIndexOf(".") - start - 1;
-    QString clipFileName =FileName.mid(start + 1, num);
+    int num = FileName.lastIndexOf(".") - start - 1;
+    QString clipFileName = FileName.mid(start + 1, num);
     QString text = "[" + clipFileName + "]("+filePath+")  \n\n";
     clip_->setText(text);
     appendTextToLog(u8"剪切: \"" + QString::fromStdString("[") + clipFileName + "]("+filePath+")" +  "\" 完成 !");
@@ -925,12 +932,6 @@ void MainWindow::syncAddListTimelySlot() {
         ui->addList->addItem(pItem);
         appendTextToLog(u8"自动添加: " + data.oldName + " 成功 ！");
     }
-//    if(!addDelListData_.getAddList().isEmpty()){
-//        on_clipPbn_clicked();
-//        if(!clipText_.isEmpty()) {
-//            clipText_.clear();
-//        }
-//    }
 }
 
 void MainWindow::on_syncPbn_clicked()
@@ -1286,7 +1287,7 @@ void MainWindow::CompareRenameFileList(QString pathA, QString pathB){
     openExPro_.CompareFileSlot(pathA, pathB);
 }
 
-void MainWindow::CompareRenameOpenFilePath(QString path){
+void MainWindow::OpenRenameDirPath(QString path){
     openExPro_.OpenDirSlot(path);
 }
 
@@ -1453,12 +1454,18 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 }
 
 void MainWindow::showModifyNameDlg(){
-//     renameFileName_->setPath(tarPath_);
-    renameFileName_->setPath("D:/Markdown-Assistant-Version/test");
-//    renameFileName_->setMinimumSize(QSize(1100, 900));
-//    renameFileName_->resize(QSize(1100, 900));
-     renameFileName_->setMinimumSize(QSize(700, 500));
-     renameFileName_->resize(QSize(700, 500));
-    renameFileName_->renameFileListClear();
+    //     renameFileName_->setRepoPath(tarPath_);
+    renameFileName_->setRenameDirPath("C:/Users/Administrator/Desktop/IELTS-Test-rename/09-MP3");
+    renameFileName_->setRenameConfPath("C:/Users/Administrator/Desktop/markdown-assistant/conf/rename.json");
+    renameFileName_->setRepoPath("C:/Users/Administrator/Desktop/IELTS-Test-rename");
+
+    if(getScrrenRes() == ScreenRes::High){
+        renameFileName_->setMinimumSize(QSize(1600, 1000));
+        renameFileName_->resize(QSize(1600, 1000));
+    }else{
+        renameFileName_->setMinimumSize(QSize(700, 500));
+        renameFileName_->resize(QSize(700, 500));
+    }
+    renameFileName_->renameListClear();
     renameFileName_->show();
 }

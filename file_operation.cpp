@@ -566,3 +566,202 @@ bool FileOperation::delDesktopFile(QString dirPath, QString fileName){
     emit sigFileOperationLog(QString("未找到桌面资源: "+ dirPath+"/"+fileName+" !"));
     return false;
 }
+
+///////////////////////////////  rename File   //////////////////////////
+bool FileOperation::getMarkdownQString(const QString& markdownAbsPath, const QString& oldNameAbsolutePath, int &n) {
+    n = 0;
+    QFile data(markdownAbsPath);
+    QDir curDir(markdownAbsPath);
+    curDir.setCurrent(markdownAbsPath);
+    if(markdownAbsPath.contains("报告类举例.md") && markdownAbsPath.contains("PART1短语")) {
+        qDebug() <<markdownAbsPath;
+    }
+        //11-新东方-写作课程-第06讲-报告类举例.md
+    QString relativePath1 = curDir.relativeFilePath(oldNameAbsolutePath);
+    QString relativePath2 = QDir::toNativeSeparators(relativePath1);;
+//    relativePath2.replace("/","\\");
+    QString absolutePath = curDir.absoluteFilePath(oldNameAbsolutePath);
+    qDebug() << relativePath1;
+    qDebug() << relativePath2;
+    qDebug() << absolutePath;
+    if (!data.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug()<< "Can't open the file!";
+        return false;
+    }
+    while (!data.atEnd())
+    {
+        QByteArray line = data.readLine();
+        QString str(line);
+        n += str.count(relativePath1);
+        n += str.count(relativePath2);
+        n += str.count(absolutePath);
+    }
+    data.close();
+    if(n > 0){
+        return true;
+    }
+    return false;
+}
+
+void FileOperation::getRefMarkdownFile(const QString& subPath, const QString &repoPath,
+                                       const QString& oldNameAbsolutePath,QVector<ReFile>& reFileVec)
+{
+    QDir dir(subPath);
+    QFileInfoList fileList = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files, QDir::Time);
+    if (!fileList.isEmpty()) {
+        for(int i = fileList.size() - 1; i >= 0; --i) {
+            if(isMarkdownFile(fileList.at(i).fileName())) { // 只遍历markdown文件
+                int num;
+                if(getMarkdownQString(fileList.at(i).absoluteFilePath(), oldNameAbsolutePath, num)) {
+                    // 引用的文件路径和引用了num次
+                    ReFile reFile;
+                    reFile.reCount = num;
+                    QDir curDir(repoPath);
+                    curDir.setCurrent(repoPath);
+                    reFile.reFilePath = curDir.relativeFilePath((fileList.at(i).filePath()));
+                    reFileVec.append(reFile);
+                }
+            }
+        }
+    }
+}
+
+QVector<ReFile> FileOperation::getDirAllFiles(const QString& repoPath, const QString &oldNameAbsolutePath)
+{
+    QDir dir(repoPath);
+    QVector<ReFile> reFileVec;
+    QFileInfoList list = dir.entryInfoList(QDir::Files | QDir::AllDirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    foreach(QFileInfo fileInfo, list) {
+        if(fileInfo.isDir()) { //book  study  test目录
+            getRefMarkdownFile(fileInfo.absoluteFilePath(), repoPath, oldNameAbsolutePath, reFileVec);
+        }else{ // readme等仓库目录
+            if(isMarkdownFile(fileInfo.fileName())) { // 只遍历markdown文件
+                int num;
+                if(getMarkdownQString(fileInfo.absoluteFilePath(), oldNameAbsolutePath, num)) {
+                    ReFile reFile;
+                    reFile.reCount = num;
+                    QDir curDir(repoPath);
+                    curDir.setCurrent(repoPath);
+                    reFile.reFilePath = curDir.relativeFilePath((fileInfo.filePath()));
+                    reFileVec.append(reFile);
+                }
+            }
+        }
+    }
+    return reFileVec;
+}
+
+
+
+
+///////////////////////
+
+void FileOperation::getMarkdownQString(const QString& markdownAbsPath, const QString &repoPath, const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList
+                                       , QVector<FileRenameInfo> &replaceNameFileInfoList) {
+    QFile data(markdownAbsPath);
+    QDir curDir(markdownAbsPath);
+    curDir.setCurrent(markdownAbsPath);
+    curDir.cdUp();
+    if (!data.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug()<< "Can't open the file!";
+        return;
+    }
+    QString context;
+    while (!data.atEnd())
+    {
+        QByteArray line = data.readLine();
+        QString str(line);
+        context += line + "\n";
+    }
+    data.close();
+
+
+    if(markdownAbsPath.contains("报告类举例.md")/* && replaceNameFileInfoList.at(i).oldFilePath.contains("03 PART1")*/) {
+        //            qDebug() << markdownAbsPath;
+        qDebug() << "============================================";
+        qDebug() << context ;
+    }
+
+    for(int i = 0; i < replaceNameDirInfoList.size(); ++i) {
+        //11-新东方-写作课程-第06讲-报告类举例.md
+        if(markdownAbsPath.contains("报告类举例.md")/* && replaceNameFileInfoList.at(i).oldFilePath.contains("03 PART1")*/) {
+//            qDebug() << markdownAbsPath;
+//            qDebug() << context ;
+            qDebug() << replaceNameDirInfoList.at(i).oldDirPath;
+        }
+        int n = 0;
+        QString oldNameAbsolutePath = renameDirPath + "/" + replaceNameDirInfoList.at(i).oldDirPath;
+        QString relativePath1 = curDir.relativeFilePath(oldNameAbsolutePath);
+        QString relativePath2 = QDir::toNativeSeparators(relativePath1);
+        QString absolutePath = curDir.absoluteFilePath(oldNameAbsolutePath);
+        if(markdownAbsPath.contains("报告类举例.md")) {
+            qDebug() << relativePath1;
+            qDebug() << relativePath2;
+            qDebug() << absolutePath;
+
+        }
+        n += context.count(relativePath1);
+        n += context.count(relativePath2);
+        n += context.count(absolutePath);
+        if(n > 0) {
+            ReFile reFile;
+            reFile.reCount = n;
+            QDir curDir(repoPath);
+            curDir.setCurrent(repoPath);
+            reFile.reFilePath = curDir.relativeFilePath(markdownAbsPath);
+            replaceNameDirInfoList[i].reDirList.append(reFile);
+        }
+    }
+    for(int i = 0; i < replaceNameFileInfoList.size(); ++i) {
+        int n = 0;
+        QString oldNameAbsolutePath = renameDirPath + "/" + replaceNameFileInfoList.at(i).oldFilePath;
+        QString relativePath1 = curDir.relativeFilePath(oldNameAbsolutePath);
+        QString relativePath2 = QDir::toNativeSeparators(relativePath1);
+        QString absolutePath = curDir.absoluteFilePath(oldNameAbsolutePath);
+//        qDebug() << relativePath1;
+//        qDebug() << relativePath2;
+//        qDebug() << absolutePath;
+        n += context.count(relativePath1);
+        n += context.count(relativePath2);
+        n += context.count(absolutePath);
+        if(n > 0) {
+            ReFile reFile;
+            reFile.reCount = n;
+            QDir curDir(repoPath);
+            curDir.setCurrent(repoPath);
+            reFile.reFilePath = curDir.relativeFilePath(markdownAbsPath);
+            replaceNameFileInfoList[i].reFileList.append(reFile);
+        }
+    }
+}
+
+void FileOperation::getRefMarkdownFile(const QString& subPath, const QString &repoPath, const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList
+                                       , QVector<FileRenameInfo> &replaceNameFileInfoList)
+{
+    QDir dir(subPath);
+    QFileInfoList fileList = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files, QDir::Time);
+    if (!fileList.isEmpty()) {
+        for(int i = fileList.size() - 1; i >= 0; --i) {
+            if(isMarkdownFile(fileList.at(i).fileName())) { // 只遍历markdown文件
+                getMarkdownQString(fileList.at(i).absoluteFilePath(), repoPath, renameDirPath, replaceNameDirInfoList, replaceNameFileInfoList);
+            }
+        }
+    }
+}
+
+void FileOperation::updateReplaceNameRefereceList(const QString &repoPath, const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList,
+                                                  QVector<FileRenameInfo> &replaceNameFileInfoList)
+{
+    QDir dir(repoPath);
+    QFileInfoList list = dir.entryInfoList(QDir::Files | QDir::AllDirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    foreach(QFileInfo fileInfo, list) {
+        if(fileInfo.isDir()) {  //book  study  test目录
+            getRefMarkdownFile(fileInfo.absoluteFilePath(), repoPath, renameDirPath, replaceNameDirInfoList, replaceNameFileInfoList);
+        }else if(isMarkdownFile(fileInfo.fileName())) { // readme等仓库目录
+             // 只遍历markdown文件
+                getMarkdownQString(fileInfo.absoluteFilePath(), repoPath, renameDirPath, replaceNameDirInfoList, replaceNameFileInfoList);
+        }
+    }
+}

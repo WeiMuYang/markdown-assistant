@@ -47,8 +47,8 @@ void OpenExProgram::CompareFileSlot(QString fileNameA, QString fileNameB){
         list.append(fileNameB);
         pProcess->start(pathVsCode, list);
         pProcess->waitForFinished();
+        emit sigCompareFinished();
     }
-
 }
 
 void OpenExProgram::OpenJsonAndIniSlot(QString fileName){

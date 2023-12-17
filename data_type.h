@@ -36,6 +36,27 @@ typedef enum {
 }BoxSelect;
 
 
+struct ReFile
+{
+    QString reFilePath;
+    int reCount;
+};
+
+struct FileRenameInfo
+{
+    QString oldFilePath;
+    QString newFilePath;
+    QVector<ReFile> reFileList;
+};
+
+struct DirRenameInfo
+{
+    QString oldDirPath;
+    QString newDirPath;
+    QVector<ReFile> reDirList;
+};
+
+
 
 
 #endif // DATA_TYPE_H

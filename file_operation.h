@@ -19,7 +19,7 @@ public:
     int getLastmodifiedTimeFileNumSubDir(const QString &path,const QString &dirName, QString& fullPath,QString& lastModefyFile);
     bool clipFilesByFileInfo(const QStringList addList, QVector<ImgData> fileInfoVec, QString fullTarPath,int fileNum, QString &clipText);
     bool getFileNameByNum(QString fullPath, int fileNum, QString& fileName);
-    void getDirAllFiles(const QString &dirPath);
+    void getDirAllFiles(const QString &oldFilePath);
     QStringList getSubDirNames(QString path);
     bool isPathExist(const QString &path);
 
@@ -45,6 +45,19 @@ public:
     bool getReadMePath(QString dirPath, QString& markdownFile);
     bool delDesktopFile(QString dirPath, QString fileName);
 
+    ////////   renamefile    /////////
+    bool getMarkdownQString(const QString& markdownAbsPath, const QString& oldNameAbsolutePath, int &n);
+    void getRefMarkdownFile(const QString& subPath, const QString &repoPath,
+                            const QString& oldNameAbsolutePath,QVector<ReFile>& reFileVec);
+    QVector<ReFile> getDirAllFiles(const QString& repoPath,  const QString &oldFilePath );
+
+    //////////////////////
+    void getMarkdownQString(const QString& markdownAbsPath, const QString &repoPath, const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList
+                                           , QVector<FileRenameInfo> &replaceNameFileInfoList);
+    void getRefMarkdownFile(const QString& subPath, const QString &repoPath, const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList
+                                           , QVector<FileRenameInfo> &replaceNameFileInfoList);
+    void updateReplaceNameRefereceList(const QString &repoPath, const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList,
+                                                      QVector<FileRenameInfo> &replaceNameFileInfoList);
 signals:
     void sigFileOperationLog(QString log);
 

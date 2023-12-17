@@ -44,6 +44,10 @@ public:
     }
     void confDataClear();
     void clearAll();
+
+    ///////////  rename file  ////////
+    bool readCharConfFile(QString path, QMap<QString, QString> &map);
+    void analysisCharConfJson(QJsonObject &rootObj,QMap<QString, QString>& replaceCharListMap);
 private: // need to change to private
     QList<NamePath> imgNamePathMap_;
     QList<NamePath> tarNamePathMap_;

@@ -80,7 +80,7 @@ private slots:
     void ChangeToHistoryFile();
     void OpenHistoryFile();
     void CompareRenameFileList(QString , QString);
-    void CompareRenameOpenFilePath(QString path);
+    void OpenRenameDirPath(QString path);
 
     void on_clipPbn_clicked();
     void on_lastFileNumPbn_clicked();

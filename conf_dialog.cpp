@@ -186,14 +186,8 @@ void confDialog::confDataClear(){
     tarNamePathMap_.clear();
     intervalArr_.clear();
     assetsType_.clear();
-//    typoraExePath_.clear();
-//    vsCodePath_.clear();
     meetFilePath_.clear();
     softWarePathMap_.clear();
-    //    iniFile_.iniAndjsonPath.clear();
-    //    iniFile_.recentFileList.clear();
-    //    iniFile_.version.clear();
-    //    iniFile_.date.clear();
 }
 
 void confDialog::clearAll(){
@@ -201,12 +195,46 @@ void confDialog::clearAll(){
     tarNamePathMap_.clear();
     intervalArr_.clear();
     assetsType_.clear();
-//    typoraExePath_.clear();
     meetFilePath_.clear();
-//    vsCodePath_.clear();
     softWarePathMap_.clear();
     iniFile_.iniAndJsonPath.clear();
     iniFile_.recentFileList.clear();
     iniFile_.version.clear();
     iniFile_.date.clear();
+}
+
+bool confDialog::readCharConfFile(QString path, QMap<QString, QString>& map)
+{
+    QFile file(path);
+    if(!file.open(QIODevice::ReadOnly)){
+        DebugBox(__FUNCTION__, __LINE__,"read json error");
+        return false;
+    }
+    map.clear();
+    QByteArray data(file.readAll());
+    file.close();
+
+    QJsonParseError jError;	//创建QJsonParseError对象
+    QJsonDocument jDoc = QJsonDocument::fromJson(data, &jError);
+    if(jError.error != QJsonParseError::NoError){
+        DebugBox(__FUNCTION__, __LINE__,"json format error");
+        return false;
+    }
+    QJsonObject jObj = jDoc.object();
+    analysisCharConfJson(jObj, map);
+    return true;
+}
+
+void confDialog::analysisCharConfJson(QJsonObject &rootObj,QMap<QString, QString>& replaceCharListMap){
+    //1. replaceCharList
+    QJsonArray replaceCharList = rootObj["replaceCharList"].toArray();
+    for(int i = 0; i < replaceCharList.size(); ++i){
+        QJsonObject data = replaceCharList.at(i).toObject();
+        for(int j = 0; j < data.size(); ++j) {
+            if(!data.keys().at(j).contains("?")){
+                replaceCharListMap.insert(data.keys().at(j), data[data.keys().at(j)].toString());
+                break;
+            }
+        }
+    }
 }

@@ -20,6 +20,7 @@ public slots:
 
 signals:
     void sigOpenExProLog(QString log);
+    void sigCompareFinished();
 private:
 
     QMap<QString,QString> softWarePathMap_;

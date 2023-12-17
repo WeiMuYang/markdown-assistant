@@ -25,7 +25,7 @@
   <property name="windowTitle">
    <string>重命名</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_5" stretch="2,4,3">
+  <layout class="QVBoxLayout" name="verticalLayout_6">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="6,2">
      <item>
@@ -117,7 +117,7 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="7,2,3">
             <item>
-             <widget class="QLineEdit" name="PathEdit">
+             <widget class="QLineEdit" name="RenameDirPathEdit">
               <property name="minimumSize">
                <size>
                 <width>0</width>
@@ -130,7 +130,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QToolButton" name="ChoosePbn">
+             <widget class="QToolButton" name="ChooseDirPbn">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -166,7 +166,7 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout" stretch="7,2,3">
             <item>
-             <widget class="QLineEdit" name="NameListEdit">
+             <widget class="QLineEdit" name="NameConfFilePathEdit">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
                 <horstretch>0</horstretch>
@@ -185,7 +185,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QToolButton" name="ChoosePbn_2">
+             <widget class="QToolButton" name="ChooseConfPbn">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -198,7 +198,7 @@
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="ModifyNameFilePbn">
+             <widget class="QPushButton" name="OpenConfFilePbn">
               <property name="sizePolicy">
                <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                 <horstretch>0</horstretch>
@@ -212,7 +212,7 @@
                </size>
               </property>
               <property name="text">
-               <string>编辑命名</string>
+               <string>打开配置</string>
               </property>
              </widget>
             </item>
@@ -228,11 +228,11 @@
        <property name="title">
         <string>替换方式</string>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="2,3">
+       <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="2,0,3,3">
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_3">
           <item>
-           <widget class="QRadioButton" name="dirRadioBtn">
+           <widget class="QRadioButton" name="charRadioBtn">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -243,7 +243,7 @@
              <bool>false</bool>
             </property>
             <property name="toolTip">
-             <string>包含子目录</string>
+             <string>根据特殊字符替换，不包含子目录</string>
             </property>
             <property name="text">
              <string>字符</string>
@@ -254,7 +254,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QRadioButton" name="fileBtn">
+           <widget class="QRadioButton" name="listRadioBtn">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
               <horstretch>0</horstretch>
@@ -262,14 +262,101 @@
              </sizepolicy>
             </property>
             <property name="toolTip">
-             <string>不包含子目录</string>
+             <string>根据列表修改文件名，不包含子目录</string>
             </property>
             <property name="text">
              <string>列表</string>
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QRadioButton" name="addNumRadioBtn">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="toolTip">
+             <string>根据添加次序依次编号，不包含子目录</string>
+            </property>
+            <property name="text">
+             <string>编号</string>
+            </property>
+           </widget>
+          </item>
          </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QCheckBox" name="fileCheckBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>文件</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="dirCheckBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>目录</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="backupCheckBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>备份</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="EditNameFilePbn">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>70</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>编辑</string>
+          </property>
+         </widget>
         </item>
         <item>
          <widget class="QPushButton" name="ReplaceByListPbn">
@@ -321,6 +408,43 @@
           <height>0</height>
          </size>
         </property>
+        <attribute name="horizontalHeaderVisible">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="horizontalHeaderMinimumSectionSize">
+         <number>10</number>
+        </attribute>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="verticalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string>序号</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>新名称</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>原名称</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>被引次数</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>文件路径</string>
+         </property>
+        </column>
        </widget>
       </item>
      </layout>
@@ -352,6 +476,38 @@
           <height>0</height>
          </size>
         </property>
+        <attribute name="horizontalHeaderVisible">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="horizontalHeaderMinimumSectionSize">
+         <number>10</number>
+        </attribute>
+        <attribute name="horizontalHeaderStretchLastSection">
+         <bool>true</bool>
+        </attribute>
+        <attribute name="verticalHeaderVisible">
+         <bool>false</bool>
+        </attribute>
+        <column>
+         <property name="text">
+          <string>序号</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>引用到文件</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>出现次数</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>文件路径</string>
+         </property>
+        </column>
        </widget>
       </item>
      </layout>
