@@ -51,6 +51,7 @@ public:
                                            const QString& newFilePath);
     QString replaceNewFile(QDir newFileDir, QDir curFileDir, QString line, QString oldFileName);
     void initListMenu();
+    void setSize(ScreenRes screen);
 private slots:
     void on_ChooseDirPbn_clicked();
     void on_ChooseConfPbn_clicked();
@@ -69,6 +70,22 @@ private slots:
     void on_OpenListFilePbn_clicked();
 
 
+
+    void on_RenameDirPathEdit_textChanged(const QString &arg1);
+
+    void on_NameConfFilePathEdit_textChanged(const QString &arg1);
+
+    void on_NameListPathEdit_textChanged(const QString &arg1);
+
+    void on_charRadioBtn_stateChanged(int arg1);
+
+    void on_listRadioBtn_stateChanged(int arg1);
+
+    void on_addNumRadioBtn_stateChanged(int arg1);
+
+    void on_fileCheckBox_stateChanged(int arg1);
+
+    void on_dirCheckBox_stateChanged(int arg1);
 
 signals:
     void sigRenameFileNameLog(QString log);

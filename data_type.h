@@ -39,7 +39,8 @@ typedef enum {
 struct ReFile
 {
     QString reFilePath;
-    int reCount;
+    int reAsJumpCount;
+    int reAsSrcCount;
 };
 
 struct FileRenameInfo

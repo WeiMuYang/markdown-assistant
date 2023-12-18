@@ -93,9 +93,9 @@ int FileOperation::getLastmodifiedTimeFileNumSubDir(const QString &path,const QS
         return -1;
     }
     lastModefyFile = list.first().fileName();
-//    qDebug()<<lastModefyFile;
+    //    qDebug()<<lastModefyFile;
     fullPath = list.first().path();
-//    qDebug()<<fullPath;
+    //    qDebug()<<fullPath;
     QStringList nameArr = lastModefyFile.split("-");
     num = nameArr.at(0).toInt();
     return num;
@@ -568,92 +568,63 @@ bool FileOperation::delDesktopFile(QString dirPath, QString fileName){
 }
 
 ///////////////////////////////  rename File   //////////////////////////
-bool FileOperation::getMarkdownQString(const QString& markdownAbsPath, const QString& oldNameAbsolutePath, int &n) {
-    n = 0;
-    QFile data(markdownAbsPath);
-    QDir curDir(markdownAbsPath);
-    curDir.setCurrent(markdownAbsPath);
-    if(markdownAbsPath.contains("报告类举例.md") && markdownAbsPath.contains("PART1短语")) {
-        qDebug() << markdownAbsPath;
+int FileOperation::referAsSource(QString context, QString relativePath1){
+    // 当前目录不用找
+    if(relativePath1 == ".") {
+        return 0;
     }
-        //11-新东方-写作课程-第06讲-报告类举例.md
-    QString relativePath1 = curDir.relativeFilePath(oldNameAbsolutePath);
-    QString relativePath2 = QDir::toNativeSeparators(relativePath1);;
-//    relativePath2.replace("/","\\");
-    QString absolutePath = curDir.absoluteFilePath(oldNameAbsolutePath);
-    qDebug() << relativePath1;
-    qDebug() << relativePath2;
-    qDebug() << absolutePath;
-    if (!data.open(QIODevice::ReadOnly | QIODevice::Text))
-    {
-        qDebug()<< "Can't open the file!";
-        return false;
+    QString relativePath2 = relativePath1;
+
+    if(!relativePath1.isEmpty() && relativePath1.at(0) != ".") {
+        relativePath2 = "./" + relativePath1;
     }
-    while (!data.atEnd())
-    {
-        QByteArray line = data.readLine();
-        QString str(line);
-        n += str.count(relativePath1);
-        n += str.count(relativePath2);
-        n += str.count(absolutePath);
-    }
-    data.close();
-    if(n > 0){
-        return true;
-    }
-    return false;
+    std::string stdContext = context.toStdString();
+    // <audio src="./高频短语速list记本/02-PART3的136真题答案/01 心情和感受.mp3"></audio>
+    // <audio src="./高频短语速list记本   如果父目录被修改也需要能匹配
+    QString StrPath1 = "src=\"" + relativePath2;
+    // <audio src=./高频短语速list记本/02-PART3的136真题答案/01心情和感受.mp3></audio>
+    // <video src=./video/112-4.mp4 alt=112-4 width=50%;/>
+    QString StrPath2 = "src=" + relativePath2;
+    qDebug() << StrPath1;
+    qDebug() << StrPath2;
+    return context.count(StrPath1) + context.count(StrPath2);
 }
 
-void FileOperation::getRefMarkdownFile(const QString& subPath, const QString &repoPath,
-                                       const QString& oldNameAbsolutePath,QVector<ReFile>& reFileVec)
+int FileOperation::referAsJump(QString context, QString relativePath1)
 {
-    QDir dir(subPath);
-    QFileInfoList fileList = dir.entryInfoList(QDir::NoDotAndDotDot | QDir::Files, QDir::Time);
-    if (!fileList.isEmpty()) {
-        for(int i = fileList.size() - 1; i >= 0; --i) {
-            if(isMarkdownFile(fileList.at(i).fileName())) { // 只遍历markdown文件
-                int num;
-                if(getMarkdownQString(fileList.at(i).absoluteFilePath(), oldNameAbsolutePath, num)) {
-                    // 引用的文件路径和引用了num次
-                    ReFile reFile;
-                    reFile.reCount = num;
-                    QDir curDir(repoPath);
-                    curDir.setCurrent(repoPath);
-                    reFile.reFilePath = curDir.relativeFilePath((fileList.at(i).filePath()));
-                    reFileVec.append(reFile);
-                }
-            }
+    // 1. (../xx/xxx.md )
+    // 2. ( ./xx/xxx.md )  (xx/xxx.md)
+    // 3. ( xxx.md )  (./xxx.md)
+    QString relativePath2;
+    if(!relativePath1.isEmpty() && relativePath1.at(0) != ".") {
+        relativePath2 = "./" + relativePath1;
+    }
+    int case1 = 0, case2 = 0;
+    case1 += context.count(relativePath1 + ")");
+    // 作为引用路径的一部分
+    case1 += context.count(relativePath1 + "/");
+    // (.\xxx.md) 反斜杠
+    if(relativePath1.contains("/")) {
+        case1 += context.count(QDir::toNativeSeparators(relativePath1)+ ")");
+        case1 += context.count(QDir::toNativeSeparators(relativePath1)+ "/");
+    }
+    if(!relativePath2.isEmpty()) {
+        // 包含 case1
+        case2 += context.count(relativePath2 + ")");
+        case2 += context.count(relativePath2 + "/");
+        if(relativePath1.contains("/")) {
+            case2 += context.count(QDir::toNativeSeparators(relativePath2)+ ")");
+            case2 += context.count(QDir::toNativeSeparators(relativePath2)+ "/");
         }
     }
-}
-
-QVector<ReFile> FileOperation::getDirAllFiles(const QString& repoPath, const QString &oldNameAbsolutePath)
-{
-    QDir dir(repoPath);
-    QVector<ReFile> reFileVec;
-    QFileInfoList list = dir.entryInfoList(QDir::Files | QDir::AllDirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
-    foreach(QFileInfo fileInfo, list) {
-        if(fileInfo.isDir()) { //book  study  test目录
-            getRefMarkdownFile(fileInfo.absoluteFilePath(), repoPath, oldNameAbsolutePath, reFileVec);
-        }else{ // readme等仓库目录
-            if(isMarkdownFile(fileInfo.fileName())) { // 只遍历markdown文件
-                int num;
-                if(getMarkdownQString(fileInfo.absoluteFilePath(), oldNameAbsolutePath, num)) {
-                    ReFile reFile;
-                    reFile.reCount = num;
-                    QDir curDir(repoPath);
-                    curDir.setCurrent(repoPath);
-                    reFile.reFilePath = curDir.relativeFilePath((fileInfo.filePath()));
-                    reFileVec.append(reFile);
-                }
-            }
-        }
+    // case2包含case1
+    if(case2 != 0) {
+        return case2;
+    }else{
+        return case1;
     }
-    return reFileVec;
 }
 
-
-///////////////////////
 
 void FileOperation::getMarkdownQString(const QString& markdownAbsPath, const QString &repoPath, const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList
                                        , QVector<FileRenameInfo> &replaceNameFileInfoList) {
@@ -670,41 +641,19 @@ void FileOperation::getMarkdownQString(const QString& markdownAbsPath, const QSt
     while (!data.atEnd())
     {
         QByteArray line = data.readLine();
-        QString str(line);
         context += line + "\n";
     }
     data.close();
 
-    if(markdownAbsPath.contains("报告类举例.md")/* && replaceNameFileInfoList.at(i).oldFilePath.contains("03 PART1")*/) {
-        //            qDebug() << markdownAbsPath;
-        qDebug() << "============================================";
-        qDebug() << context ;
-    }
-
     for(int i = 0; i < replaceNameDirInfoList.size(); ++i) {
-        //11-新东方-写作课程-第06讲-报告类举例.md
-        if(markdownAbsPath.contains("报告类举例.md")/* && replaceNameFileInfoList.at(i).oldFilePath.contains("03 PART1")*/) {
-//            qDebug() << markdownAbsPath;
-//            qDebug() << context ;
-            qDebug() << replaceNameDirInfoList.at(i).oldDirPath;
-        }
-        int n = 0;
         QString oldNameAbsolutePath = renameDirPath + "/" + replaceNameDirInfoList.at(i).oldDirPath;
         QString relativePath1 = curDir.relativeFilePath(oldNameAbsolutePath);
-        QString relativePath2 = QDir::toNativeSeparators(relativePath1);
-        QString absolutePath = curDir.absoluteFilePath(oldNameAbsolutePath);
-        if(markdownAbsPath.contains("报告类举例.md")) {
-            qDebug() << relativePath1;
-            qDebug() << relativePath2;
-            qDebug() << absolutePath;
-
-        }
-        n += context.count(relativePath1);
-        n += context.count(relativePath2);
-        n += context.count(absolutePath);
-        if(n > 0) {
+        int n = referAsJump(context, relativePath1);
+        int m = referAsSource(context, relativePath1);
+        if(n > 0 || m > 0) {
             ReFile reFile;
-            reFile.reCount = n;
+            reFile.reAsJumpCount = n;
+            reFile.reAsSrcCount = m;
             QDir curDir(repoPath);
             curDir.setCurrent(repoPath);
             reFile.reFilePath = curDir.relativeFilePath(markdownAbsPath);
@@ -712,20 +661,17 @@ void FileOperation::getMarkdownQString(const QString& markdownAbsPath, const QSt
         }
     }
     for(int i = 0; i < replaceNameFileInfoList.size(); ++i) {
-        int n = 0;
         QString oldNameAbsolutePath = renameDirPath + "/" + replaceNameFileInfoList.at(i).oldFilePath;
         QString relativePath1 = curDir.relativeFilePath(oldNameAbsolutePath);
-        QString relativePath2 = QDir::toNativeSeparators(relativePath1);
-        QString absolutePath = curDir.absoluteFilePath(oldNameAbsolutePath);
-//        qDebug() << relativePath1;
-//        qDebug() << relativePath2;
-//        qDebug() << absolutePath;
-        n += context.count(relativePath1);
-        n += context.count(relativePath2);
-        n += context.count(absolutePath);
-        if(n > 0) {
+        int n = referAsJump(context, relativePath1);
+        if(markdownAbsPath.split("/").last() == "14-新东方-写作课程-第07讲-111数据类-笔记9999999.md") {
+            qDebug() <<markdownAbsPath;
+        }
+        int m = referAsSource(context, relativePath1);
+        if(n > 0 || m > 0) {
             ReFile reFile;
-            reFile.reCount = n;
+            reFile.reAsJumpCount = n;
+            reFile.reAsSrcCount = m;
             QDir curDir(repoPath);
             curDir.setCurrent(repoPath);
             reFile.reFilePath = curDir.relativeFilePath(markdownAbsPath);
@@ -757,8 +703,8 @@ void FileOperation::updateReplaceNameRefereceList(const QString &repoPath, const
         if(fileInfo.isDir()) {  //book  study  test目录
             getRefMarkdownFile(fileInfo.absoluteFilePath(), repoPath, renameDirPath, replaceNameDirInfoList, replaceNameFileInfoList);
         }else if(isMarkdownFile(fileInfo.fileName())) { // readme等仓库目录
-             // 只遍历markdown文件
-                getMarkdownQString(fileInfo.absoluteFilePath(), repoPath, renameDirPath, replaceNameDirInfoList, replaceNameFileInfoList);
+            // 只遍历markdown文件
+            getMarkdownQString(fileInfo.absoluteFilePath(), repoPath, renameDirPath, replaceNameDirInfoList, replaceNameFileInfoList);
         }
     }
 }
@@ -772,7 +718,6 @@ void FileOperation::updateReplaceNameByList(const QString &listPathAbs, QVector<
         return;
     }
     QString context;
-
     while (!data.atEnd())
     {
         bool hasFind = false;
@@ -780,8 +725,8 @@ void FileOperation::updateReplaceNameByList(const QString &listPathAbs, QVector<
         QString LineStr(line);
         int len = LineStr.length();
         for(int i = 0; i < replaceNameDirInfoList.size(); ++i) {
-                QString oldName = replaceNameDirInfoList.at(i).oldDirPath.split("/").last();
-                if(oldName.length() < len && LineStr.indexOf(oldName) == 0) {
+            QString oldName = replaceNameDirInfoList.at(i).oldDirPath.split("/").last();
+            if(oldName.length() < len && LineStr.indexOf(oldName) == 0) {
                 QString newName = LineStr.remove(0, oldName.length()).trimmed();
                 if(!newName.isEmpty()) {
                     //                QString newName = LineStr.split(oldName).last();
@@ -789,20 +734,22 @@ void FileOperation::updateReplaceNameByList(const QString &listPathAbs, QVector<
                     hasFind = true;
                 }
                 break;
-                }
+            }
         }
 
         for(int i = 0; i < replaceNameFileInfoList.size() && !hasFind; ++i) {
-                QString oldName = replaceNameFileInfoList.at(i).oldFilePath.split("/").last();
-                if(oldName.length() < len && LineStr.indexOf(oldName) == 0) {
+            QString oldName = replaceNameFileInfoList.at(i).oldFilePath.split("/").last();
+            if(oldName.length() < len && LineStr.indexOf(oldName) == 0) {
                 QString newName = LineStr.remove(0, oldName.length()).trimmed();
                 if(!newName.isEmpty()) {
                     replaceNameFileInfoList[i].newFilePath = newName;
                     hasFind = true;
                 }
                 break;
-                }
+            }
         }
     }
     data.close();
 }
+
+

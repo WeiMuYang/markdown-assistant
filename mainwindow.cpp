@@ -1459,14 +1459,12 @@ void MainWindow::showModifyNameDlg(){
     renameFileName_->setRenameConfPath("C:/Users/Administrator/Desktop/markdown-assistant/conf/rename.json");
     renameFileName_->setRepoPath("C:/Users/Administrator/Desktop/IELTS-Test-rename");
     renameFileName_->setRenameListPath("C:/Users/Administrator/Desktop/markdown-assistant/conf/renameList.txt");
+//    renameFileName_->setRenameDirPath("C:/Users/qxz32h9/Desktop/IELTS-Test-rename/09-MP3");
+//    renameFileName_->setRenameConfPath("C:/Users/qxz32h9/Desktop/markdown-assistant/conf/rename.json");
+//    renameFileName_->setRepoPath("C:/Users/qxz32h9/Desktop/IELTS-Test-rename");
+//    renameFileName_->setRenameListPath("C:/Users/qxz32h9/Desktop/markdown-assistant/conf/renameList.txt");
 
-    if(getScrrenRes() == ScreenRes::High){
-        renameFileName_->setMinimumSize(QSize(1600, 1000));
-        renameFileName_->resize(QSize(1600, 1000));
-    }else{
-        renameFileName_->setMinimumSize(QSize(700, 500));
-        renameFileName_->resize(QSize(700, 500));
-    }
+    renameFileName_->setSize(getScrrenRes());
     renameFileName_->renameListClear();
     renameFileName_->show();
 }

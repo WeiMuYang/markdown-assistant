@@ -29,7 +29,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="2,1">
      <item>
-      <widget class="QGroupBox" name="pathWgt">
+      <widget class="QGroupBox" name="pathConfBox">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -146,10 +146,16 @@
            <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="7,2,3">
             <item>
              <widget class="QLineEdit" name="RenameDirPathEdit">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>50</height>
+                <height>0</height>
                </size>
               </property>
               <property name="text">
@@ -181,7 +187,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>51</height>
+                <height>0</height>
                </size>
               </property>
               <property name="text">
@@ -196,7 +202,7 @@
             <item>
              <widget class="QLineEdit" name="NameConfFilePathEdit">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -204,7 +210,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>50</height>
+                <height>0</height>
                </size>
               </property>
               <property name="text">
@@ -236,7 +242,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>51</height>
+                <height>0</height>
                </size>
               </property>
               <property name="text">
@@ -251,7 +257,7 @@
             <item>
              <widget class="QLineEdit" name="NameListPathEdit">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
@@ -259,7 +265,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>50</height>
+                <height>0</height>
                </size>
               </property>
               <property name="text">
@@ -291,7 +297,7 @@
               <property name="minimumSize">
                <size>
                 <width>0</width>
-                <height>51</height>
+                <height>0</height>
                </size>
               </property>
               <property name="text">
@@ -307,7 +313,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QGroupBox" name="replaceStrategy">
+      <widget class="QGroupBox" name="replaceStrategyBox">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -456,7 +462,7 @@
             <property name="minimumSize">
              <size>
               <width>0</width>
-              <height>70</height>
+              <height>0</height>
              </size>
             </property>
             <property name="text">
@@ -477,7 +483,7 @@
           <property name="minimumSize">
            <size>
             <width>0</width>
-            <height>50</height>
+            <height>0</height>
            </size>
           </property>
           <property name="text">
@@ -520,7 +526,7 @@
          <bool>true</bool>
         </attribute>
         <attribute name="horizontalHeaderMinimumSectionSize">
-         <number>10</number>
+         <number>30</number>
         </attribute>
         <attribute name="horizontalHeaderStretchLastSection">
          <bool>true</bool>
@@ -545,12 +551,7 @@
         </column>
         <column>
          <property name="text">
-          <string>被引次数</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>文件路径</string>
+          <string>被引文件数</string>
          </property>
         </column>
        </widget>
@@ -608,7 +609,12 @@
         </column>
         <column>
          <property name="text">
-          <string>出现次数</string>
+          <string>路径次数</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>资源次数</string>
          </property>
         </column>
         <column>

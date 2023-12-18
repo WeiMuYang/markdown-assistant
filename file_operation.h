@@ -46,12 +46,6 @@ public:
     bool delDesktopFile(QString dirPath, QString fileName);
 
     ////////   renamefile    /////////
-    bool getMarkdownQString(const QString& markdownAbsPath, const QString& oldNameAbsolutePath, int &n);
-    void getRefMarkdownFile(const QString& subPath, const QString &repoPath,
-                            const QString& oldNameAbsolutePath,QVector<ReFile>& reFileVec);
-    QVector<ReFile> getDirAllFiles(const QString& repoPath,  const QString &oldFilePath );
-
-    //////////////////////
     void getMarkdownQString(const QString& markdownAbsPath, const QString &repoPath, const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList
                                            , QVector<FileRenameInfo> &replaceNameFileInfoList);
     void getRefMarkdownFile(const QString& subPath, const QString &repoPath, const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList
@@ -61,6 +55,8 @@ public:
 
     void updateReplaceNameByList(const QString &listPathAbs, QVector<DirRenameInfo> &replaceNameDirInfoList
                                        , QVector<FileRenameInfo> &replaceNameFileInfoList);
+    int referAsSource(QString context, QString relativePath1);
+    int referAsJump(QString context, QString relativePath1);
 signals:
     void sigFileOperationLog(QString log);
 
