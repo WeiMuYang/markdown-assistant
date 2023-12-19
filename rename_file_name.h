@@ -47,6 +47,7 @@ public:
     void updateReferFileList();
     void updateReferListByRenameFileListRow(int row);
     void updateReferList(const QVector<ReFile>& reFileList);
+    void updateContextList(const QVector<ReText>& retextList);
     bool modifyRefMarkdown(const QString& refFilePath, const QString& oldFileName,
                                            const QString& newFilePath);
     QString replaceNewFile(QDir newFileDir, QDir curFileDir, QString line, QString oldFileName);
@@ -63,8 +64,9 @@ private slots:
     void updateReferListEditSlot(QTableWidgetItem* item);
     void on_ReplaceByListPbn_clicked();
     void OpenReferFileSlot(QTableWidgetItem *item);
-    void showMenuSlot();
+    void showMenuSlot(QPoint pos);
     void copyOldFileListSlot();
+    void copyOldFileItemSlot();
     void on_ChooseListPbn_clicked();
 
     void on_OpenListFilePbn_clicked();

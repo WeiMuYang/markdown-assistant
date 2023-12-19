@@ -4,6 +4,7 @@
 #include <QDir>
 #include <QVector>
 #include <QFileInfo>
+#include <QDateTime>
 
 // config data used
 struct NamePath{
@@ -35,12 +36,21 @@ typedef enum {
     None, TarCombox, SubCombox, NumSpinBox
 }BoxSelect;
 
+struct ReText
+{
+    int x;
+    int y;
+    QString oldText;
+    QString newText;
+};
 
 struct ReFile
 {
     QString reFilePath;
     int reAsJumpCount;
     int reAsSrcCount;
+    QVector<ReText> reTextList;
+    QDateTime lastModifyTime;
 };
 
 struct FileRenameInfo

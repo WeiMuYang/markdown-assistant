@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include <QTextCodec>
 #include <QClipboard>
+#include <QSplitter>
 #include <QAction>
 
 
@@ -15,6 +16,11 @@ RenameFileName::RenameFileName(QWidget *parent) :
     fileOperaton_ = new FileOperation(this);
     confFile_ = new confDialog;
     renameListMenu_ = new QMenu(this);
+    QSplitter *splitterList = new QSplitter(Qt::Vertical,nullptr); // 水平布置
+    splitterList->addWidget(ui->referFileListWgt);
+    splitterList->addWidget(ui->referContextListWgt);
+    ui->referLayout->addWidget(splitterList);
+    splitterList->show();
     initRenameFileList();
 }
 
@@ -135,9 +141,20 @@ void RenameFileName::initRenameFileList() {
     ui->referFileListWgt->setFrameShape(QFrame::NoFrame);
     //设置表格不显示格子线
     ui->referFileListWgt->setShowGrid(false); //设置不显示格子线
-
     connect(ui->referFileListWgt,&QTableWidget::itemDoubleClicked,this,&RenameFileName::OpenReferFileSlot);
     initListMenu();
+// =======================================================================
+    ui->referContextListWgt->setColumnCount(4);     //设置列数
+    ui->referContextListWgt->setSelectionBehavior(QAbstractItemView::SelectRows);
+    //设置每行内容不可编辑
+    ui->referContextListWgt->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    /*去掉每行的行号*/
+    ui->referContextListWgt->verticalHeader()->setHidden(true);
+    ui->referContextListWgt->horizontalHeader()->setStretchLastSection(true);
+    // 消除表格控件的边框
+    ui->referContextListWgt->setFrameShape(QFrame::NoFrame);
+    //设置表格不显示格子线
+    ui->referContextListWgt->setShowGrid(false); //设置不显示格子线
 }
 
 void RenameFileName::OpenReferFileSlot(QTableWidgetItem *item) {
@@ -154,14 +171,19 @@ void RenameFileName::OpenReferFileSlot(QTableWidgetItem *item) {
 }
 
 void RenameFileName::initListMenu() {
-    QAction *actCopyAddList = new QAction("拷贝列表",renameListMenu_);
-    renameListMenu_->addAction(actCopyAddList);
-    connect(actCopyAddList, &QAction::triggered, this, &RenameFileName::copyOldFileListSlot);
+    QAction *actCopyList = new QAction("拷贝列表",renameListMenu_);
+    QAction *actCopyItem = new QAction("拷贝当前项",renameListMenu_);
+    renameListMenu_->addAction(actCopyList);
+    renameListMenu_->addAction(actCopyItem);
+    connect(actCopyList, &QAction::triggered, this, &RenameFileName::copyOldFileListSlot);
+    connect(actCopyItem, &QAction::triggered, this, &RenameFileName::copyOldFileItemSlot);
 }
 
-void RenameFileName::showMenuSlot() {
+void RenameFileName::showMenuSlot(QPoint pos) {
     renameListMenu_->move(cursor().pos());
     renameListMenu_->show();
+    QModelIndex index = ui->renameFileListWgt->indexAt(pos);
+    ui->renameFileListWgt->setCurrentIndex(index);
 }
 
 void RenameFileName::copyOldFileListSlot(){
@@ -170,6 +192,11 @@ void RenameFileName::copyOldFileListSlot(){
     for(int i = 0; i < ui->renameFileListWgt->rowCount(); ++i){
         clipText += ui->renameFileListWgt->item(i,2)->text() + "\n";
     }
+    clip->setText(clipText);
+}
+void RenameFileName::copyOldFileItemSlot(){
+    QClipboard* clip = QApplication::clipboard();
+    QString clipText = ui->renameFileListWgt->currentItem()->text();
     clip->setText(clipText);
 }
 
@@ -237,6 +264,7 @@ void RenameFileName::updateRenameFileList(){
 
 void RenameFileName::updateReferList(const QVector<ReFile>& reFileList) {
     ui->referFileListWgt->clearContents();
+    ui->referFileListWgt->setRowCount(0);
     if(reFileList.isEmpty()) {
         return;
     }
@@ -260,6 +288,10 @@ void RenameFileName::updateReferList(const QVector<ReFile>& reFileList) {
     emit ui->referFileListWgt->horizontalHeader()->sectionHandleDoubleClicked(0);
     emit ui->referFileListWgt->horizontalHeader()->sectionHandleDoubleClicked(1);
     emit ui->referFileListWgt->horizontalHeader()->sectionHandleDoubleClicked(2);
+}
+
+void RenameFileName::updateContextList(const QVector<ReText>& reFileList) {
+// 参考 RenameFileName::updateReferList(const QVector<ReFile>& reFileList)
 }
 
 void RenameFileName::updateReferListByRenameFileListRow(int row) {
@@ -416,7 +448,10 @@ void RenameFileName::renameByConfFile() {
 void RenameFileName::renameListClear() {
     // 只删除内容，不删除表头
     ui->renameFileListWgt->clearContents();
+    ui->renameFileListWgt->setRowCount(0);
+
     ui->referFileListWgt->clearContents();
+    ui->referFileListWgt->setRowCount(0);
 }
 
 void RenameFileName::renameByListFile() {
@@ -459,83 +494,6 @@ void RenameFileName::on_OpenConfFilePbn_clicked()
     emit sigRenameFileConfFile(renameConfPath_);
 }
 
-//// 替换 [XXX](./XXX)
-//// [img](./img)  → [img1](./img1)
-//QString RenameFileName::replaceNewFile(QDir newFileDir, QDir curFileDir, QString line, QString oldFileAbsPath)
-//{
-//    QString oldFileName = oldFileAbsPath.split("/").last();
-//    QVector<QPoint> refPosArr;
-//    curFileDir.cdUp();
-//    // 上一级目录
-//    QString desPath = curFileDir.relativeFilePath(newFileDir.absolutePath());
-//    if(!desPath.contains("/")) {
-//        desPath = "./" + desPath;
-//    }
-//    int pos = 0;
-//    // 找到 "](" 位置 pos
-//    while ((pos = line.indexOf(']', pos)) != -1 && line.length() > pos + 1 && line.mid(pos + 1 ,1) == "(" ) {
-//        int endPos = line.indexOf(')', pos);
-//        // 找到")"的位置 endPos
-//        if (endPos != -1) {
-//            // 括号内的字符 subStr = ./XXXXX/XXX
-//            QString subStr = line.mid(pos + 2, endPos - pos - 2);
-//            // ./高频短语速 记本/01-PART3的136真题练习/01 心情和感受.mp3
-//            if(subStr.split("/").last() == oldFileName) {  //    * 引用的当前文件或者路径名字: 01 心情和感受.mp3
-//                QPoint refPos;
-//                refPos.setY(endPos);
-//                qDebug() << "y: " << endPos ;
-//                int posLeftMid = pos + 2;
-//                while (posLeftMid >= 0 && line.at(posLeftMid) != "[") {
-//                    posLeftMid--;
-//                }
-//                if(posLeftMid != -1) {
-//                    refPos.setX(posLeftMid + 1);
-//                    refPosArr.append(refPos);
-//                    qDebug() << "x: " << posLeftMid + 1 ;
-//                }
-//            }else if(subStr.split("/").last() == oldFileName){ // * 引用中间路径:高频短语速 记本 or 01-PART3的136真题练习
-
-
-//            }
-
-//            pos = endPos + 1;
-//        } else {
-//            break;
-//        }
-//    }
-//    if(refPosArr.isEmpty()){
-//        return line;
-//    }
-//    // TODO: 貌似无法修改(..\02-writing)需要后续确定.
-//    // [新东方-写作课程-第04节课](./study/06-新东方-写作课程-第04节课.md).
-//    // [x                                                        y.
-//    // [![](https://img.shields.io/badge/链接-视频课程-brightgreen.svg)](..\02-writing).
-//    //1. [](https://img.shields.io/badge/链接-视频课程-brightgreen.svg).
-//    //   [x                                                         y.
-//    //2. [](https://img.shields.io/badge/链接-视频课程-brightgreen.svg)](..\02-writing).
-//    //   [x                                                                         y.
-//    QString lineSplicing = line.mid(0, refPosArr[0].x() - 1);
-//    QString refFile = "[" + newFileDir.dirName() + "]" +"(" + desPath +")";
-//    //    int m = refFile.length();
-//    for(int i = 0 ; i < refPosArr.size()-1; ++i){
-////        qDebug() << lineSplicing ;
-////        qDebug() <<"------------------------" ;
-//        lineSplicing += refFile;
-////        qDebug() << lineSplicing ;
-////        qDebug() <<"++++++++++++++++++++++++" ;
-//        lineSplicing += line.mid(refPosArr.at(i).y() + 1, refPosArr.at(i+1).x() - refPosArr.at(i).y() - 2);
-////        qDebug() << lineSplicing ;
-////        qDebug() <<"=======================" ;
-//    }
-//    lineSplicing += refFile;
-//    lineSplicing += line.mid(refPosArr.last().y() + 1,line.size() - refPosArr.last().x());
-
-//    qDebug() << lineSplicing ;
-//    qDebug()<<".........................." ;
-//    qDebug() << line ;
-//    return lineSplicing;
-//}
-
 // 替换 [XXX](./XXX)
 // [img](./img)  → [img1](./img1)
 QString RenameFileName::replaceNewFile(QDir newFileDir, QDir curFileDir, QString line, QString oldFileAbsPath)
@@ -554,12 +512,6 @@ QString RenameFileName::replaceNewFile(QDir newFileDir, QDir curFileDir, QString
         if(endPos == -1) {
             break;
         }
-        QPoint refPos;
-        // 找到")"的位置 endPos
-        // 括号内的字符 subStr = ./XXXXX/XXX
-        QString subStr = line.mid(pos + 2, endPos - pos - 2);
-        refPos.setY(endPos);
-        qDebug() << "y: " << endPos ;
         int posLeftMid = pos + 2;
         while (posLeftMid >= 0 && line.at(posLeftMid) != "[") {
             posLeftMid--;
@@ -568,14 +520,28 @@ QString RenameFileName::replaceNewFile(QDir newFileDir, QDir curFileDir, QString
             pos = endPos + 1;
             continue;
         }
+        QPoint refPos;
+        // 小括号内的字符 oldPath = ./XXXXX/XXX
+        QString oldJumpPath = line.mid(pos + 2, endPos - pos - 2);
+        // 中括号内的字符 oldName = XXXX
+        QString oldJumpName = line.mid(posLeftMid + 1, pos - posLeftMid);
+        // 找到")"的位置 endPos
         refPos.setX(posLeftMid);
+        refPos.setY(endPos);
+        qDebug() << "x: " << posLeftMid << "     y: " << endPos ;
         // [新东方-写作课程-第04节课](./study/01-PART3的136真题练习/06-新东方-写作课程-第04节课.md).
         // x                                                                             y.
-        if(subStr.split("/").last() == oldFileName || subStr.split("\\").last() == oldFileName) {
+        if(oldJumpPath.split("/").last() == oldFileName || oldJumpPath.split("\\").last() == oldFileName) {
             // *引用的当前文件或者路径名字: 06-新东方-写作课程-第04节课.md
-            QString refFile = "[" + newFileDir.dirName() + "]" +"(" + desPath +")";
+            QString reStr = oldJumpPath;
+            // [新东方-写作课程-第04节课](./study/01-PART3的136真题练习/新名字.md)
+            reStr.replace(oldFileName, newFileDir.dirName());
+            QFileInfo oldFileInfo = QFileInfo(newFileDir.absolutePath());
+
+
             // replace(int i, int len, const QString &after)
-            line.replace(refPos.x(), refPos.y() - refPos.x() + 1, refFile);
+            // 只替换()中的路径即可
+            line.replace(refPos.x(), refPos.y() - refPos.x() + 1, reStr);
         }else{
             // *引用中间路径: study or 01-PART3的136真题练习
             QString reStr = line.mid(refPos.x(), refPos.y() - refPos.x() + 1);
@@ -595,7 +561,6 @@ bool RenameFileName::modifyRefMarkdown(const QString& reFilePathAbs, const QStri
     QStringList strList;
     QDir newFileDir(newFileAbsPath);
     QDir curFileDir(reFilePathAbs);
-
     // 1. 自己引用自己
     if(reFilePathAbs == newFileAbsPath) {
         qDebug() << reFilePathAbs << ": This is itself!";
@@ -706,8 +671,6 @@ void RenameFileName::on_ReplaceByListPbn_clicked()
     }
 }
 
-
-
 void RenameFileName::on_ChooseListPbn_clicked()
 {
     renameListPath_ = QFileDialog::QFileDialog::getOpenFileName(this,"选择配置文件",repoPath_,tr("txt files(*.txt);;Json files(*.json);;All files(*.*)"));
@@ -729,8 +692,8 @@ void RenameFileName::setSize(ScreenRes screen) {
         ui->replaceStrategyBox->setMinimumHeight(200);
         ui->replaceStrategyBox->setMaximumHeight(200);
     }else{
-        this->setMinimumSize(QSize(700, 500));
-        this->resize(QSize(700, 500));
+        this->setMinimumSize(QSize(700, 600));
+        this->resize(QSize(700, 600));
         ui->pathConfBox->setMinimumHeight(100);
         ui->pathConfBox->setMaximumHeight(100);
         ui->replaceStrategyBox->setMinimumHeight(100);
@@ -757,7 +720,6 @@ void RenameFileName::on_NameListPathEdit_textChanged(const QString &arg1)
     renameListPath_ = arg1;
     renameListClear();
 }
-
 
 void RenameFileName::on_charRadioBtn_stateChanged(int arg1)
 {

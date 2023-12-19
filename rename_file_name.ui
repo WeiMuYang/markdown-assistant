@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>750</width>
+    <width>780</width>
     <height>700</height>
    </rect>
   </property>
@@ -25,7 +25,7 @@
   <property name="windowTitle">
    <string>重命名</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_8" stretch="1,2,1">
+  <layout class="QVBoxLayout" name="verticalLayout_8" stretch="3,3,2">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="2,1">
      <item>
@@ -560,7 +560,7 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox_2">
+    <widget class="QGroupBox" name="referBox">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -568,61 +568,113 @@
       </sizepolicy>
      </property>
      <property name="title">
-      <string>引用列表</string>
+      <string>引用信息</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_4">
       <item>
-       <widget class="QTableWidget" name="referFileListWgt">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
-          <horstretch>0</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <attribute name="horizontalHeaderVisible">
-         <bool>true</bool>
-        </attribute>
-        <attribute name="horizontalHeaderMinimumSectionSize">
-         <number>10</number>
-        </attribute>
-        <attribute name="horizontalHeaderStretchLastSection">
-         <bool>true</bool>
-        </attribute>
-        <attribute name="verticalHeaderVisible">
-         <bool>false</bool>
-        </attribute>
-        <column>
-         <property name="text">
-          <string>序号</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>引用到文件</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>路径次数</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>资源次数</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>文件路径</string>
-         </property>
-        </column>
-       </widget>
+       <layout class="QVBoxLayout" name="referLayout" stretch="2,1">
+        <item>
+         <widget class="QTableWidget" name="referFileListWgt">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <attribute name="horizontalHeaderVisible">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="horizontalHeaderMinimumSectionSize">
+           <number>10</number>
+          </attribute>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>序号</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>引用到文件</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>路径次数</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>资源次数</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>文件路径</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+        <item>
+         <widget class="QTableWidget" name="referContextListWgt">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>0</width>
+            <height>0</height>
+           </size>
+          </property>
+          <attribute name="horizontalHeaderVisible">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="horizontalHeaderMinimumSectionSize">
+           <number>10</number>
+          </attribute>
+          <attribute name="horizontalHeaderStretchLastSection">
+           <bool>true</bool>
+          </attribute>
+          <attribute name="verticalHeaderVisible">
+           <bool>false</bool>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>序号</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>文件位置</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>旧内容</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>新内容</string>
+           </property>
+          </column>
+         </widget>
+        </item>
+       </layout>
       </item>
      </layout>
     </widget>

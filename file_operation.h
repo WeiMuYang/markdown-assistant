@@ -57,6 +57,8 @@ public:
                                        , QVector<FileRenameInfo> &replaceNameFileInfoList);
     int referAsSource(QString context, QString relativePath1);
     int referAsJump(QString context, QString relativePath1);
+    void findReferByJump(QDir newFileDir, QDir curFileDir, QString context, QString oldFileAbsPath,QVector<ReText>& reTextList);
+    void findReferBySrc(QDir newFileDir, QDir curFileDir, QString context, QString oldFileAbsPath,QVector<ReText>& reTextList);
 signals:
     void sigFileOperationLog(QString log);
 
