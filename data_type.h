@@ -48,7 +48,6 @@ struct ReFile
 {
     QString reFilePath;
     int reAsJumpCount;
-    int reAsSrcCount;
     QVector<ReText> reTextList;
     QDateTime lastModifyTime;
 };

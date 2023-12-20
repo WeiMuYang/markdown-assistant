@@ -1405,7 +1405,6 @@ void MainWindow::searchAssetsByCodeSlot(QString code,QString renameList)
     fileOp_.getSearchResultFromMarkdownCode(fullTarPath_, code,renameList, result);
 }
 
-
 void MainWindow::on_createMarkdownPbn_clicked()
 {
     QString currentFileName;
@@ -1414,7 +1413,6 @@ void MainWindow::on_createMarkdownPbn_clicked()
         openExPro_.OpenMarkdownAndDirSlot(fullTarPath_+"/" + currentFile_);
     }
 }
-
 
 void MainWindow::on_historySearchPbn_clicked()
 {
@@ -1457,7 +1455,7 @@ void MainWindow::showModifyNameDlg(){
     //     renameFileName_->setRepoPath(tarPath_);
     renameFileName_->setRenameDirPath("C:/Users/Administrator/Desktop/IELTS-Test-rename/09-MP3/高频短语速list记本");
     renameFileName_->setRenameConfPath("C:/Users/Administrator/Desktop/markdown-assistant/conf/rename.json");
-    renameFileName_->setRepoPath("C:/Users/Administrator/Desktop/IELTS-Test-rename");
+    renameFileName_->setRepoPath("C:/Users/Administrator/Desktop/IELTS-Test-rename11");
     renameFileName_->setRenameListPath("C:/Users/Administrator/Desktop/markdown-assistant/conf/renameList.txt");
 
 //    renameFileName_->setRenameDirPath("C:/Users/qxz32h9/Desktop/IELTS-Test-rename/09-MP3/高频短语速list记本");

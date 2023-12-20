@@ -47,18 +47,26 @@ public:
 
     ////////   renamefile    /////////
     void getMarkdownQString(const QString& markdownAbsPath, const QString &repoPath, const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList
-                                           , QVector<FileRenameInfo> &replaceNameFileInfoList);
+                                           , QVector<FileRenameInfo> &replaceNameFileInfoList, int index = -1);
     void getRefMarkdownFile(const QString& subPath, const QString &repoPath, const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList
-                                           , QVector<FileRenameInfo> &replaceNameFileInfoList);
+                                           , QVector<FileRenameInfo> &replaceNameFileInfoList,int index = -1);
     void updateReplaceNameRefereceList(const QString &repoPath, const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList,
-                                                      QVector<FileRenameInfo> &replaceNameFileInfoList);
+                                                      QVector<FileRenameInfo> &replaceNameFileInfoList,int index = -1);
 
     void updateReplaceNameByList(const QString &listPathAbs, QVector<DirRenameInfo> &replaceNameDirInfoList
                                        , QVector<FileRenameInfo> &replaceNameFileInfoList);
-    int referAsSource(QString context, QString relativePath1);
-    int referAsJump(QString context, QString relativePath1);
     void findReferByJump(QDir newFileDir, QDir curFileDir, QString context, QString oldFileAbsPath,QVector<ReText>& reTextList);
     void findReferBySrc(QDir newFileDir, QDir curFileDir, QString context, QString oldFileAbsPath,QVector<ReText>& reTextList);
+    void updateReferDir(const QString& markdownAbsPath, const QString &repoPath,const QString &context,
+                                       QDir curDir,const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList,int i);
+    void updateReferFile(const QString& markdownAbsPath, const QString &repoPath,const QString &context,
+                                        QDir curDir,const QString &renameDirPath, QVector<FileRenameInfo> &replaceNameFileInfoList, int i);
+
+
+    void updateReferDirByFilePath(const QString& markdownAbsPath, const QString &repoPath,
+                                       QDir curDir,const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList,int i);
+    void updateReferFileByFilePath(const QString& markdownAbsPath, const QString &repoPath,
+                                        QDir curDir,const QString &renameDirPath, QVector<FileRenameInfo> &replaceNameFileInfoList, int i);
 signals:
     void sigFileOperationLog(QString log);
 

@@ -31,7 +31,7 @@ public:
     void setRepoPath(const QString& path);
     void setRenameConfPath(const QString& path);
     void setRenameListPath(const QString& path);
-
+    void backupRenameDir();
     void renameByConfFile();
     void renameByListFile();
     bool BackUp(const QString &fromDir, const QString &toDir, bool coverFileIfExist);
@@ -48,11 +48,11 @@ public:
     void updateReferListByRenameFileListRow(int row);
     void updateReferList(const QVector<ReFile>& reFileList);
     void updateContextList(const QVector<ReText>& retextList);
-    bool modifyRefMarkdown(const QString& refFilePath, const QString& oldFileName,
-                                           const QString& newFilePath);
-    QString replaceNewFile(QDir newFileDir, QDir curFileDir, QString line, QString oldFileName);
+
     void initListMenu();
     void setSize(ScreenRes screen);
+    bool modifyReferMarkdown(const QString& markdownPathAbs, const QVector<ReText>& reTextList,int n);
+    int getReferFileDt(int n);
 private slots:
     void on_ChooseDirPbn_clicked();
     void on_ChooseConfPbn_clicked();
@@ -61,6 +61,7 @@ private slots:
     void on_refreshPbn_clicked();
 
     void updateReferListClickedSlot(QModelIndex index);
+//    void dirRenameInfoUpdate(QString newDirPath, DirRenameInfo& dirRenameinfo);
     void updateReferListEditSlot(QTableWidgetItem* item);
     void on_ReplaceByListPbn_clicked();
     void OpenReferFileSlot(QTableWidgetItem *item);
@@ -69,9 +70,9 @@ private slots:
     void copyOldFileItemSlot();
     void on_ChooseListPbn_clicked();
 
+    void updateReferTextClickedSlot(QModelIndex index);
+
     void on_OpenListFilePbn_clicked();
-
-
 
     void on_RenameDirPathEdit_textChanged(const QString &arg1);
 
