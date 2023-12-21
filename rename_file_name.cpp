@@ -309,6 +309,47 @@ int GetRowsByLabelText(QFontMetrics fontMetrics, QString strText, int iWith)
     return iRow;
 }
 
+QString RenameFileName::highlightDifferences(const QString& str1, const QString& str2) {
+    QString highlightedStr;
+    QRegularExpression regex("[\\s/\\\\;:\\[\\]\\(\\)\\.\\-]");
+    QRegularExpressionMatchIterator iterator1 = regex.globalMatch(str1);
+    QRegularExpressionMatchIterator iterator2 = regex.globalMatch(str2);
+    int prevIndex1 = 0;
+    int prevIndex2 = 0;
+
+    while (iterator1.hasNext() && iterator2.hasNext()) {
+        QRegularExpressionMatch match1 = iterator1.next();
+        QRegularExpressionMatch match2 = iterator2.next();
+        int index1 = match1.capturedStart();
+        int index2 = match2.capturedStart();
+
+        // 高亮不同之处
+        if (str1.mid(prevIndex1, index1 - prevIndex1) != str2.mid(prevIndex2, index2 - prevIndex2)) {
+            highlightedStr += "<span style=\"color:red\">" +
+                              str2.mid(prevIndex2, index2 - prevIndex2) +
+                              "</span>";
+        } else {
+            highlightedStr += str2.mid(prevIndex2, index2 - prevIndex2);
+        }
+
+        // 添加分隔符
+        highlightedStr += str2.mid(index2, match2.capturedLength());
+
+        prevIndex1 = index1 + match1.capturedLength();
+        prevIndex2 = index2 + match2.capturedLength();
+    }
+
+    // 处理剩余的字符
+    if (prevIndex1 < str1.length()) {
+        highlightedStr += "<span style=\"color:red\">" +
+                          str1.mid(prevIndex1) +
+                          "</span>";
+    } else if (prevIndex2 < str2.length()) {
+        highlightedStr += str2.mid(prevIndex2);
+    }
+
+    return highlightedStr;
+}
 
 void RenameFileName::updateContextList(const QVector<ReText>& reTextList) {
 // 参考 RenameFileName::updateReferList(const QVector<ReFile>& reFileList)
@@ -330,9 +371,10 @@ void RenameFileName::updateContextList(const QVector<ReText>& reTextList) {
             oldTxt.replace("<", "&lt;"); oldTxt.replace(">", "&gt;");
             newTxt.replace("<", "&lt;"); newTxt.replace(">", "&gt;");
         }
-        QString strHtmlText = "<p>" + oldTxt +  "  <br> " + newTxt + "  </p>";
+        QString strHtmlText =  "<p>" + oldTxt + "  <br> " + highlightDifferences(oldTxt, newTxt) + "</p>";
         QLabel* pLabel = new QLabel;
         pLabel->setText(strHtmlText);
+
         QFontMetrics fontMetrics = pLabel->fontMetrics();
         int iHeight = fontMetrics.boundingRect(pLabel->text()).height() + 2;
         ui->referContextListWgt->setRowHeight(j, iHeight * 2);
@@ -601,30 +643,15 @@ void RenameFileName::on_OpenConfFilePbn_clicked()
     emit sigRenameFileConfFile(renameConfPath_);
 }
 
-// 前面有可能被修改过，需要知道修改后的位置偏移是多少
-int RenameFileName::getReferFileDt(int n) {
-    int len = replaceNameDirInfoList_.size();
-    if(n < len) {
-//        QVector<ReFile> reFileList = replaceNameDirInfoList_.at(n).reDirList;
-//        for(int i = 0; i < n; ++i) {
+bool RenameFileName::modifyReferMarkdown(const QString& reMarkdownPath, const QVector<ReText>& reTextList) {
+    QString markdownPathAbs = repoPath_ + "/" + reMarkdownPath;
 
-//        }
-
-
-    }
-
-
-    return 0;
-}
-
-bool RenameFileName::modifyReferMarkdown(const QString& markdownPathAbs, const QVector<ReText>& reTextList, int n){
     QFile data(markdownPathAbs);
     if (!data.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         qDebug()<< "Can't open the file!";
         return false;
     }
-
     QString context;
     QTextStream stream(&data);
     context = stream.readAll();
@@ -637,7 +664,8 @@ bool RenameFileName::modifyReferMarkdown(const QString& markdownPathAbs, const Q
         return false;
     }
     QTextStream wStream(&writeFile);
-    int dt = getReferFileDt(n);
+    int dt = 0;
+
     for(int i = 0; i < reTextList.size(); ++i) {
         int len = reTextList.at(i).y - reTextList.at(i).x + 1;
         context.replace(reTextList.at(i).x + dt, len, reTextList.at(i).newText);
@@ -652,30 +680,44 @@ void RenameFileName::on_ReplaceByListPbn_clicked()
 {
     int n = 0;
     // 更新修改的目录
-    for(int i = 0; i < replaceNameDirInfoList_.size() && replaceNameDirInfoList_.at(i).oldDirPath != replaceNameDirInfoList_.at(i).newDirPath; ++i, n++) {
-        QString oldPathAbs = renameDirPath_ + "/" + replaceNameDirInfoList_.at(i).oldDirPath;
-        QString newPathAbs = renameDirPath_ + "/" + replaceNameDirInfoList_.at(i).newDirPath;
-        if(!QFile::rename(oldPathAbs, newPathAbs)) {
-            emit sigRenameFileNameLog(QString("Move ") + replaceNameDirInfoList_.at(i).oldDirPath + " Failed ！");
-        }else{
-            QVector<ReFile> reFileList = replaceNameDirInfoList_.at(i).reDirList;
-            for(int j = 0; j < reFileList.size(); ++j) {
-                ReFile reFile = reFileList.at(i);
-                modifyReferMarkdown(repoPath_ + "/" + reFileList.at(i).reFilePath, reFile.reTextList, n);
+    for(int i = 0; i < replaceNameDirInfoList_.size(); ++i, n++) {
+        if(replaceNameDirInfoList_.at(i).oldDirPath != replaceNameDirInfoList_.at(i).newDirPath) {
+            QString oldPathAbs = renameDirPath_ + "/" + replaceNameDirInfoList_.at(i).oldDirPath;
+            QString newPathAbs = renameDirPath_ + "/" + replaceNameDirInfoList_.at(i).newDirPath;
+            if(!QFile::rename(oldPathAbs, newPathAbs)) {
+                emit sigRenameFileNameLog(QString("Move ") + replaceNameDirInfoList_.at(i).oldDirPath + " Failed ！");
+            }else{
+                QVector<ReFile> reFileList = replaceNameDirInfoList_.at(i).reDirList;
+                for(int j = 0; j < reFileList.size(); ++j) {
+                    ReFile reFile = reFileList.at(j);
+                    QDateTime lastModifyTime = QFileInfo(repoPath_ + "/" + reFile.reFilePath).lastModified();
+                    if(lastModifyTime != reFile.lastModifyTime) {
+                        reFile.reTextList =
+                        fileOperaton_->updateReTextDir(repoPath_ + "/" + reFile.reFilePath, repoPath_,  renameDirPath_, replaceNameDirInfoList_, i);
+                    }
+                    modifyReferMarkdown(reFile.reFilePath ,reFile.reTextList);
+                }
             }
         }
     }
     // 更新修改的文件
-    for(int i = 0; i < replaceNameFileInfoList_.size() && replaceNameFileInfoList_.at(i).oldFilePath != replaceNameFileInfoList_.at(i).newFilePath; ++i, n++) {
-        QString oldPathAbs = renameDirPath_ + "/" + replaceNameFileInfoList_.at(i).oldFilePath;
-        QString newPathAbs = renameDirPath_ + "/" + replaceNameFileInfoList_.at(i).newFilePath;
-        if(!QFile::rename(oldPathAbs, newPathAbs)) {
-            emit sigRenameFileNameLog(QString("Move ") + replaceNameDirInfoList_.at(i).oldDirPath + " Failed ！");
-        }else{
-            QVector<ReFile> reFileList = replaceNameFileInfoList_.at(i).reFileList;
-            for(int j = 0; j < reFileList.size(); ++j) {
-                ReFile reFile = reFileList.at(i);
-                modifyReferMarkdown(repoPath_ + "/" + reFileList.at(i).reFilePath, reFile.reTextList, n);
+    for(int i = 0; i < replaceNameFileInfoList_.size(); ++i, n++) {
+        if(replaceNameFileInfoList_.at(i).oldFilePath != replaceNameFileInfoList_.at(i).newFilePath) {
+            QString oldPathAbs = renameDirPath_ + "/" + replaceNameFileInfoList_.at(i).oldFilePath;
+            QString newPathAbs = renameDirPath_ + "/" + replaceNameFileInfoList_.at(i).newFilePath;
+            if(!QFile::rename(oldPathAbs, newPathAbs)) {
+                emit sigRenameFileNameLog(QString("Move ") + replaceNameFileInfoList_.at(i).oldFilePath + " Failed ！");
+            }else{
+                QVector<ReFile> reFileList = replaceNameFileInfoList_.at(i).reFileList;
+                for(int j = 0; j < reFileList.size(); ++j) {
+                    ReFile reFile = reFileList.at(j);
+                    QDateTime lastModifyTime = QFileInfo(repoPath_ + "/" + reFile.reFilePath).lastModified();
+                    if(lastModifyTime != reFile.lastModifyTime) {
+                        reFile.reTextList =
+                        fileOperaton_->updateReTextFile(repoPath_ + "/" + reFile.reFilePath, repoPath_,  renameDirPath_, replaceNameFileInfoList_, i);
+                    }
+                    modifyReferMarkdown(reFile.reFilePath, reFile.reTextList);
+                }
             }
         }
     }

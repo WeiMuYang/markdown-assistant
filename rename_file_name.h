@@ -48,11 +48,11 @@ public:
     void updateReferListByRenameFileListRow(int row);
     void updateReferList(const QVector<ReFile>& reFileList);
     void updateContextList(const QVector<ReText>& retextList);
+    QString highlightDifferences(const QString& str1, const QString& str2);
 
     void initListMenu();
     void setSize(ScreenRes screen);
-    bool modifyReferMarkdown(const QString& markdownPathAbs, const QVector<ReText>& reTextList,int n);
-    int getReferFileDt(int n);
+    bool modifyReferMarkdown(const QString& markdownPathAbs, const QVector<ReText>& reTextList);
 private slots:
     void on_ChooseDirPbn_clicked();
     void on_ChooseConfPbn_clicked();

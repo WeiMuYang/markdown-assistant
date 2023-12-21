@@ -388,7 +388,7 @@ void FileOperation::getHistorySubDirFileList(const QString &dirPath, QFileInfoLi
     QFileInfoList list = dir.entryInfoList(QDir::Files |QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
     qSort(list.begin(),list.end(),compare);
     for(int i = 0, j = 0; i < list.size() && j < topFileCount; ++i){
-        qDebug() <<list.at(i).fileName();
+//        qDebug() <<list.at(i).fileName();
         if(list.at(i).fileName() != "img" && list.at(i).fileName() != "video") {
             fileListTop20.append(list.at(i));
             j++;
@@ -615,7 +615,7 @@ void FileOperation::findReferByJump(QDir newFileDir, QDir curFileDir, QString co
         reText.x = posLeftMid;
         reText.y = endPos;
         reText.oldText = context.mid(reText.x, reText.y - reText.x + 1);
-        qDebug() << "x: " << posLeftMid << "  y: " << endPos ;
+//        qDebug() << "x: " << posLeftMid << "  y: " << endPos ;
         // [新东方-写作课程-第04节课](./study/01-PART3的136真题练习/06-新东方-写作课程-第04节课.md).
         // x                                                                             y.
         // *引用的当前文件或者路径名字: 06-新东方-写作课程-第04节课.md
@@ -706,6 +706,37 @@ void FileOperation::updateReferDirByFilePath(const QString& markdownAbsPath, con
     updateReferDir(markdownAbsPath, repoPath, context, curDir, renameDirPath, replaceNameDirInfoList, i);
 }
 
+QVector<ReText> FileOperation::updateReTextDir(const QString& markdownAbsPath, const QString &repoPath,
+                                               const QString &renameDirPath,const QVector<DirRenameInfo> &replaceNameDirInfoList,int i){
+    QDir curDir(markdownAbsPath);
+    QFile data(markdownAbsPath);
+    QVector<ReText> reTextList;
+    if (!data.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug()<< "Can't open the file!";
+        return reTextList;
+    }
+    QString context;
+    QTextStream stream(&data);
+    context = stream.readAll();
+    data.close();
+    {
+        QString oldNameAbsolutePath = renameDirPath + "/" + replaceNameDirInfoList.at(i).oldDirPath;
+        QString newNameAbsolutePath = renameDirPath + "/" + replaceNameDirInfoList.at(i).newDirPath;
+        QDir oldFileDir(oldNameAbsolutePath);
+        QDir newFileDir(newNameAbsolutePath);
+        if(context.contains(oldFileDir.dirName())){
+            // 1. 定位基准 "]("
+            findReferByJump(newFileDir, curDir, context, oldNameAbsolutePath, reTextList);
+            // 2. 定位基准 "src="  <img src=./img/15-4.png alt=15-4 style=zoom:50%;/>
+            findReferBySrc(newFileDir, curDir, context, oldNameAbsolutePath, reTextList);
+        }
+    }
+    return reTextList;
+}
+
+
+
 void FileOperation::updateReferDir(const QString& markdownAbsPath, const QString &repoPath,const QString &context,
                                    QDir curDir,const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList,int i) {
 
@@ -731,6 +762,35 @@ void FileOperation::updateReferDir(const QString& markdownAbsPath, const QString
         reFile.reTextList = reTextList;
         replaceNameDirInfoList[i].reDirList.append(reFile);
     }
+}
+
+QVector<ReText> FileOperation::updateReTextFile(const QString& markdownAbsPath, const QString &repoPath,
+                                                const QString &renameDirPath, const QVector<FileRenameInfo> &replaceNameFileInfoList, int i){
+    QFile data(markdownAbsPath);
+    QDir curDir(markdownAbsPath);
+    QVector<ReText> reTextList;
+    if (!data.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug()<< "Can't open the file!";
+        return reTextList;
+    }
+    QString context;
+    QTextStream stream(&data);
+    context = stream.readAll();
+    data.close();
+    {
+        QString oldNameAbsolutePath = renameDirPath + "/" + replaceNameFileInfoList.at(i).oldFilePath;
+        QString newNameAbsolutePath = renameDirPath + "/" + replaceNameFileInfoList.at(i).newFilePath;
+        QDir oldFileDir(oldNameAbsolutePath);
+        QDir newFileDir(newNameAbsolutePath);
+        if(context.contains(oldFileDir.dirName())){
+            // 1. 定位基准 "]("
+            findReferByJump(newFileDir, curDir, context, oldNameAbsolutePath, reTextList);
+            // 2. 定位基准 "src="  <img src=./img/15-4.png alt=15-4 style=zoom:50%;/>
+            findReferBySrc(newFileDir, curDir, context, oldNameAbsolutePath, reTextList);
+        }
+    }
+    return reTextList;
 }
 
 void FileOperation::updateReferFileByFilePath(const QString& markdownAbsPath, const QString &repoPath,
