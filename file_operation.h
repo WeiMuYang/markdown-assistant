@@ -67,9 +67,9 @@ public:
                                        QDir curDir,const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList,int i);
     void updateReferFileByFilePath(const QString& markdownAbsPath, const QString &repoPath,
                                         QDir curDir,const QString &renameDirPath, QVector<FileRenameInfo> &replaceNameFileInfoList, int i);
-    QVector<ReText> updateReTextDir(const QString& markdownAbsPath, const QString &repoPath,
+    QVector<ReText> updateReTextDir(const QString& markdownAbsPath,
                                     const QString &renameDirPath,const QVector<DirRenameInfo> &replaceNameDirInfoList,int i);
-    QVector<ReText> updateReTextFile(const QString& markdownAbsPath, const QString &repoPath,
+    QVector<ReText> updateReTextFile(const QString& markdownAbsPath,
                                     const QString &renameDirPath, const QVector<FileRenameInfo> &replaceNameFileInfoList, int i);
 
 signals:

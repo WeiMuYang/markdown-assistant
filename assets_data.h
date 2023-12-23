@@ -12,7 +12,7 @@ class AssetsData
 public:
     AssetsData();
     bool updateImgVideoFile(QString path, int index);
-    QString matchOldName(QString name);
+    ImgData matchOldName(QString name);
     QVector<ImgData> getAddList();
     void clearAddList();
 
@@ -34,6 +34,12 @@ public:
     void setAssetsTypes(QStringList assetsTypes);
 
     QVector<ImgData> getNewAddImgVideoFile(QString path);
+    int getImgFileSizePercent(const QString& path);
+
+
+    bool modifyAddAssetsListZoomWidth(QString name, int zoom);
+
+    bool modifyDelAssetsListZoomWidth(QString name, int zoom);
 
 private:
     QVector<ImgData> addImageList_;

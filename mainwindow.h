@@ -32,6 +32,7 @@ public:
     ~MainWindow() override;
     void initListWgt();
     void updateListWgt();
+    void changedPercentByLabelImg(int width);
     QString matchOldName(QString name);
     void initImgPathTarPathCombox();
     void sycImgDataByOldName(QString name);
@@ -55,6 +56,7 @@ public:
     void setConfigFilePathByUserName(const IniFile& iniFile);
     void setComboBoxToolTip(QComboBox* box);
     void writeCurrentFile(QString str);
+    QString getAssetsPath();
 private slots:
     void updateListDataAndWgtSlot();
     void changeModeSlot();
@@ -126,6 +128,8 @@ private slots:
     void showModifyNameDlg();
 
     void openCurrentDirSlot();
+    void on_zoomPercentPtn_clicked();
+
 protected:
     // 窗口设置为随着窗口变化而变化
     virtual void resizeEvent(QResizeEvent *event) override;
@@ -170,7 +174,6 @@ private:
     bool isStayTop_{false};
 
     RenameFileName* renameFileName_;
-    QString clipText_;
 };
 
 #endif // MAINWINDOW_H

@@ -693,7 +693,7 @@ void RenameFileName::on_ReplaceByListPbn_clicked()
                     QDateTime lastModifyTime = QFileInfo(repoPath_ + "/" + reFile.reFilePath).lastModified();
                     if(lastModifyTime != reFile.lastModifyTime) {
                         reFile.reTextList =
-                        fileOperaton_->updateReTextDir(repoPath_ + "/" + reFile.reFilePath, repoPath_,  renameDirPath_, replaceNameDirInfoList_, i);
+                        fileOperaton_->updateReTextDir(repoPath_ + "/" + reFile.reFilePath, renameDirPath_, replaceNameDirInfoList_, i);
                     }
                     modifyReferMarkdown(reFile.reFilePath ,reFile.reTextList);
                 }
@@ -714,7 +714,7 @@ void RenameFileName::on_ReplaceByListPbn_clicked()
                     QDateTime lastModifyTime = QFileInfo(repoPath_ + "/" + reFile.reFilePath).lastModified();
                     if(lastModifyTime != reFile.lastModifyTime) {
                         reFile.reTextList =
-                        fileOperaton_->updateReTextFile(repoPath_ + "/" + reFile.reFilePath, repoPath_,  renameDirPath_, replaceNameFileInfoList_, i);
+                        fileOperaton_->updateReTextFile(repoPath_ + "/" + reFile.reFilePath, renameDirPath_, replaceNameFileInfoList_, i);
                     }
                     modifyReferMarkdown(reFile.reFilePath, reFile.reTextList);
                 }

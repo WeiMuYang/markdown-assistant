@@ -1,6 +1,7 @@
 #include "assets_data.h"
 #include <QDebug>
 #include <QDate>
+#include <QImageReader>
 
 AssetsData::AssetsData()
 {
@@ -23,7 +24,12 @@ bool AssetsData::updateImgVideoFile(QString path, int index)
         ImgData data;
         data.oldName = list.at(i).fileName();
         data.oldPath = list.at(i).absoluteFilePath();
-        data.oldFileInfo =list.at(i);
+        data.oldFileInfo = list.at(i);
+        if(data.oldName.right(4) != ".mp4"){
+            data.widthZoom = getImgFileSizePercent(list.at(i).absoluteFilePath());
+        }else{
+            data.widthZoom = 50;
+        }
         if(time == list.at(i).birthTime().date()){
             addImageList_.push_back(data);
         }else{
@@ -31,6 +37,27 @@ bool AssetsData::updateImgVideoFile(QString path, int index)
         }
     }
     return true;
+}
+
+int AssetsData::getImgFileSizePercent(const QString& path) {
+    QImageReader reader(path);
+    reader.setAutoTransform(true);
+    int width = reader.read().width();
+    // 最大宽度是1200个像素
+    // 导出PDF会继续放大一倍，也就是说最大宽度是600像素
+    // <img src="./img/09-1.png" alt="09-1" width=100%; />  使用width的缩放来添加图片
+    if(width >= 1200 * 0.9) {
+        return 100;
+    }else if(width >= 1200 * 0.65) {
+        return 80;
+    }else if(width >= 1200 * 0.35) {
+        return 50;
+    }else if(width >= 1200 * 0.2) {
+        return 25;
+    }else{
+        // 行内icon
+        return 5;
+    }
 }
 
 QVector<ImgData> AssetsData::getNewAddImgVideoFile(QString path) {
@@ -63,27 +90,32 @@ QVector<ImgData> AssetsData::getNewAddImgVideoFile(QString path) {
         data.oldName = list.at(i).fileName();
         data.oldPath = list.at(i).absoluteFilePath();
         data.oldFileInfo =list.at(i);
+        if(data.oldName.right(4) != ".mp4"){
+            data.widthZoom = getImgFileSizePercent(list.at(i).absoluteFilePath());
+        }else{
+            data.widthZoom = 50;
+        }
         result.push_back(data);
     }
     return result;
 }
 
 // 根据oldName  -->  oldPath
-QString AssetsData::matchOldName(QString name){
-    QString path;
+ImgData AssetsData::matchOldName(QString name){
+    ImgData data;
     for(int i = 0; i < delImageList_.size(); ++i){
-        ImgData data = delImageList_.at(i);
+        data = delImageList_.at(i);
         if(data.oldName == name){
-            return data.oldPath;
+            return data;
         }
     }
     for(int i = 0; i < addImageList_.size(); ++i){
-        ImgData data = addImageList_.at(i);
+        data = addImageList_.at(i);
         if(data.oldName == name){
-            return data.oldPath;
+            return data;
         }
     }
-    return path;
+    return data;
 }
 
 QVector<ImgData> AssetsData::getAddList(){
@@ -165,5 +197,25 @@ bool AssetsData::searchDelImgListByOldName(QString oldName, ImgData& data){
 void AssetsData::setAssetsTypes(QStringList assetsTypes)
 {
     assetsTypeList_.swap(assetsTypes);
+}
+
+bool AssetsData::modifyAddAssetsListZoomWidth(QString name, int zoom){
+    for(auto it = addImageList_.begin(); it < addImageList_.end(); ++it){
+        if(it->oldName == name){
+            it->widthZoom = zoom;
+            return true;
+        }
+    }
+    return false;
+}
+
+bool AssetsData::modifyDelAssetsListZoomWidth(QString name, int zoom){
+    for(auto it = delImageList_.begin(); it < delImageList_.end(); ++it){
+        if(it->oldName == name){
+            it->widthZoom = zoom;
+            return true;
+        }
+    }
+    return false;
 }
 
