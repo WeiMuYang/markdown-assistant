@@ -109,10 +109,12 @@ private slots:
     void simpleViewSlot();
 
     void updateConfFileSlot();
+    void updateDataAndWidget();
     void copyHistoryFilePathSlot();
     void copyHistoryFilePathOfMeetFileSlot();
     void startSlot();
     void clearTabWgtSlot();
+    void switchConfFileSlot();
 
     void openIniFileSlot();
     void modifyIniFileSlot();
@@ -120,7 +122,6 @@ private slots:
     void openReadMeSlot();
     void delSrcFromListSlot();
 
-    void openConfFileSlot();
     void updateSubDirHistoryFileListSlot();
     void on_createMarkdownPbn_clicked();
     void on_historySearchPbn_clicked();
@@ -129,6 +130,8 @@ private slots:
 
     void openCurrentDirSlot();
     void on_zoomPercentPtn_clicked();
+    void addSub2RepoSlot();
+    void delCurrentRepoSlot();
 
 protected:
     // 窗口设置为随着窗口变化而变化

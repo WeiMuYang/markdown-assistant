@@ -32,7 +32,6 @@ MainWindow::MainWindow(QWidget *parent) :
     scrrenWidth_ = printscreeninfo();
     videoThr_ = new VideoThr;
     clip_ = QApplication::clipboard();
-    //    setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
     DebugBox logBoxVideoThr;
     getAssetsDialog_ = new GetAssetsDialog(this);
     aboutDialog_ = new AboutDialog(this);
@@ -132,6 +131,7 @@ void MainWindow::startSlot() {
     // 必须初始化StatusBar，否则第一个菜单栏的菜单单击不到
     setStatusBar("",false);
     updateConfFileSlot();
+    ui->tabWgt->setCurrentIndex(0);
 }
 
 void MainWindow::initHistoryFileList() {
@@ -246,6 +246,10 @@ void MainWindow::updateConfFileSlot()
     addDelListData_.setAssetsTypes(confDialog_.getAssetsTypes());
     fileOp_.setAssetsTypes(confDialog_.getAssetsTypes());
 
+    updateDataAndWidget();
+}
+
+void MainWindow::updateDataAndWidget(){
     // 1 Init Path
     initImgPathTarPathCombox();
     // 2 更新 子目录
@@ -256,7 +260,7 @@ void MainWindow::updateConfFileSlot()
     updateLastModifyFile();
     // 5 更新 Top20文件列表
     updateRepoHistoryFileList();
-    ui->tabWgt->setCurrentIndex(0);
+//
 }
 
 void MainWindow::updateRepoHistoryFileList(){
@@ -353,7 +357,7 @@ void MainWindow::updateActionConfFileList()  {
     for (int i = 0; i < iniFile.recentFileList.size(); ++i) {
         QAction *actionFileName = new QAction(confFileList_);
         actionFileName->setText(iniFile.iniAndJsonPath+"/"+iniFile.recentFileList.at(i));
-        connect(actionFileName, &QAction::triggered, this, &MainWindow::openConfFileSlot);
+        connect(actionFileName, &QAction::triggered, this, &MainWindow::switchConfFileSlot);
         confFileList_->addAction(actionFileName);
     }
     ui->menuFile->addMenu(confFileList_);
@@ -394,7 +398,6 @@ void MainWindow::InitMainWindowMenu(){
             show();
         }
     });
-    //    connect(ui->actionStayTop, &QAction::triggered, this, &MainWindow::stayTopSlot);
 
     if(simpleViewNum_ % 2 != 0){
         setSampleView();
@@ -415,7 +418,6 @@ void MainWindow::InitMainWindowMenu(){
 
     ui->actionSubDirHistoryFile->setShortcut(QKeySequence("Ctrl+L"));
     connect(ui->actionSubDirHistoryFile,&QAction::triggered, this, &MainWindow::updateSubDirHistoryFileListSlot);
-    //actionGetRelativePathOfMeetFile
 
     ui->actionGetRelativePathOfMeetFile->setShortcut(QKeySequence("Ctrl+P"));
     connect(ui->actionGetRelativePathOfMeetFile,&QAction::triggered, this, &MainWindow::copyHistoryFilePathOfMeetFileSlot);
@@ -429,16 +431,25 @@ void MainWindow::InitMainWindowMenu(){
     ui->actionDelFromSrcList->setShortcut(QKeySequence::Delete);
     connect(ui->actionDelFromSrcList, &QAction::triggered, this, &MainWindow::delSrcFromListSlot);
 
-    // actionOpenCurrentDir
+    // 打开当前子目录或仓库目录
     ui->actionOpenCurrentDir->setShortcut(QKeySequence("Alt+D"));
     connect(ui->actionOpenCurrentDir, &QAction::triggered, this, &MainWindow::openCurrentDirSlot);
+    //
+    ui->actionSub2Repo->setShortcut(QKeySequence("Alt+Left"));
+    connect(ui->actionSub2Repo, &QAction::triggered, this, &MainWindow::addSub2RepoSlot);
+
+    ui->actionDelRepo->setShortcut(QKeySequence("Alt+Delete"));
+    connect(ui->actionDelRepo, &QAction::triggered, this, &MainWindow::delCurrentRepoSlot);
 }
 
-void MainWindow::openConfFileSlot(){
+void MainWindow::switchConfFileSlot(){
     QAction *action=qobject_cast<QAction *>(sender());
     QString fileName = action->text();
     configFilePath_ = fileName;
-    openExPro_.OpenJsonAndIniSlot(fileName);
+    QFileInfo configFile(configFilePath_);
+    confDialog_.setIniFileHostName(configFile.baseName());
+    confDialog_.writeIniFile();
+    startSlot();
 }
 
 void MainWindow::clearTabWgtSlot()
@@ -605,6 +616,11 @@ void MainWindow::updateLastModifyFile(){
 // 1 Init
 void MainWindow::initImgPathTarPathCombox()
 {
+    disconnect(ui->tarPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setTarPathSlot);
+    disconnect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
+    ui->subPathComBox->clear();
+    ui->tarPathCombox->clear();
+
     for(auto it = confDialog_.getImgPaths().begin();it != confDialog_.getImgPaths().end(); ++it){
         ui->imgPathCombox->addItem(it->key);
     }
@@ -613,6 +629,8 @@ void MainWindow::initImgPathTarPathCombox()
     }
     this->imgPath_ = confDialog_.getImgPathByKey(ui->imgPathCombox->currentText());
     this->tarPath_ = confDialog_.getTarPathByKey(ui->tarPathCombox->currentText());
+    connect(ui->tarPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setTarPathSlot);
+    connect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
 }
 
 void MainWindow::setComboBoxToolTip(QComboBox * box){
@@ -1163,7 +1181,6 @@ void MainWindow::clipFromDelListSlot() {
     updateListDataAndWgtSlot();
 }
 
-// 需要todo
 void MainWindow::on_clipPbn_clicked()
 {
     if(addDelListData_.getAddList().isEmpty()){
@@ -1247,6 +1264,23 @@ void MainWindow::on_toolPbn_clicked()
         appendTextToLog(u8"没有选中文件需要打开!");
         break;
     }
+}
+
+void MainWindow::addSub2RepoSlot(){
+    QString newRepoName = subDirName_;
+    confDialog_.addTarNamePath(subDirName_, tarPath_ + "/" + subDirName_);
+    confDialog_.writeConfJson();
+    updateDataAndWidget();
+    ui->tarPathCombox->setCurrentText(newRepoName);
+    appendTextToLog(QString("添加\"") + newRepoName + "\"仓库成功!");
+}
+
+void MainWindow::delCurrentRepoSlot(){
+    QString delRepoName = tarPath_;
+    confDialog_.delTarNamePath(tarPath_);
+    confDialog_.writeConfJson();
+    updateDataAndWidget();
+    appendTextToLog(QString("删除\"") + delRepoName + "\"仓库成功!");
 }
 
 void MainWindow::openCurrentDirSlot(){
@@ -1405,8 +1439,10 @@ void MainWindow::setSampleView(){
     //    ui->filePbnWgt->hide();
     ui->syncPbn->hide();
     ui->modePbn->hide();
-
     setSampleViewByScreenRes();
+    isStayTop_ = true;
+    setWindowFlag(Qt::WindowStaysOnTopHint, true);
+    show();
 }
 
 void MainWindow::setNormalView(){
@@ -1417,8 +1453,10 @@ void MainWindow::setNormalView(){
     //    ui->filePbnWgt->show();
     ui->syncPbn->show();
     ui->modePbn->show();
-
     setNormalViewByScreenRes();
+    isStayTop_ = false;
+    setWindowFlag(Qt::WindowStaysOnTopHint, false);
+    show();
 }
 
 void MainWindow::simpleViewSlot()

@@ -736,6 +736,8 @@
     </property>
     <addaction name="actionClearLog"/>
     <addaction name="actionSubDirHistoryFile"/>
+    <addaction name="actionSub2Repo"/>
+    <addaction name="actionDelRepo"/>
     <addaction name="actionGetAssets"/>
     <addaction name="actionRename"/>
     <addaction name="actionCopyHistoryFilePath"/>
@@ -846,6 +848,16 @@
   <action name="actionStayTop">
    <property name="text">
     <string>最上面显示</string>
+   </property>
+  </action>
+  <action name="actionSub2Repo">
+   <property name="text">
+    <string>添加子目录仓库</string>
+   </property>
+  </action>
+  <action name="actionDelRepo">
+   <property name="text">
+    <string>删除当前仓库</string>
    </property>
   </action>
  </widget>

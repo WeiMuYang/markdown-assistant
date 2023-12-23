@@ -38,12 +38,36 @@ public:
     }
 
     bool readIniFile();
+    bool writeIniFile();
+    void getRencentJsonFiles(const QString& path);
 
     IniFile getIniFile(){
         return iniFile_;
     }
     void confDataClear();
     void clearAll();
+
+    bool writeConfJson();
+
+    void setIniFileHostName(QString name){
+        iniFile_.hostName = name;
+    }
+
+    void addTarNamePath(QString name, QString path) {
+        NamePath np;
+        np.key = name;
+        np.value = path;
+        tarNamePathMap_.append(np);
+    }
+    bool delTarNamePath(QString path) {
+        for(int i = 0; i < tarNamePathMap_.size(); ++i) {
+            if(tarNamePathMap_.at(i).value == path) {
+                tarNamePathMap_.removeAt(i);
+                return true;
+            }
+        }
+        return false;
+    }
 
     ///////////  rename file  ////////
     bool readCharConfFile(QString path, QMap<QString, QString> &map);

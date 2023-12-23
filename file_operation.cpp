@@ -742,8 +742,6 @@ QVector<ReText> FileOperation::updateReTextDir(const QString& markdownAbsPath,co
     return reTextList;
 }
 
-
-
 void FileOperation::updateReferDir(const QString& markdownAbsPath, const QString &repoPath,const QString &context,
                                    QDir curDir,const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList,int i) {
 
