@@ -53,17 +53,23 @@ public:
         iniFile_.hostName = name;
     }
 
-    void addTarNamePath(QString name, QString path) {
+    bool addTarNamePath(const QString& name, const QString& path, QString& existName) {
         NamePath np;
         np.key = name;
         np.value = path;
+        for(int i = 0; i < tarNamePathMap_.size(); ++i) {
+            if(tarNamePathMap_.at(i).value == path) {
+                existName = tarNamePathMap_.at(i).key;
+                return false;
+            }
+        }
         tarNamePathMap_.append(np);
+        return true;
     }
     bool delTarNamePath(QString path) {
         for(int i = 0; i < tarNamePathMap_.size(); ++i) {
             if(tarNamePathMap_.at(i).value == path) {
                 tarNamePathMap_.removeAt(i);
-                return true;
             }
         }
         return false;

@@ -346,6 +346,7 @@ void MainWindow::setConfigFilePathByUserName(const IniFile& iniFile){
             break;
         }
     }
+    this->setWindowTitle(configFilePath_ + " - Markdown Assistant");
     if(!hasUserConf){
         appendTextToLog(QString("未配置该用户文件 !"));
     }
@@ -356,7 +357,7 @@ void MainWindow::updateActionConfFileList()  {
     confFileList_->clear();
     for (int i = 0; i < iniFile.recentFileList.size(); ++i) {
         QAction *actionFileName = new QAction(confFileList_);
-        actionFileName->setText(iniFile.iniAndJsonPath+"/"+iniFile.recentFileList.at(i));
+        actionFileName->setText(iniFile.recentFileList.at(i));
         connect(actionFileName, &QAction::triggered, this, &MainWindow::switchConfFileSlot);
         confFileList_->addAction(actionFileName);
     }
@@ -438,13 +439,20 @@ void MainWindow::InitMainWindowMenu(){
     ui->actionSub2Repo->setShortcut(QKeySequence("Alt+Left"));
     connect(ui->actionSub2Repo, &QAction::triggered, this, &MainWindow::addSub2RepoSlot);
 
+    ui->actionParent2Repo->setShortcut(QKeySequence("Alt+Right"));
+    connect(ui->actionParent2Repo, &QAction::triggered, this, &MainWindow::addParent2RepoSlot);
+
     ui->actionDelRepo->setShortcut(QKeySequence("Alt+Delete"));
     connect(ui->actionDelRepo, &QAction::triggered, this, &MainWindow::delCurrentRepoSlot);
+
+
+    ui->actionOpenConfDir->setShortcut(QKeySequence("Ctrl+/"));
+    connect(ui->actionOpenConfDir, &QAction::triggered, this, &MainWindow::openConfDirSlot);
 }
 
 void MainWindow::switchConfFileSlot(){
     QAction *action=qobject_cast<QAction *>(sender());
-    QString fileName = action->text();
+    QString fileName = confDialog_.getIniFile().iniAndJsonPath + "/"+ action->text();
     configFilePath_ = fileName;
     QFileInfo configFile(configFilePath_);
     confDialog_.setIniFileHostName(configFile.baseName());
@@ -597,8 +605,8 @@ void MainWindow::updateLastModifyFile(){
     if(num == -1){
         ui->subPathComBox->setCurrentText("no file");
         ui->numSpinBox->setValue(num);
-        tarPath_.clear();
-        fullTarPath_.clear();
+//        tarPath_.clear();
+//        fullTarPath_.clear();
         currentFile_.clear();
         appendTextToLog(QString(u8"当前的目标路径不存在 !"));
         setStatusBar("", false);
@@ -641,11 +649,13 @@ void MainWindow::setComboBoxToolTip(QComboBox * box){
 }
 
 void MainWindow::updateSubDirCombox(){
+    disconnect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
     ui->subPathComBox->clear();
     ui->subPathComBox->addItems(fileOp_.getSubDirNames(this->tarPath_));
     setComboBoxToolTip(ui->subPathComBox);
     subDirName_ = ui->subPathComBox->currentText();
     whoIsBoxSelection(BoxSelect::SubCombox);
+    connect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
 }
 
 void MainWindow::setImgPathSlot(QString currentStr){
@@ -679,7 +689,7 @@ void MainWindow::setSubPathSlot(QString currentStr){
     subDirName_ = currentStr;
     int num = fileOp_.getLastmodifiedTimeFileNumSubDir(tarPath_,subDirName_, fullTarPath_,currentFile_);
     if(num == -1){
-        fullTarPath_.clear();
+//        fullTarPath_.clear();
         ui->numSpinBox->setValue(num);
         appendTextToLog(QString(u8"当前的目标路径不存在 !"));
         setStatusBar("", false);
@@ -1267,12 +1277,49 @@ void MainWindow::on_toolPbn_clicked()
 }
 
 void MainWindow::addSub2RepoSlot(){
+    subDirName_ = ui->subPathComBox->currentText();
+    if(subDirName_.isEmpty()) {
+        appendTextToLog("子目录为空无法添加!");
+        return ;
+    }
     QString newRepoName = subDirName_;
-    confDialog_.addTarNamePath(subDirName_, tarPath_ + "/" + subDirName_);
-    confDialog_.writeConfJson();
-    updateDataAndWidget();
-    ui->tarPathCombox->setCurrentText(newRepoName);
-    appendTextToLog(QString("添加\"") + newRepoName + "\"仓库成功!");
+    QString existName;
+    if(confDialog_.addTarNamePath(subDirName_, tarPath_ + "/" + subDirName_, existName)) {
+        confDialog_.writeConfJson();
+        updateDataAndWidget();
+        ui->tarPathCombox->setCurrentText(newRepoName);
+        appendTextToLog(QString("添加\"") + newRepoName + "\"仓库成功!");
+    }else{
+        ui->tarPathCombox->setCurrentText(existName);
+        appendTextToLog("\"" + existName + "\"和\"" + newRepoName + "\"是同一个仓库!");
+    }
+}
+
+void MainWindow::addParent2RepoSlot() {
+    QDir repoDir(tarPath_);
+    if(repoDir.cdUp()) {
+        QString parentAbs = repoDir.absolutePath();
+        QString newName = repoDir.dirName();
+        if(newName.isEmpty()) { // 到了根目录
+            newName = parentAbs.split("/").first();
+        }
+        QString existName;
+        if(confDialog_.addTarNamePath(newName, parentAbs, existName)){
+            confDialog_.writeConfJson();
+            updateDataAndWidget();
+            ui->tarPathCombox->setCurrentText(newName);
+            appendTextToLog(QString("添加\"") + newName + "\"仓库成功!");
+        }else{
+            ui->tarPathCombox->setCurrentText(existName);
+            appendTextToLog("\"" + existName + "\"和\"" + newName + "\"是同一个仓库!");
+        }
+    }else{
+        appendTextToLog(QString("当前仓库:\"") + tarPath_ + "\"已经是根目录!");
+    }
+}
+
+void MainWindow::openConfDirSlot() {
+    openExPro_.OpenDirSlot(confDialog_.getIniFile().iniAndJsonPath);
 }
 
 void MainWindow::delCurrentRepoSlot(){

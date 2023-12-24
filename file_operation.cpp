@@ -65,8 +65,8 @@ int FileOperation::getLastmodifiedTimeFileNum(const QString &path, QString& full
     getDirAllFiles(dir.absolutePath());
     qSort(fileList_.begin(), fileList_.end(),&FileOperation::sortFileByInfo);
     if(fileList_.isEmpty()){
-        DebugBox(__FUNCTION__, __LINE__,"Directory: \"" + path + "\" does not exist!");
-        emit sigFileOperationLog("Directory: \"" + path + "\" does not exist!");
+//        DebugBox(__FUNCTION__, __LINE__,"Directory: \"" + path + "\" does not exist!");
+        emit sigFileOperationLog("\"" + path + "\" does not has sub Directory!");
         return -1;
     }
     lastModefyFile = fileList_.last().fileName();

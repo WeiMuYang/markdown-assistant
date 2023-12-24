@@ -136,8 +136,8 @@ bool iniFilePath(QString& iniPath, QString& iniAndjsonPath){
     if(dir1.exists(iniFileDir)){
         dir1.cd(iniFileDir);
         if(dir1.exists(iniFileName)){
-            iniAndjsonPath =dir1.absolutePath();
-            iniPath = dir1.absolutePath()+"/"+iniFileName;
+            iniAndjsonPath = dir1.absolutePath();
+            iniPath = dir1.absolutePath() + "/" + iniFileName;
             return true;
         }
     }
@@ -154,7 +154,7 @@ void confDialog::getRencentJsonFiles(const QString& path) {
 
     QStringList fileList;
     for (const QFileInfo& fileInfo : fileInfoList) {
-        if(fileInfo.fileName().left(3) != "00-") {
+        if(fileInfo.fileName().left(3) != "00-" && fileInfo.fileName().left(3) != "99-") {
             iniFile_.recentFileList.append(fileInfo.fileName());
         }
     }

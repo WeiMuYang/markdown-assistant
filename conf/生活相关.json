@@ -1,0 +1,35 @@
+{
+    "AssetsType": [
+        "99-*.png",
+        "99-*.jpg",
+        "99-*.bmp",
+        "99-*.jpeg",
+        "99-*.gif",
+        "99-*.mp4"
+    ],
+    "Date": "2023.12.24",
+    "ImagePath": [
+        {
+            "Desktop": "Desktop"
+        }
+    ],
+    "Interval": [
+        "1 hours",
+        "1 days",
+        "2 days",
+        "today"
+    ],
+    "Software": {
+        "Typora": "D:/Program Files/Typora/Typora.exe",
+        "Vscode": "D:/Users/yang-wei-da/AppData/Local/Programs/Microsoft VS Code/Code.exe"
+    },
+    "TargetPath": [
+        {
+            "购买记录": "F:/01-life-records/03-购买记录"
+        },
+        {
+            "生活相关": "F:/01-life-records"
+        }
+    ],
+    "Version": "v0.1.0"
+}

@@ -726,6 +726,7 @@
     </property>
     <addaction name="actionModifySysFile"/>
     <addaction name="actionModifyConf"/>
+    <addaction name="actionOpenConfDir"/>
     <addaction name="actionAddConfFile"/>
     <addaction name="actionOpenCurrentDir"/>
     <addaction name="actionRestart"/>
@@ -736,13 +737,17 @@
     </property>
     <addaction name="actionClearLog"/>
     <addaction name="actionSubDirHistoryFile"/>
+    <addaction name="separator"/>
     <addaction name="actionSub2Repo"/>
+    <addaction name="actionParent2Repo"/>
     <addaction name="actionDelRepo"/>
+    <addaction name="separator"/>
     <addaction name="actionGetAssets"/>
     <addaction name="actionRename"/>
+    <addaction name="separator"/>
+    <addaction name="actionDelFromSrcList"/>
     <addaction name="actionCopyHistoryFilePath"/>
     <addaction name="actionGetRelativePathOfMeetFile"/>
-    <addaction name="actionDelFromSrcList"/>
     <addaction name="actionOpenREADME"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
@@ -858,6 +863,16 @@
   <action name="actionDelRepo">
    <property name="text">
     <string>删除当前仓库</string>
+   </property>
+  </action>
+  <action name="actionOpenConfDir">
+   <property name="text">
+    <string>打开配置目录</string>
+   </property>
+  </action>
+  <action name="actionParent2Repo">
+   <property name="text">
+    <string>添加父目录仓库</string>
    </property>
   </action>
  </widget>

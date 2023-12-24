@@ -131,7 +131,10 @@ private slots:
     void openCurrentDirSlot();
     void on_zoomPercentPtn_clicked();
     void addSub2RepoSlot();
+    void addParent2RepoSlot();
     void delCurrentRepoSlot();
+
+    void openConfDirSlot();
 
 protected:
     // 窗口设置为随着窗口变化而变化
