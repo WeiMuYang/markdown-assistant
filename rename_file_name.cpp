@@ -105,7 +105,6 @@ bool RenameFileName::updateOldPath(const QString &fromDir, QStringList& oldDirPa
     return true;
 }
 
-
 void RenameFileName::initRenameFileList() {
     ui->renameFileListWgt->setColumnCount(4);     //设置列数
     ui->renameFileListWgt->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -211,12 +210,12 @@ void RenameFileName::updateRenameFileList(){
         pItem3->setTextAlignment(Qt::AlignCenter);
         if(dirInfo.reDirList.size() > 0){
             pItem0->setBackground(QBrush(Qt::gray));        // 设置背景色
-            pItem0->setForeground(QBrush(Qt::red));         // 设置字体颜色
         }
         if(dirInfo.newDirPath != dirInfo.oldDirPath) {
-            pItem1->setForeground(QBrush(Qt::blue));         // 设置字体颜色
+            pItem0->setForeground(QBrush(Qt::red));         // 设置字体颜色
         }
         pItem0->setFlags(pItem0->flags() & ~Qt::ItemIsEditable);
+        pItem0->setFlags(pItem0->flags() & ~Qt::ItemIsSelectable);
         pItem2->setFlags(pItem2->flags() & ~Qt::ItemIsEditable);
         pItem3->setFlags(pItem3->flags() & ~Qt::ItemIsEditable);
         ui->renameFileListWgt->setItem(j, 0, pItem0);
@@ -231,18 +230,17 @@ void RenameFileName::updateRenameFileList(){
         FileRenameInfo fileInfo = replaceNameFileInfoList_.at(j);
         QTableWidgetItem *pItem0 = new QTableWidgetItem(QString::number(n)); pItem0->setTextAlignment(Qt::AlignCenter);
         QTableWidgetItem *pItem1 = new QTableWidgetItem(fileInfo.newFilePath.split("/").last());
-        pItem1->setFlags(pItem1->flags() | Qt::ItemIsEditable);
         QTableWidgetItem *pItem2 = new QTableWidgetItem(fileInfo.oldFilePath.split("/").last());
         QTableWidgetItem *pItem3 = new QTableWidgetItem(QString::number(fileInfo.reFileList.size()));
         pItem3->setTextAlignment(Qt::AlignCenter);
         if(fileInfo.reFileList.size() > 0){
             pItem0->setBackground(QBrush(Qt::gray));        // 设置背景色
-            pItem0->setForeground(QBrush(Qt::red));         // 设置字体颜色
         }
         if(fileInfo.newFilePath != fileInfo.oldFilePath) {
-            pItem1->setForeground(QBrush(Qt::blue));         // 设置字体颜色
+            pItem0->setForeground(QBrush(Qt::red));         // 设置字体颜色
         }
         pItem0->setFlags(pItem0->flags() & ~Qt::ItemIsEditable);
+        pItem0->setFlags(pItem0->flags() & ~Qt::ItemIsSelectable);
         pItem2->setFlags(pItem2->flags() & ~Qt::ItemIsEditable);
         pItem3->setFlags(pItem3->flags() & ~Qt::ItemIsEditable);
         ui->renameFileListWgt->setItem(num + j, 0, pItem0);
@@ -290,28 +288,10 @@ void RenameFileName::updateReferList(const QVector<ReFile>& reFileList) {
     emit ui->referFileListWgt->horizontalHeader()->sectionHandleDoubleClicked(3);
 }
 
-#define ColumnWidth (500)
-
-int GetRowsByLabelText(QFontMetrics fontMetrics, QString strText, int iWith)
-{
-    int iRow = 1;
-    int iStart = 0;
-    for (int i = 1; i < strText.length(); i++)
-    {
-        QString str = strText.mid(iStart, i-iStart);
-        if (fontMetrics.boundingRect(str).width() > iWith)
-        {
-            iRow++;
-            i--;
-            iStart = i;
-        }
-    }
-    return iRow;
-}
-
 QString RenameFileName::highlightDifferences(const QString& str1, const QString& str2) {
     QString highlightedStr;
-    QRegularExpression regex("[\\s/\\\\;:\\[\\]\\(\\)\\.\\-]");
+    // " /\;:[]()."
+    QRegularExpression regex("[\\s/\\\\;:\\[\\]\\(\\)\\.]");
     QRegularExpressionMatchIterator iterator1 = regex.globalMatch(str1);
     QRegularExpressionMatchIterator iterator2 = regex.globalMatch(str2);
     int prevIndex1 = 0;
@@ -323,9 +303,9 @@ QString RenameFileName::highlightDifferences(const QString& str1, const QString&
         int index1 = match1.capturedStart();
         int index2 = match2.capturedStart();
 
-        // 高亮不同之处
+        // 高亮不同之处 <body style="background-color: green; color: white;">
         if (str1.mid(prevIndex1, index1 - prevIndex1) != str2.mid(prevIndex2, index2 - prevIndex2)) {
-            highlightedStr += "<span style=\"color:red\">" +
+            highlightedStr += "<span style=\"background-color: rgb(76, 25, 25);color: white\">" +
                               str2.mid(prevIndex2, index2 - prevIndex2) +
                               "</span>";
         } else {
@@ -340,13 +320,7 @@ QString RenameFileName::highlightDifferences(const QString& str1, const QString&
     }
 
     // 处理剩余的字符
-    if (prevIndex1 < str1.length()) {
-        highlightedStr += "<span style=\"color:red\">" +
-                          str1.mid(prevIndex1) +
-                          "</span>";
-    } else if (prevIndex2 < str2.length()) {
-        highlightedStr += str2.mid(prevIndex2);
-    }
+    highlightedStr += str2.mid(prevIndex2);
 
     return highlightedStr;
 }
@@ -371,7 +345,7 @@ void RenameFileName::updateContextList(const QVector<ReText>& reTextList) {
             oldTxt.replace("<", "&lt;"); oldTxt.replace(">", "&gt;");
             newTxt.replace("<", "&lt;"); newTxt.replace(">", "&gt;");
         }
-        QString strHtmlText =  "<p>" + oldTxt + "  <br> " + highlightDifferences(oldTxt, newTxt) + "</p>";
+        QString strHtmlText =  "<p>" + oldTxt + "   <br> " + highlightDifferences(oldTxt, newTxt) + "  </p>";
         QLabel* pLabel = new QLabel;
         pLabel->setText(strHtmlText);
 
@@ -403,10 +377,6 @@ void RenameFileName::updateReferListByRenameFileListRow(int row) {
 void RenameFileName::updateReferTextClickedSlot(QModelIndex item)
 {
     int row = item.row();
-//    if(ui->referFileListWgt->currentRow() == row) {
-//        return;
-//    }
-
     int rowRenameFileList = ui->renameFileListWgt->currentRow();
     int len = replaceNameDirInfoList_.size();
     QVector<ReFile> reFileList;
@@ -423,7 +393,38 @@ void RenameFileName::updateReferTextClickedSlot(QModelIndex item)
 void RenameFileName::updateReferListClickedSlot(QModelIndex index)
 {
     int row = index.row();
-     updateReferListByRenameFileListRow(row);
+    updateReferListByRenameFileListRow(row);
+    setSeletedItemStyleSheet(index);
+}
+
+void RenameFileName::setSeletedItemStyleSheet(QModelIndex item) {
+//    QList<QTableWidgetItem*> items = ui->renameFileListWgt->selectedItems();
+//    if(!items.empty()) //表格有某行被选中
+//    {
+//        //获取该行的成员数
+//        int count = items.count();
+//        // 打印该行所有成员内容
+//        if(items.at(2)->text() != items.at(3)->text()) {
+////            items.at(2)->setForeground(QBrush(QColor(72,201,176)));
+//            ui->renameFileListWgt->setStyleSheet(
+//                        "QTableWidget::item:selected {color: red; }"
+//                        );
+//        }else{
+//            ui->renameFileListWgt->setStyleSheet(
+//                        "QTableWidget::item:selected { color: rgb(220,220,220) }"
+//                        );
+////            items.at(2)->setForeground(QBrush(QColor(220,220,220)));
+//        }
+//        if(items.at(1)->text().toInt() != 0) {
+//            ui->renameFileListWgt->setStyleSheet(
+//                        "QTableWidget::item:selected {color: red; }"
+//                        );
+//        }else{
+//            ui->renameFileListWgt->setStyleSheet(
+//                        "QTableWidget::item:selected { color: rgb(220,220,220) }"
+//                        );
+//        }
+//    }
 }
 
 void RenameFileName::updateReferListEditSlot(QTableWidgetItem *item) {
@@ -444,9 +445,9 @@ void RenameFileName::updateReferListEditSlot(QTableWidgetItem *item) {
             fileOperaton_->updateReferDirByFilePath(markdownAbsPath, repoPath_,  curDir, renameDirPath_, replaceNameDirInfoList_, row);
         }
         if(oldPathChanged != replaceNameDirInfoList_.at(row).oldDirPath) {
-            item->setForeground(QBrush(Qt::blue));
+            ui->renameFileListWgt->takeItem(row, 0)->setForeground(QBrush(Qt::red));
         }else{
-            item->setForeground(QBrush(Qt::white));
+            ui->renameFileListWgt->takeItem(row, 0)->setForeground(QBrush(QColor(220,220,220)));
         }
     }else if(row - len >= 0 && replaceNameFileInfoList_.length() > (row - len) && replaceNameFileInfoList_.at(row - len).newFilePath != name) {
         QString oldPath = replaceNameFileInfoList_.at(row - len).oldFilePath;
@@ -463,9 +464,9 @@ void RenameFileName::updateReferListEditSlot(QTableWidgetItem *item) {
             fileOperaton_->updateReferFileByFilePath(markdownAbsPath, repoPath_,  curDir, renameDirPath_, replaceNameFileInfoList_, row - len);
         }
         if(oldPath != replaceNameFileInfoList_.at(row - len).oldFilePath) {
-            item->setForeground(QBrush(Qt::blue));
+             ui->renameFileListWgt->takeItem(row, 0)->setForeground(QBrush(Qt::red));
         }else{
-            item->setForeground(QBrush(Qt::white));
+             ui->renameFileListWgt->takeItem(row, 0)->setForeground(QBrush(QColor(220,220,220)));
         }
     }else{
         return;
@@ -612,9 +613,16 @@ void RenameFileName::on_refreshPbn_clicked()
     if(ui->listRadioBtn->isChecked()){
         renameByListFile();
     }
-    // 4. 更新引用文件以及引用的内容
+    // 4. 是否需要包含目录或者文件
+    if(!includeDir_) {
+        replaceNameDirInfoList_.clear();
+    }
+    if(!includeFile_) {
+        replaceNameFileInfoList_.clear();
+    }
+    // 5. 更新引用文件以及引用的内容
     fileOperaton_->updateReplaceNameRefereceList(repoPath_ ,renameDirPath_, replaceNameDirInfoList_, replaceNameFileInfoList_);
-    // 5. 更新界面列表
+    // 6. 更新界面列表
     updateRenameFileList();
     emit sigRenameFileNameLog(QString("更新文件命名数据完成!"));
 }
@@ -790,21 +798,56 @@ void RenameFileName::on_listRadioBtn_stateChanged(int arg1)
     renameListClear();
 }
 
-void RenameFileName::on_addNumRadioBtn_stateChanged(int arg1)
+void RenameFileName::on_dirCheckBox_stateChanged(int arg1)
 {
-    Q_UNUSED(arg1);
-    renameListClear();
+    if(arg1) {
+        includeDir_= true;
+    }else{
+        includeDir_= false;
+    }
+    on_refreshPbn_clicked();
 }
 
 void RenameFileName::on_fileCheckBox_stateChanged(int arg1)
 {
-    Q_UNUSED(arg1);
-    renameListClear();
+    if(arg1) {
+        includeFile_= true;
+    }else{
+        includeFile_= false;
+    }
+    on_refreshPbn_clicked();
 }
 
-void RenameFileName::on_dirCheckBox_stateChanged(int arg1)
+void RenameFileName::on_addNumRadioBtn_stateChanged(int arg1)
 {
-    Q_UNUSED(arg1);
-    renameListClear();
+    if(arg1) {
+        renameByNum(true);
+    }else{
+        renameByNum(false);
+    }
 }
 
+void RenameFileName::renameByNum(bool status) {
+    // 待完成。。。
+    int len = ui->renameFileListWgt->rowCount();
+    for(int i = 0; i < len; ++i) {
+        QString name = ui->renameFileListWgt->item(i, 1)->text();
+        // 1. 如果name前5个字符中有-，前面是数字，先删除
+        if(name.length() > 4 && name.left(4).contains("-")) {
+            bool isNumber = false;
+            name.split("-").first().toInt(&isNumber);
+            int pos;
+            if(isNumber && (pos = name.indexOf("-")) < name.size() - 2) {
+                name.remove(0, pos + 1);
+            }
+        }
+        // 2. name前面加上 序号 i+1 -
+        if(status) {
+            name = QString("%1").arg(i + 1, 2, 10, QLatin1Char('0'))+ "-" + name;
+        }
+        // 3. 刷新界面 ： 注意事项，需要看下，修改item不会自动刷新列表，如果会的话，就不用刷新界面了
+        if(name != ui->renameFileListWgt->item(i, 1)->text()) {
+            ui->renameFileListWgt->item(i, 1)->setText(name);
+        }
+    }
+}

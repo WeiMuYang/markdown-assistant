@@ -609,8 +609,8 @@ void FileOperation::findReferByJump(QDir newFileDir, QDir curFileDir, QString co
         }
         // 包含相对路径: 防止出现前半段相同的字符两个文件
         QString relativePath = curFileDir.relativeFilePath(oldFileAbsPath) + ")";
-        qDebug() << relativePath;
-        qDebug() << oldJumpPath;
+//        qDebug() << relativePath;
+//        qDebug() << oldJumpPath;
         if(!(oldJumpPath+")").contains(relativePath) && !(oldJumpPath+")").contains(QDir::toNativeSeparators(relativePath))) {
             pos = endPos + 1;
             continue;

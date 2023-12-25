@@ -34,6 +34,7 @@ public:
     void backupRenameDir();
     void renameByConfFile();
     void renameByListFile();
+    void renameByNum(bool status);
     bool BackUp(const QString &fromDir, const QString &toDir, bool coverFileIfExist);
     bool updateOldPath(const QString &fromDir, QStringList& oldDirPathList,  QStringList& oldFilePathList);
     void updateRenameFileList();
@@ -53,6 +54,7 @@ public:
     void initListMenu();
     void setSize(ScreenRes screen);
     bool modifyReferMarkdown(const QString& markdownPathAbs, const QVector<ReText>& reTextList);
+
 private slots:
     void on_ChooseDirPbn_clicked();
     void on_ChooseConfPbn_clicked();
@@ -62,6 +64,7 @@ private slots:
 
     void updateReferListClickedSlot(QModelIndex index);
 //    void dirRenameInfoUpdate(QString newDirPath, DirRenameInfo& dirRenameinfo);
+    void setSeletedItemStyleSheet(QModelIndex item);
     void updateReferListEditSlot(QTableWidgetItem* item);
     void on_ReplaceByListPbn_clicked();
     void OpenReferFileSlot(QTableWidgetItem *item);
@@ -111,6 +114,8 @@ private:
     OpenExProgram* openExPro_;
     QString backUpPath_;
     QMenu* renameListMenu_;
+    bool includeDir_{true};
+    bool includeFile_{true};
 };
 
 #endif // RENAME_FILE_NAME_H
