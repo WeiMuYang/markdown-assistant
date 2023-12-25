@@ -26,16 +26,24 @@ RenameFileName::RenameFileName(QWidget *parent) :
 
 void RenameFileName::setRepoPath(const QString& path){
     repoPath_ = path;
+    setWindowTitle("Rename Window - " + repoPath_);
 }
 
 void RenameFileName::setRenameDirPath(const QString& path){
     renameDirPath_ = path;
-    ui->RenameDirPathEdit->setText(renameDirPath_);
+    QDir repoDir(repoPath_);
+    repoDir.cdUp();
+    QString relativePath = repoDir.relativeFilePath(path);
+    ui->RenameDirPathEdit->setText(relativePath);
 }
 
 void RenameFileName::setRenameConfPath(const QString& path){
+
+    QDir repoDir(repoPath_);
+    repoDir.cdUp();
+    QString relativePath = repoDir.relativeFilePath(path);
     renameConfPath_ = path;
-    ui->NameConfFilePathEdit->setText(renameConfPath_);
+    ui->NameConfFilePathEdit->setText(relativePath);
 }
 
 void RenameFileName::setRenameListPath(const QString& path){
@@ -629,8 +637,19 @@ void RenameFileName::on_refreshPbn_clicked()
 
 void RenameFileName::on_ChooseDirPbn_clicked()
 {
-    renameDirPath_ = QFileDialog::getExistingDirectory(this,"选择重命名目录",repoPath_,QFileDialog::ShowDirsOnly);
-    ui->RenameDirPathEdit->setText(renameDirPath_);
+    QString renameDirPath = QFileDialog::getExistingDirectory(this,"选择重命名目录",repoPath_,QFileDialog::ShowDirsOnly);
+    if(!renameDirPath.startsWith(repoPath_)) {
+        ui->RenameDirPathEdit->setText("");
+        renameDirPath_ = "";
+        emit sigRenameFileNameLog(QString("目录不在仓库中，请重新选择!"));
+        return;
+    }
+
+    QDir repoDir(repoPath_);
+    repoDir.cdUp();
+    QString relativePath = repoDir.relativeFilePath(renameDirPath);
+    renameDirPath_ = renameDirPath;
+    ui->RenameDirPathEdit->setText(relativePath);
     on_refreshPbn_clicked();
 }
 
@@ -763,28 +782,6 @@ void RenameFileName::setSize(ScreenRes screen) {
     }
 }
 
-void RenameFileName::on_RenameDirPathEdit_textChanged(const QString &arg1)
-{
-    Q_UNUSED(arg1);
-    renameDirPath_ = arg1;
-    renameListClear();
-}
-
-
-void RenameFileName::on_NameConfFilePathEdit_textChanged(const QString &arg1)
-{
-    Q_UNUSED(arg1);
-    renameConfPath_ = arg1;
-    renameListClear();
-}
-
-
-void RenameFileName::on_NameListPathEdit_textChanged(const QString &arg1)
-{
-    Q_UNUSED(arg1);
-    renameListPath_ = arg1;
-    renameListClear();
-}
 
 void RenameFileName::on_charRadioBtn_stateChanged(int arg1)
 {

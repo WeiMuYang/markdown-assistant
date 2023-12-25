@@ -386,7 +386,7 @@ void MainWindow::setConfigFilePathByUserName(const IniFile& iniFile){
             break;
         }
     }
-    this->setWindowTitle(configFilePath_ + " - Markdown Assistant");
+    this->setWindowTitle("Markdown Assistant - " + configFilePath_);
     if(!hasUserConf){
         appendTextToLog(QString("未配置该用户文件 !"));
     }
@@ -1618,17 +1618,10 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 }
 
 void MainWindow::showModifyNameDlg(){
-    //     renameFileName_->setRepoPath(tarPath_);
-//    renameFileName_->setRenameDirPath("C:/Users/Administrator/Desktop/IELTS-Test-rename11/09-MP3/高频短语速list记本/02-writing");
-//    renameFileName_->setRenameConfPath("C:/Users/Administrator/Desktop/markdown-assistant/conf/rename.json");
-//    renameFileName_->setRepoPath("C:/Users/Administrator/Desktop/IELTS-Test-rename11");
-//    renameFileName_->setRenameListPath("C:/Users/Administrator/Desktop/markdown-assistant/conf/renameList.txt");
-
-    renameFileName_->setRenameDirPath("C:/Users/qxz32h9/Desktop/IELTS-Test-renam11e/09-MP3/高频短语速list记本/02-writing");
-    renameFileName_->setRenameConfPath("C:/Users/qxz32h9/Desktop/markdown-assistant/conf/rename.json");
-    renameFileName_->setRepoPath("C:/Users/qxz32h9/Desktop/IELTS-Test-rename11");
-    renameFileName_->setRenameListPath("C:/Users/qxz32h9/Desktop/markdown-assistant/conf/renameList.txt");
-
+    renameFileName_->setRepoPath(tarPath_);
+    renameFileName_->setRenameDirPath(tarPath_);
+    renameFileName_->setRenameConfPath(confDialog_.getIniFile().iniAndJsonPath + "/99-CharReplace.json");
+    renameFileName_->setRenameListPath(confDialog_.getIniFile().iniAndJsonPath + "/99-RenameList.txt");
     renameFileName_->setSize(getScrrenRes());
     renameFileName_->renameListClear();
     renameFileName_->show();

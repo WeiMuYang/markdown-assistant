@@ -63,7 +63,6 @@ private slots:
     void on_refreshPbn_clicked();
 
     void updateReferListClickedSlot(QModelIndex index);
-//    void dirRenameInfoUpdate(QString newDirPath, DirRenameInfo& dirRenameinfo);
     void setSeletedItemStyleSheet(QModelIndex item);
     void updateReferListEditSlot(QTableWidgetItem* item);
     void on_ReplaceByListPbn_clicked();
@@ -77,11 +76,10 @@ private slots:
 
     void on_OpenListFilePbn_clicked();
 
-    void on_RenameDirPathEdit_textChanged(const QString &arg1);
 
-    void on_NameConfFilePathEdit_textChanged(const QString &arg1);
 
-    void on_NameListPathEdit_textChanged(const QString &arg1);
+
+
 
     void on_charRadioBtn_stateChanged(int arg1);
 
