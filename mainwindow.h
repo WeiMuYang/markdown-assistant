@@ -8,6 +8,7 @@
 #include <QComboBox>
 #include <QTimer>
 #include <QKeyEvent>
+#include <QSystemTrayIcon>
 #include "conf_dialog.h"
 #include "video_thr.h"
 #include "file_operation.h"
@@ -38,6 +39,7 @@ public:
     void updateLastModifyFile();
     void updateRepoHistoryFileList();
     void setWindowStyle();
+    void initTray();
     void initStatusBar();
     void InitMainWindowMenu();
     void updateActionConfFileList();
@@ -126,11 +128,17 @@ private slots:
     void showModifyNameDlg();
 
     void openCurrentDirSlot();
+
+    void quitAppSlot();
+    void trayIconClickedSlot(QSystemTrayIcon::ActivationReason reason);
+
 protected:
     // 窗口设置为随着窗口变化而变化
     virtual void resizeEvent(QResizeEvent *event) override;
     // 重写事件过滤接口
     bool eventFilter(QObject *obj, QEvent *e);
+
+    void closeEvent(QCloseEvent *event);
 
 private:
     Ui::MainWindow *ui;
@@ -171,6 +179,9 @@ private:
 
     RenameFileName* renameFileName_;
     QString clipText_;
+
+    QSystemTrayIcon *trayIcon_;
+    QMenu *trayMenu_;
 };
 
 #endif // MAINWINDOW_H

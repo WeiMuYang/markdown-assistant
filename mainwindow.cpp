@@ -37,6 +37,8 @@ MainWindow::MainWindow(QWidget *parent) :
     aboutDialog_ = new AboutDialog(this);
     renameFileName_ = new RenameFileName(this);
     initScreenResNormal();
+    // 0. 托盘
+    initTray();
     initStatusBar();
     setWindowStyle();
 
@@ -118,6 +120,44 @@ MainWindow::MainWindow(QWidget *parent) :
     InitMainWindowMenu();
     initAddDelListMenu();
     startSlot();
+}
+
+void MainWindow::initTray() {
+    trayIcon_ = new QSystemTrayIcon(this);
+    trayIcon_->setIcon(QIcon(":/qss/icon/markdown-assistant.ico"));
+    trayMenu_ = new QMenu(this);
+    QAction *showAction = new QAction("显  示", this);
+    QAction *quitAction = new QAction("退  出", this);
+    trayMenu_->addAction(showAction);
+    trayMenu_->addAction(quitAction);
+    trayIcon_->setContextMenu(trayMenu_);
+    connect(showAction, &QAction::triggered, this, &MainWindow::show);
+    connect(quitAction, &QAction::triggered, this, &MainWindow::quitAppSlot);
+    connect(trayIcon_, &QSystemTrayIcon::activated, this, &MainWindow::trayIconClickedSlot);
+    trayIcon_->show();
+}
+
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    if (trayIcon_->isVisible()) {
+        hide();
+        event->ignore();
+    }
+}
+
+void MainWindow::quitAppSlot() {
+    QApplication::quit();
+}
+
+void MainWindow::trayIconClickedSlot(QSystemTrayIcon::ActivationReason reason)
+{
+    if (reason == QSystemTrayIcon::Trigger) {
+        // 单击操作
+        show();
+    } else if (reason == QSystemTrayIcon::DoubleClick) {
+        // 双击操作
+        show();
+    }
 }
 
 void MainWindow::startSlot() {
