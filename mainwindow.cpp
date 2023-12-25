@@ -1453,15 +1453,15 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 
 void MainWindow::showModifyNameDlg(){
     //     renameFileName_->setRepoPath(tarPath_);
-    renameFileName_->setRenameDirPath("C:/Users/Administrator/Desktop/IELTS-Test-rename11/09-MP3/高频短语速list记本");
-    renameFileName_->setRenameConfPath("C:/Users/Administrator/Desktop/markdown-assistant/conf/rename.json");
-    renameFileName_->setRepoPath("C:/Users/Administrator/Desktop/IELTS-Test-rename11");
-    renameFileName_->setRenameListPath("C:/Users/Administrator/Desktop/markdown-assistant/conf/renameList.txt");
+//    renameFileName_->setRenameDirPath("C:/Users/Administrator/Desktop/IELTS-Test-rename11/09-MP3/高频短语速list记本/02-writing");
+//    renameFileName_->setRenameConfPath("C:/Users/Administrator/Desktop/markdown-assistant/conf/rename.json");
+//    renameFileName_->setRepoPath("C:/Users/Administrator/Desktop/IELTS-Test-rename11");
+//    renameFileName_->setRenameListPath("C:/Users/Administrator/Desktop/markdown-assistant/conf/renameList.txt");
 
-//    renameFileName_->setRenameDirPath("C:/Users/qxz32h9/Desktop/IELTS-Test-rename/09-MP3/高频短语速list记本/02-writing");
-//    renameFileName_->setRenameConfPath("C:/Users/qxz32h9/Desktop/markdown-assistant/conf/rename.json");
-//    renameFileName_->setRepoPath("C:/Users/qxz32h9/Desktop/IELTS-Test-rename");
-//    renameFileName_->setRenameListPath("C:/Users/qxz32h9/Desktop/markdown-assistant/conf/renameList.txt");
+    renameFileName_->setRenameDirPath("C:/Users/qxz32h9/Desktop/IELTS-Test-renam11e/09-MP3/高频短语速list记本/02-writing");
+    renameFileName_->setRenameConfPath("C:/Users/qxz32h9/Desktop/markdown-assistant/conf/rename.json");
+    renameFileName_->setRepoPath("C:/Users/qxz32h9/Desktop/IELTS-Test-rename11");
+    renameFileName_->setRenameListPath("C:/Users/qxz32h9/Desktop/markdown-assistant/conf/renameList.txt");
 
     renameFileName_->setSize(getScrrenRes());
     renameFileName_->renameListClear();

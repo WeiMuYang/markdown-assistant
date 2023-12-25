@@ -400,22 +400,6 @@
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_5">
           <item>
-           <widget class="QCheckBox" name="fileCheckBox">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>文件</string>
-            </property>
-            <property name="checked">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </item>
-          <item>
            <widget class="QCheckBox" name="dirCheckBox">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
@@ -425,6 +409,22 @@
             </property>
             <property name="text">
              <string>目录</string>
+            </property>
+            <property name="checked">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="fileCheckBox">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>文件</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -541,17 +541,17 @@
         </column>
         <column>
          <property name="text">
+          <string>被引文件数</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
           <string>新名称</string>
          </property>
         </column>
         <column>
          <property name="text">
           <string>原名称</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>被引文件数</string>
          </property>
         </column>
        </widget>
