@@ -136,19 +136,35 @@ bool iniFilePath(QString& iniPath, QString& iniAndjsonPath){
     if(dir1.exists(iniFileDir)){
         dir1.cd(iniFileDir);
         if(dir1.exists(iniFileName)){
-            iniAndjsonPath =dir1.absolutePath();
-            iniPath = dir1.absolutePath()+"/"+iniFileName;
+            iniAndjsonPath = dir1.absolutePath();
+            iniPath = dir1.absolutePath() + "/" + iniFileName;
             return true;
         }
     }
     return false;
 }
 
+
+void confDialog::getRencentJsonFiles(const QString& path) {
+    QDir dir(path);
+    QStringList filters;
+    filters << "*.json";
+    dir.setNameFilters(filters);
+    QFileInfoList fileInfoList = dir.entryInfoList();
+
+    QStringList fileList;
+    for (const QFileInfo& fileInfo : fileInfoList) {
+        if(fileInfo.fileName().left(3) != "00-" && fileInfo.fileName().left(3) != "99-") {
+            iniFile_.recentFileList.append(fileInfo.fileName());
+        }
+    }
+}
+
 bool confDialog::readIniFile()
 {
     QString iniPath;
-    QString iniAndjsonPath;
-    if(!iniFilePath(iniPath,iniAndjsonPath)){
+    QString iniAndjsonDir;
+    if(!iniFilePath(iniPath, iniAndjsonDir)){
         return false;
     }
     QFile file(iniPath);
@@ -168,17 +184,46 @@ bool confDialog::readIniFile()
         return false;
     }
     QJsonObject rootObj = jDoc.object();
-    QJsonArray RecentFile = rootObj["RecentFile"].toArray();
-    for(int i = 0; i < RecentFile.size(); ++i){
-        QString value = RecentFile.at(i).toString();
-        iniFile_.recentFileList.push_back(value);
-    }
     //0.HostName
     iniFile_.hostName = rootObj["HostName"].toString();
     iniFile_.version = rootObj["Version"].toString();
     iniFile_.date = rootObj["Date"].toString();
-    iniFile_.iniAndJsonPath = iniAndjsonPath;
+    iniFile_.iniAndJsonPath = iniAndjsonDir;
+    // 更新recent列表
+    getRencentJsonFiles(iniAndjsonDir);
+
     return true;
+}
+
+
+bool confDialog::writeIniFile() {
+    QJsonObject jsonObject;
+    jsonObject["HostName"] = iniFile_.hostName;
+    QJsonArray recentFileArray;
+    for(int i = 0; i < iniFile_.recentFileList.size(); ++i) {
+        recentFileArray.append(iniFile_.recentFileList.at(i));
+    }
+    jsonObject["RecentFile"] = recentFileArray;
+    jsonObject["Version"] = iniFile_.version;
+    QDateTime current_date_time = QDateTime::currentDateTime();
+    QString current_date = current_date_time.toString("yyyy.MM.dd");
+    jsonObject["Date"] = current_date;
+
+    // 创建JSON文档
+    QJsonDocument jsonDoc(jsonObject);
+
+    // 将JSON文档写入文件
+    QFile file(iniFile_.iniAndJsonPath + "/conf.ini");
+    if (file.open(QIODevice::WriteOnly | QIODevice::Truncate))
+    {
+        file.write(jsonDoc.toJson());
+        file.close();
+        qDebug() << "JSON文件写入成功";
+        return true;
+    } else {
+        qDebug() << "无法写入JSON文件";
+        return false;
+    }
 }
 
 void confDialog::confDataClear(){
@@ -237,4 +282,76 @@ void confDialog::analysisCharConfJson(QJsonObject &rootObj,QMap<QString, QString
             }
         }
     }
+}
+
+bool confDialog::writeConfJson() {
+    // 创建一个 JSON 对象
+    QJsonObject jsonObject;
+    // 添加路径数组
+    QJsonArray imagePathArray;
+    for(int i = 0; i < imgNamePathMap_.size(); ++i){
+        QJsonObject imagePathObject;
+        imagePathObject[imgNamePathMap_.at(i).key] = imgNamePathMap_.at(i).value;
+        imagePathArray.append(imagePathObject);
+    }
+    jsonObject["ImagePath"] = imagePathArray;
+
+    // 添加目标路径数组
+    QJsonArray targetPathArray;
+    for(int i = 0; i < tarNamePathMap_.size(); ++i){
+        QJsonObject targetPathObject;
+        targetPathObject[tarNamePathMap_.at(i).key] = tarNamePathMap_.at(i).value;
+        targetPathArray.append(targetPathObject);
+    }
+    jsonObject["TargetPath"] = targetPathArray;
+
+    // 添加时间间隔数组
+    QJsonArray intervalArray;
+    for(int i = 0; i < intervalArr_.size(); ++i) {
+        intervalArray.append(intervalArr_.at(i));
+    }
+    jsonObject["Interval"] = intervalArray;
+
+    // 添加资源类型数组
+    QJsonArray assetsTypeArray;
+    for(int i = 0; i < assetsType_.size(); ++i){
+        assetsTypeArray.append(assetsType_.at(i));
+    }
+    jsonObject["AssetsType"] = assetsTypeArray;
+
+    // 添加软件对象
+    QJsonObject softwareObject;
+    for (auto itor = softWarePathMap_.begin(); itor != softWarePathMap_.end(); ++itor)
+    {
+        softwareObject[itor.key()] = itor.value();
+    }
+    jsonObject["Software"] = softwareObject;
+
+    // 添加其他属性
+    jsonObject["Version"] = iniFile_.version;
+    QDateTime current_date_time =QDateTime::currentDateTime();
+    QString current_date =current_date_time.toString("yyyy.MM.dd");
+    jsonObject["Date"] = current_date;
+    // 生成 JSON 文档
+    QJsonDocument jsonDoc(jsonObject);
+
+    // 将 JSON 文档转换为字符串
+    QString jsonString = jsonDoc.toJson(QJsonDocument::Indented);
+
+    // 将 JSON 字符串保存到文件
+    QFile file( iniFile_.iniAndJsonPath + "/" + iniFile_.hostName + ".json");
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QTextStream stream(&file);
+        stream << jsonString;
+        file.close();
+        qDebug() << "JSON file saved successfully.";
+    }
+    else
+    {
+        qDebug() << "Failed to save JSON file.";
+    }
+
+
+    return true;
 }

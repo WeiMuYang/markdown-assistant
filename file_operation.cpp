@@ -65,8 +65,8 @@ int FileOperation::getLastmodifiedTimeFileNum(const QString &path, QString& full
     getDirAllFiles(dir.absolutePath());
     qSort(fileList_.begin(), fileList_.end(),&FileOperation::sortFileByInfo);
     if(fileList_.isEmpty()){
-        DebugBox(__FUNCTION__, __LINE__,"Directory: \"" + path + "\" does not exist!");
-        emit sigFileOperationLog("Directory: \"" + path + "\" does not exist!");
+//        DebugBox(__FUNCTION__, __LINE__,"Directory: \"" + path + "\" does not exist!");
+        emit sigFileOperationLog("\"" + path + "\" does not has sub Directory!");
         return -1;
     }
     lastModefyFile = fileList_.last().fileName();
@@ -130,14 +130,13 @@ QString getNewFileName(QString fullTarPath, ImgData data, int fileNum){  // 01-4
     return newFilePath;
 }
 
-QString clipMarkdownCodeItem(QString newAssetsPath){
+QString clipMarkdownCodeItem(QString newAssetsPath, int zoomWidth){
     QString clipTextItem;
     QFileInfo fileInfo(newAssetsPath);
     if(fileInfo.suffix() == "mp4"){
-        clipTextItem = "<video src=./video/"+ fileInfo.fileName() +" alt=" + fileInfo.baseName() + " width=50%;/>";
-        clipTextItem = QString("<center>    \n")+clipTextItem.chopped(2)+QString("\n</center>    \n");
+        clipTextItem = "<video src=./video/"+ fileInfo.fileName() +" alt=" + fileInfo.baseName() + " width=" + QString::number(zoomWidth) + "%;/>";
     }else{
-        clipTextItem = "<img src=./img/"+ fileInfo.fileName() +" alt=" + fileInfo.baseName() + " style=zoom:50%;/>";
+        clipTextItem = "<img src=./img/"+ fileInfo.fileName() +" alt=" + fileInfo.baseName() + " width=" + QString::number(zoomWidth) + "%;/>";
     }
     return clipTextItem;
 }
@@ -145,6 +144,8 @@ QString clipMarkdownCodeItem(QString newAssetsPath){
 // 将fileInfoVec里面的所有文件的，放到相应目录
 bool FileOperation::clipFilesByFileInfo(const QStringList addList, QVector<ImgData> fileInfoVec, QString fullTarPath,int fileNum, QString &clipText)
 {
+    QString ImgClipText;
+    QString VideoClipText;
     for(int n = 0; n < addList.size(); n++){
         for(int i = 0; i < fileInfoVec.size(); ++i){
             ImgData data = fileInfoVec.at(i);
@@ -153,24 +154,30 @@ bool FileOperation::clipFilesByFileInfo(const QStringList addList, QVector<ImgDa
                 QString newAssetsPath = getNewFileName(fullTarPath, data, fileNum);
                 // clip file
                 if(!dir.rename(data.oldPath, newAssetsPath)){
-                    if(newAssetsPath.right(3) == "mp4"){
+                    if(newAssetsPath.right(4) == ".mp4"){
                         emit sigFileOperationLog( "视频文件可能在占用 !");
                     }
                     DebugBox(__FUNCTION__, __LINE__,"move file error");
-                    clipText = QString("<center>    \n")+clipText.chopped(2)+QString("\n</center>    \n");
-                    return false;
+                }
+                // 1. 组成MP4的Markdown代码
+                if(newAssetsPath.right(4) == ".mp4"){
+                    VideoClipText += QString("<center>    \n") + clipMarkdownCodeItem(newAssetsPath, data.widthZoom) + QString("\n</center>    \n    \n    \n");
+                }else {
+                // 2. 组成IMG的Markdown代码
+                    ImgClipText += clipMarkdownCodeItem(newAssetsPath, data.widthZoom) + QString("    \n");
                 }
                 emit sigFileOperationLog( "Clip From" + data.oldPath + " \nTo " + newAssetsPath);
-                // Clip Markdown Code
-                clipText +=  clipMarkdownCodeItem(newAssetsPath) + QString("    \n");
                 fileInfoVec.removeAt(i);
                 break;
             }
         }
     }
-
-
-    clipText = QString("<center>    \n")+clipText.chopped(2)+QString("\n</center>    \n");
+    // 先添加MP4
+    clipText = VideoClipText +"  \n  \n";
+    // 再添加IMG
+    if(ImgClipText.size() > 2) {
+        clipText += QString("<center>    \n")+ ImgClipText.chopped(2)+QString("\n</center>    \n");
+    }
     return true;
 }
 
@@ -706,8 +713,8 @@ void FileOperation::updateReferDirByFilePath(const QString& markdownAbsPath, con
     updateReferDir(markdownAbsPath, repoPath, context, curDir, renameDirPath, replaceNameDirInfoList, i);
 }
 
-QVector<ReText> FileOperation::updateReTextDir(const QString& markdownAbsPath, const QString &repoPath,
-                                               const QString &renameDirPath,const QVector<DirRenameInfo> &replaceNameDirInfoList,int i){
+QVector<ReText> FileOperation::updateReTextDir(const QString& markdownAbsPath,const QString &renameDirPath,
+                                               const QVector<DirRenameInfo> &replaceNameDirInfoList,int i){
     QDir curDir(markdownAbsPath);
     QFile data(markdownAbsPath);
     QVector<ReText> reTextList;
@@ -734,8 +741,6 @@ QVector<ReText> FileOperation::updateReTextDir(const QString& markdownAbsPath, c
     }
     return reTextList;
 }
-
-
 
 void FileOperation::updateReferDir(const QString& markdownAbsPath, const QString &repoPath,const QString &context,
                                    QDir curDir,const QString &renameDirPath, QVector<DirRenameInfo> &replaceNameDirInfoList,int i) {
@@ -764,8 +769,8 @@ void FileOperation::updateReferDir(const QString& markdownAbsPath, const QString
     }
 }
 
-QVector<ReText> FileOperation::updateReTextFile(const QString& markdownAbsPath, const QString &repoPath,
-                                                const QString &renameDirPath, const QVector<FileRenameInfo> &replaceNameFileInfoList, int i){
+QVector<ReText> FileOperation::updateReTextFile(const QString& markdownAbsPath, const QString &renameDirPath,
+                                                const QVector<FileRenameInfo> &replaceNameFileInfoList, int i){
     QFile data(markdownAbsPath);
     QDir curDir(markdownAbsPath);
     QVector<ReText> reTextList;

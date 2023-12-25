@@ -33,6 +33,7 @@ public:
     ~MainWindow() override;
     void initListWgt();
     void updateListWgt();
+    void changedPercentByLabelImg(int width);
     QString matchOldName(QString name);
     void initImgPathTarPathCombox();
     void sycImgDataByOldName(QString name);
@@ -57,6 +58,7 @@ public:
     void setConfigFilePathByUserName(const IniFile& iniFile);
     void setComboBoxToolTip(QComboBox* box);
     void writeCurrentFile(QString str);
+    QString getAssetsPath();
 private slots:
     void updateListDataAndWgtSlot();
     void changeModeSlot();
@@ -109,10 +111,12 @@ private slots:
     void simpleViewSlot();
 
     void updateConfFileSlot();
+    void updateDataAndWidget();
     void copyHistoryFilePathSlot();
     void copyHistoryFilePathOfMeetFileSlot();
     void startSlot();
     void clearTabWgtSlot();
+    void switchConfFileSlot();
 
     void openIniFileSlot();
     void modifyIniFileSlot();
@@ -120,7 +124,6 @@ private slots:
     void openReadMeSlot();
     void delSrcFromListSlot();
 
-    void openConfFileSlot();
     void updateSubDirHistoryFileListSlot();
     void on_createMarkdownPbn_clicked();
     void on_historySearchPbn_clicked();
@@ -128,9 +131,14 @@ private slots:
     void showModifyNameDlg();
 
     void openCurrentDirSlot();
-
     void quitAppSlot();
     void trayIconClickedSlot(QSystemTrayIcon::ActivationReason reason);
+    void on_zoomPercentPtn_clicked();
+    void addSub2RepoSlot();
+    void addParent2RepoSlot();
+    void delCurrentRepoSlot();
+
+    void openConfDirSlot();
 
 protected:
     // 窗口设置为随着窗口变化而变化

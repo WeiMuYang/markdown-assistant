@@ -18,6 +18,7 @@ struct ImgData{
     QString oldPath;
     QString oldName;
     QFileInfo oldFileInfo;
+    int widthZoom;
 };
 
 struct IniFile{
@@ -65,8 +66,6 @@ struct DirRenameInfo
     QString newDirPath;
     QVector<ReFile> reDirList;
 };
-
-
 
 
 #endif // DATA_TYPE_H

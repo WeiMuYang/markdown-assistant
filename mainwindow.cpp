@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include <QAction>
 #include <QMenu>
+#include <QImageReader>
 #include "debug_box.h"
 
 int printscreeninfo()
@@ -31,7 +32,6 @@ MainWindow::MainWindow(QWidget *parent) :
     scrrenWidth_ = printscreeninfo();
     videoThr_ = new VideoThr;
     clip_ = QApplication::clipboard();
-    //    setWindowFlags(Qt::Window | Qt::WindowStaysOnTopHint);
     DebugBox logBoxVideoThr;
     getAssetsDialog_ = new GetAssetsDialog(this);
     aboutDialog_ = new AboutDialog(this);
@@ -171,6 +171,7 @@ void MainWindow::startSlot() {
     // 必须初始化StatusBar，否则第一个菜单栏的菜单单击不到
     setStatusBar("",false);
     updateConfFileSlot();
+    ui->tabWgt->setCurrentIndex(0);
 }
 
 void MainWindow::initHistoryFileList() {
@@ -196,26 +197,37 @@ void MainWindow::initAddDelListMenu() {
     QAction *actDelAddList = new QAction("删除资源",addListMenu_);
     QAction *actMoveAddList = new QAction("移除资源",addListMenu_);
     QAction *actClearAddList = new QAction("删除全部",addListMenu_);
+    QAction *actSelectAllAddList = new QAction("选中全部",addListMenu_);
+    QAction *actCancelSelectAddList = new QAction("取消选中",addListMenu_);
     addListMenu_->addAction(actDelAddList);
     addListMenu_->addAction(actMoveAddList);
     addListMenu_->addAction(actClearAddList);
+    addListMenu_->addAction(actSelectAllAddList);
+    addListMenu_->addAction(actCancelSelectAddList);
     connect(actDelAddList, &QAction::triggered, this, &MainWindow::delFromAddListSlot);
     connect(actMoveAddList, &QAction::triggered, this, &MainWindow::moveFromAddListSlot);
     connect(actClearAddList, &QAction::triggered, this, &MainWindow::clearFromAddListSlot);
-
+    connect(actSelectAllAddList, &QAction::triggered,[this](){ ui->addList->selectAll(); });
+    connect(actCancelSelectAddList, &QAction::triggered,[this](){ ui->addList->clearSelection();});
 
     QAction *actDelDelList = new QAction("删除资源",this);
     QAction *actMoveDelList = new QAction("移除资源",this);
     QAction *actClearDelList = new QAction("删除全部",this);
+    QAction *actSelectAllDelList = new QAction("选中全部",addListMenu_);
+    QAction *actCancelSelectDelList = new QAction("取消选中",addListMenu_);
     QAction *actClipDelList = new QAction("剪切资源",this);
     delListMenu_->addAction(actDelDelList);
     delListMenu_->addAction(actMoveDelList);
     delListMenu_->addAction(actClearDelList);
+    delListMenu_->addAction(actSelectAllDelList);
+    delListMenu_->addAction(actCancelSelectDelList);
     delListMenu_->addAction(actClipDelList);
     connect(actDelDelList, &QAction::triggered, this, &MainWindow::delFromDelListSlot);
     connect(actMoveDelList, &QAction::triggered, this, &MainWindow::moveFromDelListSlot);
     connect(actClearDelList, &QAction::triggered, this, &MainWindow::clearFromDelListSlot);
     connect(actClipDelList, &QAction::triggered, this, &MainWindow::clipFromDelListSlot);
+    connect(actSelectAllDelList, &QAction::triggered,[this](){ ui->delList->selectAll(); });
+    connect(actCancelSelectDelList, &QAction::triggered,[this](){ ui->delList->clearSelection();});
 }
 
 void MainWindow::copyHistoryFilePathSlot()
@@ -274,6 +286,10 @@ void MainWindow::updateConfFileSlot()
     addDelListData_.setAssetsTypes(confDialog_.getAssetsTypes());
     fileOp_.setAssetsTypes(confDialog_.getAssetsTypes());
 
+    updateDataAndWidget();
+}
+
+void MainWindow::updateDataAndWidget(){
     // 1 Init Path
     initImgPathTarPathCombox();
     // 2 更新 子目录
@@ -284,7 +300,7 @@ void MainWindow::updateConfFileSlot()
     updateLastModifyFile();
     // 5 更新 Top20文件列表
     updateRepoHistoryFileList();
-    ui->tabWgt->setCurrentIndex(0);
+//
 }
 
 void MainWindow::updateRepoHistoryFileList(){
@@ -311,7 +327,7 @@ void MainWindow::delSrcFromListSlot() {
     for (int i = 0; i < ui->addList->count(); ++i) {
         if(ui->addList->item(i)->isSelected()){
             QString oldName = ui->addList->item(i)->text();
-            fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
+            fileOp_.delDesktopFile(getAssetsPath(), oldName);
             // 2. del ui
             // 注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。
             ui->addList->takeItem(i--);
@@ -326,7 +342,7 @@ void MainWindow::delSrcFromListSlot() {
         if(ui->delList->item(i)->isSelected()){
             QString oldName = ui->delList->item(i)->text();
             //            qDebug() <<ui->delList->item(i)->text();
-            fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
+            fileOp_.delDesktopFile(getAssetsPath(), oldName);
             // 2. del ui
             //注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。
             ui->delList->takeItem(i--);
@@ -370,6 +386,7 @@ void MainWindow::setConfigFilePathByUserName(const IniFile& iniFile){
             break;
         }
     }
+    this->setWindowTitle(configFilePath_ + " - Markdown Assistant");
     if(!hasUserConf){
         appendTextToLog(QString("未配置该用户文件 !"));
     }
@@ -380,8 +397,8 @@ void MainWindow::updateActionConfFileList()  {
     confFileList_->clear();
     for (int i = 0; i < iniFile.recentFileList.size(); ++i) {
         QAction *actionFileName = new QAction(confFileList_);
-        actionFileName->setText(iniFile.iniAndJsonPath+"/"+iniFile.recentFileList.at(i));
-        connect(actionFileName, &QAction::triggered, this, &MainWindow::openConfFileSlot);
+        actionFileName->setText(iniFile.recentFileList.at(i));
+        connect(actionFileName, &QAction::triggered, this, &MainWindow::switchConfFileSlot);
         confFileList_->addAction(actionFileName);
     }
     ui->menuFile->addMenu(confFileList_);
@@ -422,7 +439,6 @@ void MainWindow::InitMainWindowMenu(){
             show();
         }
     });
-    //    connect(ui->actionStayTop, &QAction::triggered, this, &MainWindow::stayTopSlot);
 
     if(simpleViewNum_ % 2 != 0){
         setSampleView();
@@ -443,7 +459,6 @@ void MainWindow::InitMainWindowMenu(){
 
     ui->actionSubDirHistoryFile->setShortcut(QKeySequence("Ctrl+L"));
     connect(ui->actionSubDirHistoryFile,&QAction::triggered, this, &MainWindow::updateSubDirHistoryFileListSlot);
-    //actionGetRelativePathOfMeetFile
 
     ui->actionGetRelativePathOfMeetFile->setShortcut(QKeySequence("Ctrl+P"));
     connect(ui->actionGetRelativePathOfMeetFile,&QAction::triggered, this, &MainWindow::copyHistoryFilePathOfMeetFileSlot);
@@ -457,16 +472,32 @@ void MainWindow::InitMainWindowMenu(){
     ui->actionDelFromSrcList->setShortcut(QKeySequence::Delete);
     connect(ui->actionDelFromSrcList, &QAction::triggered, this, &MainWindow::delSrcFromListSlot);
 
-    // actionOpenCurrentDir
+    // 打开当前子目录或仓库目录
     ui->actionOpenCurrentDir->setShortcut(QKeySequence("Alt+D"));
     connect(ui->actionOpenCurrentDir, &QAction::triggered, this, &MainWindow::openCurrentDirSlot);
+    //
+    ui->actionSub2Repo->setShortcut(QKeySequence("Alt+Left"));
+    connect(ui->actionSub2Repo, &QAction::triggered, this, &MainWindow::addSub2RepoSlot);
+
+    ui->actionParent2Repo->setShortcut(QKeySequence("Alt+Right"));
+    connect(ui->actionParent2Repo, &QAction::triggered, this, &MainWindow::addParent2RepoSlot);
+
+    ui->actionDelRepo->setShortcut(QKeySequence("Alt+Delete"));
+    connect(ui->actionDelRepo, &QAction::triggered, this, &MainWindow::delCurrentRepoSlot);
+
+
+    ui->actionOpenConfDir->setShortcut(QKeySequence("Ctrl+/"));
+    connect(ui->actionOpenConfDir, &QAction::triggered, this, &MainWindow::openConfDirSlot);
 }
 
-void MainWindow::openConfFileSlot(){
+void MainWindow::switchConfFileSlot(){
     QAction *action=qobject_cast<QAction *>(sender());
-    QString fileName = action->text();
+    QString fileName = confDialog_.getIniFile().iniAndJsonPath + "/"+ action->text();
     configFilePath_ = fileName;
-    openExPro_.OpenJsonAndIniSlot(fileName);
+    QFileInfo configFile(configFilePath_);
+    confDialog_.setIniFileHostName(configFile.baseName());
+    confDialog_.writeIniFile();
+    startSlot();
 }
 
 void MainWindow::clearTabWgtSlot()
@@ -614,8 +645,8 @@ void MainWindow::updateLastModifyFile(){
     if(num == -1){
         ui->subPathComBox->setCurrentText("no file");
         ui->numSpinBox->setValue(num);
-        tarPath_.clear();
-        fullTarPath_.clear();
+//        tarPath_.clear();
+//        fullTarPath_.clear();
         currentFile_.clear();
         appendTextToLog(QString(u8"当前的目标路径不存在 !"));
         setStatusBar("", false);
@@ -633,6 +664,11 @@ void MainWindow::updateLastModifyFile(){
 // 1 Init
 void MainWindow::initImgPathTarPathCombox()
 {
+    disconnect(ui->tarPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setTarPathSlot);
+    disconnect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
+    ui->subPathComBox->clear();
+    ui->tarPathCombox->clear();
+
     for(auto it = confDialog_.getImgPaths().begin();it != confDialog_.getImgPaths().end(); ++it){
         ui->imgPathCombox->addItem(it->key);
     }
@@ -641,6 +677,8 @@ void MainWindow::initImgPathTarPathCombox()
     }
     this->imgPath_ = confDialog_.getImgPathByKey(ui->imgPathCombox->currentText());
     this->tarPath_ = confDialog_.getTarPathByKey(ui->tarPathCombox->currentText());
+    connect(ui->tarPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setTarPathSlot);
+    connect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
 }
 
 void MainWindow::setComboBoxToolTip(QComboBox * box){
@@ -651,11 +689,13 @@ void MainWindow::setComboBoxToolTip(QComboBox * box){
 }
 
 void MainWindow::updateSubDirCombox(){
+    disconnect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
     ui->subPathComBox->clear();
     ui->subPathComBox->addItems(fileOp_.getSubDirNames(this->tarPath_));
     setComboBoxToolTip(ui->subPathComBox);
     subDirName_ = ui->subPathComBox->currentText();
     whoIsBoxSelection(BoxSelect::SubCombox);
+    connect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
 }
 
 void MainWindow::setImgPathSlot(QString currentStr){
@@ -689,7 +729,7 @@ void MainWindow::setSubPathSlot(QString currentStr){
     subDirName_ = currentStr;
     int num = fileOp_.getLastmodifiedTimeFileNumSubDir(tarPath_,subDirName_, fullTarPath_,currentFile_);
     if(num == -1){
-        fullTarPath_.clear();
+//        fullTarPath_.clear();
         ui->numSpinBox->setValue(num);
         appendTextToLog(QString(u8"当前的目标路径不存在 !"));
         setStatusBar("", false);
@@ -747,18 +787,8 @@ void MainWindow::updateListDataAndWgtSlot(){
     videoThr_->stop();
     addDelListData_.clearAddList();
     addDelListData_.clearDelList();
-    QString path;
-    NamePath namePath;
-    if(confDialog_.findImgPath(this->imgPath_, namePath)){
-        path = namePath.value;
-    }else{
-        DebugBox(__FUNCTION__, __LINE__,"img path empty");
-    }
-    if(path == "Desktop"){
-        path = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
-    }else{
-        DebugBox(__FUNCTION__, __LINE__,"path error");
-    }
+    QString path = getAssetsPath();
+
     // 更新数据层 data
     addDelListData_.updateImgVideoFile(path, ui->numSpinBox->value());// ui->numEdit->text().toInt());
 
@@ -801,6 +831,20 @@ void MainWindow::initListWgt(){
     }
 }
 
+void MainWindow::changedPercentByLabelImg(int width) {
+    if(width == 100) {
+        ui->RadioBtn100->setChecked(true);
+    }else if(width == 80) {
+        ui->RadioBtn80->setChecked(true);
+    }else if(width == 50) {
+        ui->RadioBtn50->setChecked(true);
+    }else if(width == 25) {
+        ui->RadioBtn25->setChecked(true);
+    }else {
+        ui->RadioBtn5->setChecked(true);
+    }
+}
+
 void MainWindow::updateListWgt()
 {
     ui->addList->clear();
@@ -820,7 +864,7 @@ void MainWindow::updateListWgt()
             }
         }
         if(isIconMode_){
-            pItem->setSizeHint(QSize(200,100*multiple));
+            pItem->setSizeHint(QSize(200,100* multiple));
             pItem->setText(data.oldName);
             pItem->setToolTip(data.oldName);
         }else{
@@ -891,23 +935,34 @@ void MainWindow::itemEnteredSlot(QListWidgetItem *item)
         return;
     }
     QString name = item->text();
-    QString path = addDelListData_.matchOldName(name);
-    labelPath_ = path;
-    if(name.right(4) != ".mp4"){
+    ImgData data = addDelListData_.matchOldName(name);
+    labelPath_ = data.oldPath;
+    ui->imgLabel->setToolTip(QString::number(data.widthZoom) + " %");
+    changedPercentByLabelImg(data.widthZoom);
+    if(name.right(4) != ".mp4") {
         videoThr_->stop();
         // 从文件中加载图片到标签
-        if(!path.isEmpty()){
-            QPixmap map = QPixmap(path);
+        if(!labelPath_.isEmpty()){
+            QPixmap map = QPixmap(labelPath_);
             map = map.scaled(ui->imgLabel->width(), ui->imgLabel->height(),Qt::KeepAspectRatio, Qt::SmoothTransformation);
             ui->imgLabel->setAlignment(Qt::AlignCenter);
             ui->imgLabel->setPixmap(map);
+
         }else{
-            // todo: 路径为空，需要添加一个默认图片
+            // 路径为空，需要添加一个默认图片
+            QPixmap map = QPixmap(":/qss/icon/do-not-exist.png");
+            map = map.scaled(ui->imgLabel->width(), ui->imgLabel->height(),Qt::KeepAspectRatio, Qt::SmoothTransformation);
             ui->imgLabel->setAlignment(Qt::AlignCenter);
-            ui->imgLabel->setPixmap(path);
+            ui->imgLabel->setPixmap(map);
+            ui->imgLabel->setToolTip("图片不存在!");
+            ui->RadioBtn100->setChecked(false);
+            ui->RadioBtn80->setChecked(false);
+            ui->RadioBtn50->setChecked(false);
+            ui->RadioBtn25->setChecked(false);
+            ui->RadioBtn5->setChecked(false);
         }
     }else{ // mp4
-        videoThr_->setVideoPath(path);
+        videoThr_->setVideoPath(labelPath_);
         videoThr_->play();
     }
 }
@@ -945,7 +1000,7 @@ void MainWindow::writeCurrentFile(QString str) {
 }
 
 void MainWindow::syncAddListTimelySlot() {
-    QVector<ImgData> srcList = addDelListData_.getNewAddImgVideoFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
+    QVector<ImgData> srcList = addDelListData_.getNewAddImgVideoFile(getAssetsPath());
     for(auto it = srcList.begin(); it < srcList.end(); ++it){
         ImgData data = *it;
         addDelListData_.insertDataAddImageList(data);
@@ -1026,7 +1081,7 @@ void MainWindow::delFromAddListSlot() {
     for (int i = 0; i < ui->addList->count(); ++i) {
         if(ui->addList->item(i)->isSelected()){
             QString oldName = ui->addList->item(i)->text();
-            fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
+            fileOp_.delDesktopFile(getAssetsPath(), oldName);
             // 2. del ui
             // 注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。
             ui->addList->takeItem(i--);
@@ -1041,7 +1096,7 @@ void MainWindow::delFromAddListSlot() {
     }else if(addDelListMenuRow_ > -1 && addDelListMenuRow_ < ui->addList->count()) {
         // 1. del file
         QString oldName = ui->addList->item(addDelListMenuRow_)->text();
-        fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
+        fileOp_.delDesktopFile(getAssetsPath(), oldName);
         // 2. del ui
         // 注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。
         ui->addList->takeItem(addDelListMenuRow_);
@@ -1068,7 +1123,7 @@ void MainWindow::moveFromAddListSlot() {
 void MainWindow::clearFromAddListSlot(){
     for (int i = 0; i < ui->addList->count(); ++i) {
         QString oldName = ui->addList->item(i)->text();
-        fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
+        fileOp_.delDesktopFile(getAssetsPath(), oldName);
         // 2. del ui
         // 注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。
         ui->addList->takeItem(i--);
@@ -1093,8 +1148,7 @@ void MainWindow::delFromDelListSlot() {
     for (int i = 0; i < ui->delList->count(); ++i) {
         if(ui->delList->item(i)->isSelected()){
             QString oldName = ui->delList->item(i)->text();
-            //            qDebug() <<ui->delList->item(i)->text();
-            fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
+            fileOp_.delDesktopFile(getAssetsPath(), oldName);
             // 2. del ui
             //注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。
             ui->delList->takeItem(i--);
@@ -1109,7 +1163,7 @@ void MainWindow::delFromDelListSlot() {
     }else if(addDelListMenuRow_ > -1 && addDelListMenuRow_ < ui->delList->count()) {
         // 1. del file
         QString oldName = ui->delList->item(addDelListMenuRow_)->text();
-        fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
+        fileOp_.delDesktopFile(getAssetsPath(), oldName);
         // 2. del ui
         //注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。
         ui->delList->takeItem(addDelListMenuRow_);
@@ -1136,7 +1190,7 @@ void MainWindow::moveFromDelListSlot() {
 void MainWindow::clearFromDelListSlot() {
     for (int i = 0; i < ui->delList->count(); ++i) {
         QString oldName = ui->delList->item(i)->text();
-        fileOp_.delDesktopFile(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), oldName);
+        fileOp_.delDesktopFile(getAssetsPath(), oldName);
         // 2. del ui
         // 注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。
         ui->delList->takeItem(i--);
@@ -1166,6 +1220,7 @@ void MainWindow::clipFromDelListSlot() {
     }
 
     QString clipText;
+    clip_->clear();
     if(fileOp_.clipFilesByFileInfo(list, addDelListData_.getDelList(), fullTarPath_,ui->numSpinBox->value(), clipText)){
         clip_->setText(clipText);
         appendTextToLog(u8"剪切文件完成 !");
@@ -1176,7 +1231,6 @@ void MainWindow::clipFromDelListSlot() {
     updateListDataAndWgtSlot();
 }
 
-// 需要todo
 void MainWindow::on_clipPbn_clicked()
 {
     if(addDelListData_.getAddList().isEmpty()){
@@ -1195,19 +1249,33 @@ void MainWindow::on_clipPbn_clicked()
     for(int n = 0; n < ui->addList->count(); ++n){
         list.append(ui->addList->item(n)->text());
     }
-
-
-    if(fileOp_.clipFilesByFileInfo(list, addDelListData_.getAddList(), fullTarPath_,ui->numSpinBox->value(), clipText_)){
-        clip_->setText(clipText_);
+    QString clipText;
+    clip_->clear();
+    if(fileOp_.clipFilesByFileInfo(list, addDelListData_.getAddList(), fullTarPath_,ui->numSpinBox->value(), clipText)){
+        clip_->setText(clipText);
         appendTextToLog(u8"剪切文件完成 !");
     }else{
-        clip_->setText(clipText_);
+        clip_->setText(clipText);
         appendTextToLog(u8"剪切文件失败 ! ! !");
     }
     updateListDataAndWgtSlot();
 }
 
-
+QString MainWindow::getAssetsPath(){
+    QString path;
+    NamePath namePath;
+    if(confDialog_.findImgPath(this->imgPath_, namePath)){
+        path = namePath.value;
+    }else{
+        DebugBox(__FUNCTION__, __LINE__,"img path empty");
+    }
+    if(path == "Desktop"){
+        path = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+    }else{
+        DebugBox(__FUNCTION__, __LINE__,"path error");
+    }
+    return path;
+}
 
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
@@ -1246,6 +1314,60 @@ void MainWindow::on_toolPbn_clicked()
         appendTextToLog(u8"没有选中文件需要打开!");
         break;
     }
+}
+
+void MainWindow::addSub2RepoSlot(){
+    subDirName_ = ui->subPathComBox->currentText();
+    if(subDirName_.isEmpty()) {
+        appendTextToLog("子目录为空无法添加!");
+        return ;
+    }
+    QString newRepoName = subDirName_;
+    QString existName;
+    if(confDialog_.addTarNamePath(subDirName_, tarPath_ + "/" + subDirName_, existName)) {
+        confDialog_.writeConfJson();
+        updateDataAndWidget();
+        ui->tarPathCombox->setCurrentText(newRepoName);
+        appendTextToLog(QString("添加\"") + newRepoName + "\"仓库成功!");
+    }else{
+        ui->tarPathCombox->setCurrentText(existName);
+        appendTextToLog("\"" + existName + "\"和\"" + newRepoName + "\"是同一个仓库!");
+    }
+}
+
+void MainWindow::addParent2RepoSlot() {
+    QDir repoDir(tarPath_);
+    if(repoDir.cdUp()) {
+        QString parentAbs = repoDir.absolutePath();
+        QString newName = repoDir.dirName();
+        if(newName.isEmpty()) { // 到了根目录
+            newName = parentAbs.split("/").first();
+        }
+        QString existName;
+        if(confDialog_.addTarNamePath(newName, parentAbs, existName)){
+            confDialog_.writeConfJson();
+            updateDataAndWidget();
+            ui->tarPathCombox->setCurrentText(newName);
+            appendTextToLog(QString("添加\"") + newName + "\"仓库成功!");
+        }else{
+            ui->tarPathCombox->setCurrentText(existName);
+            appendTextToLog("\"" + existName + "\"和\"" + newName + "\"是同一个仓库!");
+        }
+    }else{
+        appendTextToLog(QString("当前仓库:\"") + tarPath_ + "\"已经是根目录!");
+    }
+}
+
+void MainWindow::openConfDirSlot() {
+    openExPro_.OpenDirSlot(confDialog_.getIniFile().iniAndJsonPath);
+}
+
+void MainWindow::delCurrentRepoSlot(){
+    QString delRepoName = tarPath_;
+    confDialog_.delTarNamePath(tarPath_);
+    confDialog_.writeConfJson();
+    updateDataAndWidget();
+    appendTextToLog(QString("删除\"") + delRepoName + "\"仓库成功!");
 }
 
 void MainWindow::openCurrentDirSlot(){
@@ -1404,8 +1526,10 @@ void MainWindow::setSampleView(){
     //    ui->filePbnWgt->hide();
     ui->syncPbn->hide();
     ui->modePbn->hide();
-
     setSampleViewByScreenRes();
+    isStayTop_ = true;
+    setWindowFlag(Qt::WindowStaysOnTopHint, true);
+    show();
 }
 
 void MainWindow::setNormalView(){
@@ -1416,8 +1540,10 @@ void MainWindow::setNormalView(){
     //    ui->filePbnWgt->show();
     ui->syncPbn->show();
     ui->modePbn->show();
-
     setNormalViewByScreenRes();
+    isStayTop_ = false;
+    setWindowFlag(Qt::WindowStaysOnTopHint, false);
+    show();
 }
 
 void MainWindow::simpleViewSlot()
@@ -1507,3 +1633,33 @@ void MainWindow::showModifyNameDlg(){
     renameFileName_->renameListClear();
     renameFileName_->show();
 }
+
+void MainWindow::on_zoomPercentPtn_clicked()
+{
+    int zoomWidth = 0;
+    if(ui->RadioBtn5->isChecked()) {
+        zoomWidth = 5;
+    }else if(ui->RadioBtn25->isChecked()) {
+        zoomWidth = 25;
+    }else if(ui->RadioBtn50->isChecked()) {
+        zoomWidth = 50;
+    }else if(ui->RadioBtn80->isChecked()) {
+        zoomWidth = 80;
+    }else {
+        zoomWidth = 100;
+    }
+    QList<QListWidgetItem*> addSelectedItems = ui->addList->selectedItems();
+    QList<QListWidgetItem*> delSelectedItems = ui->delList->selectedItems();
+    for(int i = 0; i < addSelectedItems.size(); ++i) {
+        QString name = addSelectedItems.at(i)->text();
+        addDelListData_.modifyAddAssetsListZoomWidth(name, zoomWidth);
+    }
+    for(int i = 0; i < delSelectedItems.size(); ++i) {
+        QString name = delSelectedItems.at(i)->text();
+        addDelListData_.modifyDelAssetsListZoomWidth(name, zoomWidth);
+    }
+    changedPercentByLabelImg(zoomWidth);
+    ui->addList->clearSelection();
+    ui->delList->clearSelection();
+}
+
