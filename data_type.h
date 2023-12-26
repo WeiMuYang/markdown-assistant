@@ -9,6 +9,12 @@
 #define  MARKDOWN_SOFTWARE "MarkdownSoftware"
 #define  DATA_DIR_SOFTWARE "DataDirSoftware"
 
+
+enum AssetsZoomSize{
+    Size100 = 100, Size80 = 80, Size50 = 49, Size30 = 32, Size5 = 5
+};
+
+
 // config data used
 struct NamePath{
     QString key;

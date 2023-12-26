@@ -582,7 +582,7 @@
                </widget>
               </item>
               <item>
-               <widget class="QRadioButton" name="RadioBtn25">
+               <widget class="QRadioButton" name="RadioBtn30">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
                   <horstretch>0</horstretch>
@@ -590,10 +590,10 @@
                  </sizepolicy>
                 </property>
                 <property name="toolTip">
-                 <string>页面横向占比25%</string>
+                 <string>页面横向占比30%</string>
                 </property>
                 <property name="text">
-                 <string>25%</string>
+                 <string>30%</string>
                 </property>
                </widget>
               </item>
@@ -717,7 +717,7 @@
      <x>0</x>
      <y>0</y>
      <width>905</width>
-     <height>21</height>
+     <height>17</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

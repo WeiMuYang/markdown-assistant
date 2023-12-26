@@ -1,4 +1,5 @@
 #include "assets_data.h"
+#include "data_type.h"
 #include <QDebug>
 #include <QDate>
 #include <QImageReader>
@@ -47,16 +48,16 @@ int AssetsData::getImgFileSizePercent(const QString& path) {
     // 导出PDF会继续放大一倍，也就是说最大宽度是600像素
     // <img src="./img/09-1.png" alt="09-1" width=100%; />  使用width的缩放来添加图片
     if(width >= 1200 * 0.9) {
-        return 100;
+        return AssetsZoomSize::Size100;
     }else if(width >= 1200 * 0.65) {
-        return 80;
+        return AssetsZoomSize::Size80;
     }else if(width >= 1200 * 0.35) {
-        return 50;
+        return AssetsZoomSize::Size50;
     }else if(width >= 1200 * 0.2) {
-        return 25;
+        return AssetsZoomSize::Size30;
     }else{
         // 行内icon
-        return 5;
+        return AssetsZoomSize::Size5;
     }
 }
 
@@ -93,7 +94,7 @@ QVector<ImgData> AssetsData::getNewAddImgVideoFile(QString path) {
         if(data.oldName.right(4) != ".mp4"){
             data.widthZoom = getImgFileSizePercent(list.at(i).absoluteFilePath());
         }else{
-            data.widthZoom = 50;
+            data.widthZoom = AssetsZoomSize::Size50;
         }
         result.push_back(data);
     }

@@ -63,7 +63,6 @@ private slots:
     void on_refreshPbn_clicked();
 
     void updateReferListClickedSlot(QModelIndex index);
-    void setSeletedItemStyleSheet(QModelIndex item);
     void updateReferListEditSlot(QTableWidgetItem* item);
     void on_ReplaceByListPbn_clicked();
     void OpenReferFileSlot(QTableWidgetItem *item);

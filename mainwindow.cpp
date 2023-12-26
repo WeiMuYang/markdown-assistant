@@ -387,7 +387,8 @@ void MainWindow::setConfigFilePathByUserName(const IniFile& iniFile){
             break;
         }
     }
-    this->setWindowTitle(configFilePath_.split("/").last() + " - Markdown Assistant - [" + configFilePath_ + "]");
+    QFileInfo configInfo(configFilePath_);
+    this->setWindowTitle(configInfo.baseName() + " - Markdown Assistant - [" + configFilePath_ + "]");
     if(!hasUserConf){
         appendTextToLog(QString("未配置该用户文件 !"));
     }
@@ -842,14 +843,14 @@ void MainWindow::initListWgt(){
 }
 
 void MainWindow::changedPercentByLabelImg(int width) {
-    if(width == 100) {
+    if(width == AssetsZoomSize::Size100) {
         ui->RadioBtn100->setChecked(true);
-    }else if(width == 80) {
+    }else if(width == AssetsZoomSize::Size80) {
         ui->RadioBtn80->setChecked(true);
-    }else if(width == 50) {
+    }else if(width == AssetsZoomSize::Size50) {
         ui->RadioBtn50->setChecked(true);
-    }else if(width == 25) {
-        ui->RadioBtn25->setChecked(true);
+    }else if(width == AssetsZoomSize::Size30) {
+        ui->RadioBtn30->setChecked(true);
     }else {
         ui->RadioBtn5->setChecked(true);
     }
@@ -968,7 +969,7 @@ void MainWindow::itemEnteredSlot(QListWidgetItem *item)
             ui->RadioBtn100->setChecked(false);
             ui->RadioBtn80->setChecked(false);
             ui->RadioBtn50->setChecked(false);
-            ui->RadioBtn25->setChecked(false);
+            ui->RadioBtn30->setChecked(false);
             ui->RadioBtn5->setChecked(false);
         }
     }else{ // mp4
@@ -1672,15 +1673,15 @@ void MainWindow::on_zoomPercentPtn_clicked()
 {
     int zoomWidth = 0;
     if(ui->RadioBtn5->isChecked()) {
-        zoomWidth = 5;
-    }else if(ui->RadioBtn25->isChecked()) {
-        zoomWidth = 25;
+        zoomWidth = AssetsZoomSize::Size5;
+    }else if(ui->RadioBtn30->isChecked()) {
+        zoomWidth = AssetsZoomSize::Size30;
     }else if(ui->RadioBtn50->isChecked()) {
-        zoomWidth = 50;
+        zoomWidth = AssetsZoomSize::Size50;
     }else if(ui->RadioBtn80->isChecked()) {
-        zoomWidth = 80;
+        zoomWidth = AssetsZoomSize::Size80;
     }else {
-        zoomWidth = 100;
+        zoomWidth = AssetsZoomSize::Size100;
     }
     QList<QListWidgetItem*> addSelectedItems = ui->addList->selectedItems();
     QList<QListWidgetItem*> delSelectedItems = ui->delList->selectedItems();

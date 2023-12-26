@@ -402,37 +402,6 @@ void RenameFileName::updateReferListClickedSlot(QModelIndex index)
 {
     int row = index.row();
     updateReferListByRenameFileListRow(row);
-    setSeletedItemStyleSheet(index);
-}
-
-void RenameFileName::setSeletedItemStyleSheet(QModelIndex item) {
-//    QList<QTableWidgetItem*> items = ui->renameFileListWgt->selectedItems();
-//    if(!items.empty()) //表格有某行被选中
-//    {
-//        //获取该行的成员数
-//        int count = items.count();
-//        // 打印该行所有成员内容
-//        if(items.at(2)->text() != items.at(3)->text()) {
-////            items.at(2)->setForeground(QBrush(QColor(72,201,176)));
-//            ui->renameFileListWgt->setStyleSheet(
-//                        "QTableWidget::item:selected {color: red; }"
-//                        );
-//        }else{
-//            ui->renameFileListWgt->setStyleSheet(
-//                        "QTableWidget::item:selected { color: rgb(220,220,220) }"
-//                        );
-////            items.at(2)->setForeground(QBrush(QColor(220,220,220)));
-//        }
-//        if(items.at(1)->text().toInt() != 0) {
-//            ui->renameFileListWgt->setStyleSheet(
-//                        "QTableWidget::item:selected {color: red; }"
-//                        );
-//        }else{
-//            ui->renameFileListWgt->setStyleSheet(
-//                        "QTableWidget::item:selected { color: rgb(220,220,220) }"
-//                        );
-//        }
-//    }
 }
 
 void RenameFileName::updateReferListEditSlot(QTableWidgetItem *item) {
