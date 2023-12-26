@@ -33,8 +33,11 @@ public:
         return assetsType_;
     }
 
-    const QMap<QString,QString>& getSoftWarePathMap(){
-        return softWarePathMap_;
+    QString getMarkdownSoftPath() {
+        return markdownSoftWarePath_;
+    }
+    QString getDataDirSoftPath() {
+        return dataDirSoftWarePath_;
     }
 
     bool readIniFile();
@@ -75,6 +78,14 @@ public:
         return false;
     }
 
+    void setMarkdownSoftWarePath(const QString& path){
+        markdownSoftWarePath_ = path;
+    }
+
+    void setDataDirSoftWarePath(const QString& path){
+        dataDirSoftWarePath_ = path;
+    }
+
     ///////////  rename file  ////////
     bool readCharConfFile(QString path, QMap<QString, QString> &map);
     void analysisCharConfJson(QJsonObject &rootObj,QMap<QString, QString>& replaceCharListMap);
@@ -83,7 +94,8 @@ private: // need to change to private
     QList<NamePath> tarNamePathMap_;
     QVector<QString> intervalArr_;
     QStringList assetsType_;
-    QMap<QString,QString> softWarePathMap_;
+    QString markdownSoftWarePath_;
+    QString dataDirSoftWarePath_;
     QString meetFilePath_;
     IniFile iniFile_;
 };

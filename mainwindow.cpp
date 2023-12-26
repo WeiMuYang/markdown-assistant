@@ -282,7 +282,8 @@ void MainWindow::updateConfFileSlot()
     connect(ui->tarPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setTarPathSlot);
     connect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
     confDialog_.readConf(configFilePath_);
-    openExPro_.setSoftWarePath(confDialog_.getSoftWarePathMap());
+    openExPro_.setMarkdownSoftWarePath(confDialog_.getMarkdownSoftPath());
+    openExPro_.setDataDirSoftWarePath(confDialog_.getDataDirSoftPath());
     addDelListData_.setAssetsTypes(confDialog_.getAssetsTypes());
     fileOp_.setAssetsTypes(confDialog_.getAssetsTypes());
 
@@ -386,7 +387,7 @@ void MainWindow::setConfigFilePathByUserName(const IniFile& iniFile){
             break;
         }
     }
-    this->setWindowTitle("Markdown Assistant - " + configFilePath_);
+    this->setWindowTitle(configFilePath_.split("/").last() + " - Markdown Assistant - [" + configFilePath_ + "]");
     if(!hasUserConf){
         appendTextToLog(QString("未配置该用户文件 !"));
     }
@@ -488,6 +489,13 @@ void MainWindow::InitMainWindowMenu(){
 
     ui->actionOpenConfDir->setShortcut(QKeySequence("Ctrl+/"));
     connect(ui->actionOpenConfDir, &QAction::triggered, this, &MainWindow::openConfDirSlot);
+
+    ui->actionAddMarkDownSoftWare->setShortcut(QKeySequence("Alt+M"));
+    connect(ui->actionAddMarkDownSoftWare, &QAction::triggered, this, &MainWindow::modifyMarkdownSoftSlot);
+
+    ui->actionAddVSCodePath->setShortcut(QKeySequence("Alt+V"));
+    connect(ui->actionAddVSCodePath, &QAction::triggered, this, &MainWindow::modifyDataDirSoftSlot);
+
 }
 
 void MainWindow::switchConfFileSlot(){
@@ -1360,6 +1368,29 @@ void MainWindow::addParent2RepoSlot() {
 
 void MainWindow::openConfDirSlot() {
     openExPro_.OpenDirSlot(confDialog_.getIniFile().iniAndJsonPath);
+}
+
+void MainWindow::modifyMarkdownSoftSlot(){
+    QString MarkdownSoftPath = QFileDialog::getOpenFileName(this,"选择markdown软件",QDir::homePath(),tr("EXE files(*.exe);;Shell files(*.sh);;bash files(*.bat);;All files(*.*)"));
+    if(!MarkdownSoftPath.isEmpty()) {
+        confDialog_.setMarkdownSoftWarePath(MarkdownSoftPath);
+        openExPro_.setMarkdownSoftWarePath(MarkdownSoftPath);
+        confDialog_.writeConfJson();
+        appendTextToLog(QString("修改Markdown软件为\"") + MarkdownSoftPath + "\"成功!");
+    }else {
+        appendTextToLog(QString("MarkDown软件:\"") + MarkdownSoftPath + "\"为空，修改失败!");
+    }
+}
+void MainWindow::modifyDataDirSoftSlot(){
+    QString DataDirSoftPath = QFileDialog::getOpenFileName(this,"选择Data软件",QDir::homePath(),tr("EXE files(*.exe);;Shell files(*.sh);;bash files(*.bat);;All files(*.*)"));
+    if(!DataDirSoftPath.isEmpty()) {
+        confDialog_.writeConfJson();
+        confDialog_.setDataDirSoftWarePath(DataDirSoftPath);
+        openExPro_.setDataDirSoftWarePath(DataDirSoftPath);
+        appendTextToLog(QString("修改Data软件为\"") + DataDirSoftPath + "\"成功!");
+    }else {
+        appendTextToLog(QString("Data软件:\"") + DataDirSoftPath + "\"为空，修改失败!");
+    }
 }
 
 void MainWindow::delCurrentRepoSlot(){

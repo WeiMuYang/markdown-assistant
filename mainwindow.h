@@ -139,6 +139,8 @@ private slots:
     void delCurrentRepoSlot();
 
     void openConfDirSlot();
+    void modifyMarkdownSoftSlot();
+    void modifyDataDirSoftSlot();
 
 protected:
     // 窗口设置为随着窗口变化而变化

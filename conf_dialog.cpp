@@ -67,10 +67,12 @@ void confDialog::analysisJson(QJsonObject &rootObj){
     QJsonObject SoftPathMap = rootObj["Software"].toObject();
     for(int i = 0; i < SoftPathMap.keys().size(); ++i){
         QString key = SoftPathMap.keys().at(i);
-        QString value = SoftPathMap[key].toString();
-        softWarePathMap_.insert(key, value);
+        if(key == MARKDOWN_SOFTWARE) {
+            markdownSoftWarePath_ = SoftPathMap[key].toString();
+        }else if(key == DATA_DIR_SOFTWARE) {
+            dataDirSoftWarePath_ = SoftPathMap[key].toString();
+        }
     }
-
     meetFilePath_ = rootObj["MeetFilePath"].toString();
 }
 
@@ -232,7 +234,8 @@ void confDialog::confDataClear(){
     intervalArr_.clear();
     assetsType_.clear();
     meetFilePath_.clear();
-    softWarePathMap_.clear();
+    markdownSoftWarePath_.clear();
+    dataDirSoftWarePath_.clear();
 }
 
 void confDialog::clearAll(){
@@ -241,7 +244,8 @@ void confDialog::clearAll(){
     intervalArr_.clear();
     assetsType_.clear();
     meetFilePath_.clear();
-    softWarePathMap_.clear();
+    markdownSoftWarePath_.clear();
+    dataDirSoftWarePath_.clear();
     iniFile_.iniAndJsonPath.clear();
     iniFile_.recentFileList.clear();
     iniFile_.version.clear();
@@ -321,10 +325,9 @@ bool confDialog::writeConfJson() {
 
     // 添加软件对象
     QJsonObject softwareObject;
-    for (auto itor = softWarePathMap_.begin(); itor != softWarePathMap_.end(); ++itor)
-    {
-        softwareObject[itor.key()] = itor.value();
-    }
+    softwareObject[MARKDOWN_SOFTWARE] = markdownSoftWarePath_;
+    softwareObject[DATA_DIR_SOFTWARE] = dataDirSoftWarePath_;
+
     jsonObject["Software"] = softwareObject;
 
     // 添加其他属性

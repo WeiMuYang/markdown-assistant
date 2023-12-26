@@ -20,8 +20,8 @@
         "today"
     ],
     "Software": {
-        "Typora": "D:/Program Files/Typora/Typora.exe",
-        "Vscode": "D:/Users/yang-wei-da/AppData/Local/Programs/Microsoft VS Code/Code.exe"
+        "MarkdownSoftware": "D:/Program Files/Typora/Typora.exe",
+        "DataDirSoftware": "D:/Users/yang-wei-da/AppData/Local/Programs/Microsoft VS Code/Code.exe"
     },
     "TargetPath": [
         {

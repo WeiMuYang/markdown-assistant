@@ -1,9 +1,28 @@
 {
+    "AssetsType": [
+        "99-*.png",
+        "99-*.jpg",
+        "99-*.bmp",
+        "99-*.jpeg",
+        "99-*.gif",
+        "99-*.mp4"
+    ],
+    "Date": "2023.12.26",
     "ImagePath": [
         {
             "Desktop": "Desktop"
         }
     ],
+    "Interval": [
+        "1 hours",
+        "1 days",
+        "2 days",
+        "today"
+    ],
+    "Software": {
+        "DataDirSoftware": "D:/YangWeiBin/software/Microsoft VS Code/Code.exe",
+        "MarkdownSoftware": "D:/YangWeiBin/software/Typora/Typora/Typora.exe"
+    },
     "TargetPath": [
         {
             "Ramses": "D:/YangWeiBin/01-sync-file-level-1/02-ramses-composer"
@@ -15,24 +34,5 @@
             "BMW PngTest": "D:/YangWeiBin/png/test"
         }
     ],
-    "Interval": [
-        "1 hours",
-        "1 days",
-        "2 days",
-        "today"
-    ],
-    "AssetsType": [
-        "99-*.png",
-        "99-*.jpg",
-        "99-*.bmp",
-        "99-*.jpeg",
-        "99-*.gif",
-        "99-*.mp4"
-    ],
-    "Software": {
-        "Typora": "D:/YangWeiBin/software/Typora/Typora/Typora.exe",
-        "Vscode": "D:/YangWeiBin/software/Microsoft VS Code/Code.exe"
-    },
-    "Version": "v0.1.0",    
-    "Date": "2023/04/05"
+    "Version": "v0.1.0"
 }

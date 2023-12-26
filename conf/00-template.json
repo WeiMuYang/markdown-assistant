@@ -38,7 +38,7 @@
     ],
     "?Software": "软件名+路径",
     "Software": {
-        "Typora": "D:/Program Files/Typora/Typora.exe",
-        "Vscode": "D:/VSCode1.78.2/Code.exe"
+        "MarkdownSoftware": "D:/Program Files/Typora/Typora.exe",
+        "DataDirSoftware": "D:/VSCode1.78.2/Code.exe"
     }
 }

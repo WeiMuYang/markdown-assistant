@@ -717,7 +717,7 @@
      <x>0</x>
      <y>0</y>
      <width>905</width>
-     <height>17</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -725,10 +725,16 @@
      <string>文件</string>
     </property>
     <addaction name="actionModifySysFile"/>
+    <addaction name="separator"/>
     <addaction name="actionModifyConf"/>
     <addaction name="actionOpenConfDir"/>
     <addaction name="actionAddConfFile"/>
+    <addaction name="separator"/>
     <addaction name="actionOpenCurrentDir"/>
+    <addaction name="separator"/>
+    <addaction name="actionAddMarkDownSoftWare"/>
+    <addaction name="actionAddVSCodePath"/>
+    <addaction name="separator"/>
     <addaction name="actionRestart"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
@@ -873,6 +879,16 @@
   <action name="actionParent2Repo">
    <property name="text">
     <string>添加父目录仓库</string>
+   </property>
+  </action>
+  <action name="actionAddVSCodePath">
+   <property name="text">
+    <string>修改VSCode路径</string>
+   </property>
+  </action>
+  <action name="actionAddMarkDownSoftWare">
+   <property name="text">
+    <string>修改Typora路径</string>
    </property>
   </action>
  </widget>

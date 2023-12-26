@@ -6,6 +6,9 @@
 #include <QFileInfo>
 #include <QDateTime>
 
+#define  MARKDOWN_SOFTWARE "MarkdownSoftware"
+#define  DATA_DIR_SOFTWARE "DataDirSoftware"
+
 // config data used
 struct NamePath{
     QString key;

@@ -10,7 +10,8 @@ class OpenExProgram: public QObject
     Q_OBJECT
 public:
     OpenExProgram();
-    void setSoftWarePath(QMap<QString,QString> softWarePath);
+    void setMarkdownSoftWarePath(const QString& Path);
+    void setDataDirSoftWarePath(const QString& Path);
     QString getPathByKey(QString key);
 public slots:
     void OpenMarkdownAndDirSlot(QString fileName);
@@ -23,7 +24,9 @@ signals:
     void sigCompareFinished();
 private:
 
-    QMap<QString,QString> softWarePathMap_;
+    QString markdownSoftPath_;
+    QString dataDirSoftPath_;
+
 };
 
 #endif // OPENEXPROGRAM_H
