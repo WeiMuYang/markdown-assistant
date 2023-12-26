@@ -59,6 +59,7 @@ public:
     void setComboBoxToolTip(QComboBox* box);
     void writeCurrentFile(QString str);
     QString getAssetsPath();
+    bool addRepo2Conf(QString name,QString path);
 private slots:
     void updateListDataAndWgtSlot();
     void changeModeSlot();
@@ -136,6 +137,7 @@ private slots:
     void on_zoomPercentPtn_clicked();
     void addSub2RepoSlot();
     void addParent2RepoSlot();
+    void addRepoSlot();
     void delCurrentRepoSlot();
 
     void openConfDirSlot();

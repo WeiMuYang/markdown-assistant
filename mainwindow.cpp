@@ -496,6 +496,8 @@ void MainWindow::InitMainWindowMenu(){
     ui->actionAddVSCodePath->setShortcut(QKeySequence("Alt+V"));
     connect(ui->actionAddVSCodePath, &QAction::triggered, this, &MainWindow::modifyDataDirSoftSlot);
 
+    ui->actionAddRepo->setShortcut(QKeySequence("Alt+N"));
+    connect(ui->actionAddRepo, &QAction::triggered, this, &MainWindow::addRepoSlot);
 }
 
 void MainWindow::switchConfFileSlot(){
@@ -1332,15 +1334,7 @@ void MainWindow::addSub2RepoSlot(){
     }
     QString newRepoName = subDirName_;
     QString existName;
-    if(confDialog_.addTarNamePath(subDirName_, tarPath_ + "/" + subDirName_, existName)) {
-        confDialog_.writeConfJson();
-        updateDataAndWidget();
-        ui->tarPathCombox->setCurrentText(newRepoName);
-        appendTextToLog(QString("添加\"") + newRepoName + "\"仓库成功!");
-    }else{
-        ui->tarPathCombox->setCurrentText(existName);
-        appendTextToLog("\"" + existName + "\"和\"" + newRepoName + "\"是同一个仓库!");
-    }
+    addRepo2Conf(newRepoName, tarPath_ + "/" + newRepoName);
 }
 
 void MainWindow::addParent2RepoSlot() {
@@ -1351,19 +1345,35 @@ void MainWindow::addParent2RepoSlot() {
         if(newName.isEmpty()) { // 到了根目录
             newName = parentAbs.split("/").first();
         }
-        QString existName;
-        if(confDialog_.addTarNamePath(newName, parentAbs, existName)){
-            confDialog_.writeConfJson();
-            updateDataAndWidget();
-            ui->tarPathCombox->setCurrentText(newName);
-            appendTextToLog(QString("添加\"") + newName + "\"仓库成功!");
-        }else{
-            ui->tarPathCombox->setCurrentText(existName);
-            appendTextToLog("\"" + existName + "\"和\"" + newName + "\"是同一个仓库!");
-        }
+        addRepo2Conf(newName, parentAbs);
     }else{
         appendTextToLog(QString("当前仓库:\"") + tarPath_ + "\"已经是根目录!");
     }
+}
+
+bool MainWindow::addRepo2Conf(QString newName,QString pathAbs) {
+    QString existName;
+    if(confDialog_.addTarNamePath(newName, pathAbs, existName)){
+        confDialog_.writeConfJson();
+        updateDataAndWidget();
+        ui->tarPathCombox->setCurrentText(newName);
+        appendTextToLog(QString("添加\"") + newName + "\"仓库成功!");
+        return true;
+    }
+    ui->tarPathCombox->setCurrentText(existName);
+    appendTextToLog("\"" + existName + "\"和\"" + newName + "\"是同一个仓库!");
+    return false;
+}
+
+void MainWindow::addRepoSlot(){
+    QString repoPath = QFileDialog::getExistingDirectory(this,"选择重命名目录",tarPath_,QFileDialog::ShowDirsOnly);
+    if(repoPath.isEmpty()) {
+        appendTextToLog("添加仓库\"" + repoPath + "\"为空，无法添加!");
+        return ;
+    }
+
+    QDir repoDir(repoPath);
+    addRepo2Conf(repoDir.dirName(),repoDir.absolutePath());
 }
 
 void MainWindow::openConfDirSlot() {

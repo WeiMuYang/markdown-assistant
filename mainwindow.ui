@@ -744,6 +744,7 @@
     <addaction name="actionClearLog"/>
     <addaction name="actionSubDirHistoryFile"/>
     <addaction name="separator"/>
+    <addaction name="actionAddRepo"/>
     <addaction name="actionSub2Repo"/>
     <addaction name="actionParent2Repo"/>
     <addaction name="actionDelRepo"/>
@@ -863,7 +864,7 @@
   </action>
   <action name="actionSub2Repo">
    <property name="text">
-    <string>添加子目录仓库</string>
+    <string>添加子目录为仓库</string>
    </property>
   </action>
   <action name="actionDelRepo">
@@ -878,7 +879,7 @@
   </action>
   <action name="actionParent2Repo">
    <property name="text">
-    <string>添加父目录仓库</string>
+    <string>添加父目录为仓库</string>
    </property>
   </action>
   <action name="actionAddVSCodePath">
@@ -889,6 +890,11 @@
   <action name="actionAddMarkDownSoftWare">
    <property name="text">
     <string>修改Typora路径</string>
+   </property>
+  </action>
+  <action name="actionAddRepo">
+   <property name="text">
+    <string>添加仓库目录</string>
    </property>
   </action>
  </widget>
