@@ -115,10 +115,10 @@ bool confDialog::findTarPath(QString key, NamePath& data){
     return false;
 }
 
-bool confDialog::findImgPath(QString key, NamePath& data){
+bool confDialog::findImgPathByName(QString key, NamePath& data){
     for(auto it = imgNamePathMap_.begin(); it != imgNamePathMap_.end(); ++it)
     {
-        if(it->key == key)
+        if(it->value == key)
         {
             data = *it;
             return true;

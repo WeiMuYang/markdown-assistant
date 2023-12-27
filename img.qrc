@@ -21,5 +21,7 @@
         <file>qss/psblack/radiobutton_unchecked_disable.png</file>
         <file>qss/icon/markdown-assistant.ico</file>
         <file>qss/icon/do-not-exist.png</file>
+        <file>qss/icon/audio.gif</file>
+        <file>qss/icon/mp3.ico</file>
     </qresource>
 </RCC>

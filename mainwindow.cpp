@@ -11,6 +11,7 @@
 #include <QFileDialog>
 #include <QAction>
 #include <QMenu>
+#include <QMovie>
 #include <QImageReader>
 #include "debug_box.h"
 
@@ -31,6 +32,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     scrrenWidth_ = printscreeninfo();
     videoThr_ = new VideoThr;
+    audioPlayer_ = new QMediaPlayer;
     clip_ = QApplication::clipboard();
     DebugBox logBoxVideoThr;
     getAssetsDialog_ = new GetAssetsDialog(this);
@@ -145,6 +147,24 @@ void MainWindow::closeEvent(QCloseEvent *event)
     }
 }
 
+void MainWindow::show()
+{
+    // 单击操作
+    int width = printscreeninfo();
+    QApplication* a = qApp;
+    if(width >= 3840){
+        QFont font = a->font();
+        font.setPointSize(13);
+        a->setFont(font);
+    }else{
+        QFont font = a->font();
+        font.setPointSize(10);
+        a->setFont(font);
+    }
+
+    QMainWindow::show();
+}
+
 void MainWindow::quitAppSlot() {
     QApplication::quit();
 }
@@ -152,7 +172,6 @@ void MainWindow::quitAppSlot() {
 void MainWindow::trayIconClickedSlot(QSystemTrayIcon::ActivationReason reason)
 {
     if (reason == QSystemTrayIcon::Trigger) {
-        // 单击操作
         show();
     } else if (reason == QSystemTrayIcon::DoubleClick) {
         // 双击操作
@@ -499,6 +518,18 @@ void MainWindow::InitMainWindowMenu(){
 
     ui->actionAddRepo->setShortcut(QKeySequence("Alt+N"));
     connect(ui->actionAddRepo, &QAction::triggered, this, &MainWindow::addRepoSlot);
+
+//    ui.actionaddAssetsDir
+    ui->actionaddAssetsDir->setShortcut(QKeySequence("Alt+A"));
+    connect(ui->actionaddAssetsDir, &QAction::triggered, this, &MainWindow::addAssstsDirSlot);
+
+    //  actionOpenAssetsDir
+    ui->actionOpenAssetsDir->setShortcut(QKeySequence("Alt+O"));
+    connect(ui->actionOpenAssetsDir, &QAction::triggered, this, &MainWindow::openAssstsDirSlot);
+
+    // actionDelCurrentAssetsDir
+//    ui->actionOpenAssetsDir->setShortcut(QKeySequence("Alt+D"));
+    connect(ui->actionDelCurrentAssetsDir, &QAction::triggered, this, &MainWindow::delAssstsDirSlot);
 }
 
 void MainWindow::switchConfFileSlot(){
@@ -675,10 +706,12 @@ void MainWindow::updateLastModifyFile(){
 // 1 Init
 void MainWindow::initImgPathTarPathCombox()
 {
+    disconnect(ui->imgPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setImgPathSlot);
     disconnect(ui->tarPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setTarPathSlot);
     disconnect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
     ui->subPathComBox->clear();
     ui->tarPathCombox->clear();
+    ui->imgPathCombox->clear();
 
     for(auto it = confDialog_.getImgPaths().begin();it != confDialog_.getImgPaths().end(); ++it){
         ui->imgPathCombox->addItem(it->key);
@@ -686,10 +719,11 @@ void MainWindow::initImgPathTarPathCombox()
     for(auto it = confDialog_.getTarPaths().begin();it != confDialog_.getTarPaths().end(); ++it){
         ui->tarPathCombox->addItem(it->key);
     }
-    this->imgPath_ = confDialog_.getImgPathByKey(ui->imgPathCombox->currentText());
-    this->tarPath_ = confDialog_.getTarPathByKey(ui->tarPathCombox->currentText());
+    imgPath_ = confDialog_.getImgPathByKey(ui->imgPathCombox->currentText());
+    tarPath_ = confDialog_.getTarPathByKey(ui->tarPathCombox->currentText());
     connect(ui->tarPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setTarPathSlot);
     connect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
+    connect(ui->imgPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setImgPathSlot);
 }
 
 void MainWindow::setComboBoxToolTip(QComboBox * box){
@@ -710,7 +744,7 @@ void MainWindow::updateSubDirCombox(){
 }
 
 void MainWindow::setImgPathSlot(QString currentStr){
-    this->imgPath_ = confDialog_.getImgPathByKey(currentStr);
+    imgPath_ = confDialog_.getImgPathByKey(ui->imgPathCombox->currentText());
 }
 
 void MainWindow::setTarPathSlot(QString currentStr){
@@ -856,58 +890,45 @@ void MainWindow::changedPercentByLabelImg(int width) {
     }
 }
 
+void MainWindow::setItemIcon(const ImgData& data, QListWidgetItem* pItem) {
+    if(data.oldName.right(4) == ".mp3") {
+        pItem->setIcon(QIcon(":/qss/icon/mp3.ico"));
+    }else if(data.oldName.right(4) == ".mp4"){
+        QIcon videoIcon;
+        if(videoThr_->getFirstVideoFrame(data.oldPath, videoIcon)){
+            pItem->setIcon(videoIcon);
+        }else{
+            pItem->setIcon(QIcon(":/qss/icon/markdown-assistant.ico"));
+        }
+    }else {
+        pItem->setIcon(QIcon(data.oldPath));
+    }
+
+    if(isIconMode_){
+        pItem->setSizeHint(QSize(200,100* multiple));
+        pItem->setText(data.oldName);
+        pItem->setToolTip(data.oldName);
+    }else{
+        pItem->setSizeHint(QSize(20,20*multiple));
+        pItem->setText(data.oldName);
+        pItem->setToolTip(data.oldName);
+    }
+}
+
 void MainWindow::updateListWgt()
 {
     ui->addList->clear();
     ui->delList->clear();
-
     for(int i = 0; i < addDelListData_.getAddList().size(); ++i){
         QListWidgetItem *pItem = new QListWidgetItem;
         ImgData data = addDelListData_.getAddList().at(i);
-        if(data.oldName.right(4) != ".mp4"){
-            pItem->setIcon(QIcon(data.oldPath));
-        }else{
-            QIcon videoIcon;
-            if(videoThr_->getFirstVideoFrame(data.oldPath, videoIcon)){
-                pItem->setIcon(videoIcon);
-            }else{
-                pItem->setIcon(QIcon(":/qss/icon/markdown-assistant.ico"));
-            }
-        }
-        if(isIconMode_){
-            pItem->setSizeHint(QSize(200,100* multiple));
-            pItem->setText(data.oldName);
-            pItem->setToolTip(data.oldName);
-        }else{
-            pItem->setSizeHint(QSize(20,20*multiple));
-            pItem->setText(data.oldName);
-            pItem->setToolTip(data.oldName);
-        }
+        setItemIcon(data, pItem);
         ui->addList->addItem(pItem);
     }
     for(int i = 0; i < addDelListData_.getDelList().size(); ++i){
         QListWidgetItem *pItem = new QListWidgetItem;
         ImgData data = addDelListData_.getDelList().at(i);
-        if(data.oldName.right(4) != ".mp4"){
-            pItem->setIcon(QIcon(data.oldPath));
-        }else{
-            QIcon videoIcon;
-            if(videoThr_->getFirstVideoFrame(data.oldPath, videoIcon)){
-                pItem->setIcon(videoIcon);
-            }else{
-                pItem->setIcon(QIcon(":/qss/icon/markdown-assistant.ico"));
-            }
-        }
-        if(isIconMode_){
-            pItem->setSizeHint(QSize(200,100*multiple));
-            pItem->setText(data.oldName);
-            pItem->setToolTip(data.oldName);
-        }else{
-            pItem->setSizeHint(QSize(20,20*multiple));
-            pItem->setText(data.oldName);
-            pItem->setToolTip(data.oldName);
-        }
-
+        setItemIcon(data, pItem);
         ui->delList->addItem(pItem);
     }
 }
@@ -939,6 +960,12 @@ void MainWindow::changeSelectSatusSlot() {
     }
 }
 
+void MainWindow::playAudioMp3(const QString& path) {
+    audioPlayer_->setMedia(QUrl::fromLocalFile(path));
+    audioPlayer_->setVolume(50); // 设置音量
+    audioPlayer_->play(); // 开始播放
+}
+
 void MainWindow::itemEnteredSlot(QListWidgetItem *item)
 {
     if(item == Q_NULLPTR){
@@ -950,7 +977,19 @@ void MainWindow::itemEnteredSlot(QListWidgetItem *item)
     labelPath_ = data.oldPath;
     ui->imgLabel->setToolTip(QString::number(data.widthZoom) + " %");
     changedPercentByLabelImg(data.widthZoom);
-    if(name.right(4) != ".mp4") {
+    if(name.right(4) == ".mp4") {
+        audioPlayer_->stop();
+        videoThr_->setVideoPath(labelPath_);
+        videoThr_->play();
+    }else if(name.right(4) == ".mp3") {
+        QMovie *movie = new QMovie(":/qss/icon/audio.gif");
+        ui->imgLabel->setMovie(movie);
+        ui->imgLabel->setScaledContents(false);
+        adjustMovieSize(movie, ui->imgLabel->size());
+        movie->start();
+//        playAudioMp3(labelPath_);
+    }else{
+        audioPlayer_->stop();
         videoThr_->stop();
         // 从文件中加载图片到标签
         if(!labelPath_.isEmpty()){
@@ -958,7 +997,6 @@ void MainWindow::itemEnteredSlot(QListWidgetItem *item)
             map = map.scaled(ui->imgLabel->width(), ui->imgLabel->height(),Qt::KeepAspectRatio, Qt::SmoothTransformation);
             ui->imgLabel->setAlignment(Qt::AlignCenter);
             ui->imgLabel->setPixmap(map);
-
         }else{
             // 路径为空，需要添加一个默认图片
             QPixmap map = QPixmap(":/qss/icon/do-not-exist.png");
@@ -972,9 +1010,6 @@ void MainWindow::itemEnteredSlot(QListWidgetItem *item)
             ui->RadioBtn30->setChecked(false);
             ui->RadioBtn5->setChecked(false);
         }
-    }else{ // mp4
-        videoThr_->setVideoPath(labelPath_);
-        videoThr_->play();
     }
 }
 
@@ -1016,16 +1051,9 @@ void MainWindow::syncAddListTimelySlot() {
         ImgData data = *it;
         addDelListData_.insertDataAddImageList(data);
         QListWidgetItem *pItem = new QListWidgetItem;
-        if(data.oldName.right(4) != ".mp4"){
-            pItem->setIcon(QIcon(data.oldPath));
-        }else{
-            QIcon videoIcon;
-            if(videoThr_->getFirstVideoFrame(data.oldPath, videoIcon)){
-                pItem->setIcon(videoIcon);
-            }else{
-                pItem->setIcon(QIcon(":/qss/icon/markdown-assistant.ico"));
-            }
-        }
+
+        setItemIcon(data, pItem);
+
         if(isIconMode_){
             pItem->setSizeHint(QSize(200,100*multiple));
             pItem->setText(data.oldName);
@@ -1275,31 +1303,46 @@ void MainWindow::on_clipPbn_clicked()
 QString MainWindow::getAssetsPath(){
     QString path;
     NamePath namePath;
-    if(confDialog_.findImgPath(this->imgPath_, namePath)){
-        path = namePath.value;
-    }else{
-        DebugBox(__FUNCTION__, __LINE__,"img path empty");
-    }
-    if(path == "Desktop"){
+    if(imgPath_ == "Desktop"){
         path = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
     }else{
-        DebugBox(__FUNCTION__, __LINE__,"path error");
+        path = imgPath_;
     }
     return path;
+}
+
+void MainWindow::adjustMovieSize(QMovie* movie, const QSize& labelSize) {
+    if (movie) {
+        QSize newSize = labelSize;
+
+        qreal scaleFactor = qMin(newSize.width(), newSize.height());
+        QSize scaledSize = QSize(scaleFactor, scaleFactor);
+        movie->setScaledSize(scaledSize);
+    }
 }
 
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
     Q_UNUSED(event)
-    if(!labelPath_.isEmpty()){
+    if(labelPath_.isEmpty()) {
+        // todo: 路径为空，需要添加一个默认图片
+        ui->imgLabel->setAlignment(Qt::AlignCenter);
+        ui->imgLabel->setPixmap(labelPath_);
+        return;
+    }
+    if(labelPath_.right(4) == ".mp4"){
+
+    }else if (labelPath_.right(4) == ".mp3"){
+        QMovie *movie = new QMovie(":/qss/icon/audio.gif");
+        ui->imgLabel->setMovie(movie);
+        ui->imgLabel->setScaledContents(false);
+        adjustMovieSize(movie, ui->imgLabel->size());
+        movie->start();
+    }else{
         QPixmap map = QPixmap(labelPath_);
         map = map.scaled(ui->imgLabel->width(), ui->imgLabel->height(),Qt::KeepAspectRatio, Qt::SmoothTransformation);
         ui->imgLabel->setAlignment(Qt::AlignCenter);
         ui->imgLabel->setPixmap(map);
-    }else{
-        // todo: 路径为空，需要添加一个默认图片
-        ui->imgLabel->setAlignment(Qt::AlignCenter);
-        ui->imgLabel->setPixmap(labelPath_);
     }
 }
 
@@ -1377,6 +1420,36 @@ void MainWindow::addRepoSlot(){
     addRepo2Conf(repoDir.dirName(),repoDir.absolutePath());
 }
 
+void MainWindow::addAssstsDirSlot() {
+    QString path = QFileDialog::getExistingDirectory(this,"选择重命名目录",tarPath_,QFileDialog::ShowDirsOnly);
+    if(path.isEmpty()) {
+        appendTextToLog("添加资源目录\"" + path + "\"为空，无法添加!");
+        return ;
+    }
+
+    QDir assetsDir(path);
+    addAssetsDir2Conf(assetsDir.dirName(),assetsDir.absolutePath());
+}
+
+void MainWindow::openAssstsDirSlot(){
+    openExPro_.OpenDirSlot(getAssetsPath());
+}
+
+bool MainWindow::addAssetsDir2Conf(QString newName,QString pathAbs) {
+    QString existName;
+    if(confDialog_.addImgNamePath(newName, pathAbs, existName)){
+        confDialog_.writeConfJson();
+        ////////////////////-------------------------------------------error
+        updateDataAndWidget();
+        ui->tarPathCombox->setCurrentText(newName);
+        appendTextToLog(QString("添加\"") + newName + "\"仓库成功!");
+        return true;
+    }
+    ui->tarPathCombox->setCurrentText(existName);
+    appendTextToLog("\"" + existName + "\"和\"" + newName + "\"是同一个仓库!");
+    return false;
+}
+
 void MainWindow::openConfDirSlot() {
     openExPro_.OpenDirSlot(confDialog_.getIniFile().iniAndJsonPath);
 }
@@ -1405,11 +1478,19 @@ void MainWindow::modifyDataDirSoftSlot(){
 }
 
 void MainWindow::delCurrentRepoSlot(){
-    QString delRepoName = tarPath_;
+    QString delRepoPath = tarPath_;
     confDialog_.delTarNamePath(tarPath_);
     confDialog_.writeConfJson();
     updateDataAndWidget();
-    appendTextToLog(QString("删除\"") + delRepoName + "\"仓库成功!");
+    appendTextToLog(QString("删除\"") + delRepoPath + "\"仓库成功!");
+}
+
+void MainWindow::delAssstsDirSlot(){
+    QString delAssetPath = getAssetsPath();
+    confDialog_.delAssetsNamePath(delAssetPath);
+    confDialog_.writeConfJson();
+    updateDataAndWidget();
+    appendTextToLog(QString("删除\"") + delAssetPath + "\"资源目录成功!");
 }
 
 void MainWindow::openCurrentDirSlot(){
@@ -1685,6 +1766,10 @@ void MainWindow::on_zoomPercentPtn_clicked()
     }
     QList<QListWidgetItem*> addSelectedItems = ui->addList->selectedItems();
     QList<QListWidgetItem*> delSelectedItems = ui->delList->selectedItems();
+    if(addSelectedItems.isEmpty() && delSelectedItems.isEmpty()) {
+        appendTextToLog(QString("没有选中任何资源，修改失败!"));
+        return;
+    }
     for(int i = 0; i < addSelectedItems.size(); ++i) {
         QString name = addSelectedItems.at(i)->text();
         addDelListData_.modifyAddAssetsListZoomWidth(name, zoomWidth);

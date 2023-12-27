@@ -5,6 +5,7 @@
 #include <QDesktopWidget>
 #include <QRect>
 #include <QString>
+#include <QApplication>
 
 int screenInfo()
 {

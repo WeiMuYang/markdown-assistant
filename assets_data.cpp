@@ -26,10 +26,12 @@ bool AssetsData::updateImgVideoFile(QString path, int index)
         data.oldName = list.at(i).fileName();
         data.oldPath = list.at(i).absoluteFilePath();
         data.oldFileInfo = list.at(i);
-        if(data.oldName.right(4) != ".mp4"){
-            data.widthZoom = getImgFileSizePercent(list.at(i).absoluteFilePath());
+        if(data.oldName.right(4) == ".mp3"){
+            data.widthZoom = AssetsZoomSize::Size50;
+        }else if(data.oldName.right(4) == ".mp4"){
+            data.widthZoom = AssetsZoomSize::Size50;
         }else{
-            data.widthZoom = 50;
+            data.widthZoom = getImgFileSizePercent(list.at(i).absoluteFilePath());
         }
         if(time == list.at(i).birthTime().date()){
             addImageList_.push_back(data);

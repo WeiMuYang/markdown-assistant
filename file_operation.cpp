@@ -105,11 +105,19 @@ QString getNewFileName(QString fullTarPath, ImgData data, int fileNum){  // 01-4
     QDir newDir(fullTarPath);
     // 进入Assets目录
     if(data.oldFileInfo.suffix() == "mp4"){
+        newDir.mkpath(fullTarPath + "/video");
         if(!newDir.cd("video")){
-            DebugBox(__FUNCTION__, __LINE__,newDir.absolutePath() + " don't have video directory!");
+            DebugBox(__FUNCTION__, __LINE__,newDir.absolutePath() + " can't create video directory!");
+            return QString("");
+        }
+    }else if(data.oldFileInfo.suffix() == "mp3"){
+        newDir.mkpath(fullTarPath + "/audio");
+        if(!newDir.cd("audio")){
+            DebugBox(__FUNCTION__, __LINE__,newDir.absolutePath() + " can't create audio directory!");
             return QString("");
         }
     }else{
+        newDir.mkpath(fullTarPath + "/img");
         if(!newDir.cd("img")){
             DebugBox(__FUNCTION__, __LINE__,newDir.absolutePath() + " don't have img directory!");
             return QString("");
@@ -134,9 +142,15 @@ QString clipMarkdownCodeItem(QString newAssetsPath, int zoomWidth){
     QString clipTextItem;
     QFileInfo fileInfo(newAssetsPath);
     if(fileInfo.suffix() == "mp4"){
-        clipTextItem = "<video src=./video/"+ fileInfo.fileName() +" alt=" + fileInfo.baseName() + " width=" + QString::number(zoomWidth) + "%;/>";
+        clipTextItem = "<video src=./video/"+ fileInfo.fileName() +" alt=video-" + fileInfo.baseName() + " width=" + QString::number(zoomWidth) + "%;/>";
+    }else if(fileInfo.suffix() == "mp3") {
+        if(zoomWidth == AssetsZoomSize::Size5) {
+            clipTextItem = "<audio src=./audio/"+ fileInfo.fileName() +" alt=audio-" + fileInfo.baseName() + " style=\"width:120px; height: 14px\" /></audio>";
+        }else{
+            clipTextItem = "<audio src=./audio/"+ fileInfo.fileName() +" alt=audio-" + fileInfo.baseName() + " style=width:" + QString::number(zoomWidth) + "%; />";
+        }
     }else{
-        clipTextItem = "<img src=./img/"+ fileInfo.fileName() +" alt=" + fileInfo.baseName() + " width=" + QString::number(zoomWidth) + "%;/>";
+        clipTextItem = "<img src=./img/"+ fileInfo.fileName() +" alt=img-" + fileInfo.baseName() + " width=" + QString::number(zoomWidth) + "%;/>";
     }
     return clipTextItem;
 }
@@ -146,6 +160,7 @@ bool FileOperation::clipFilesByFileInfo(const QStringList addList, QVector<ImgDa
 {
     QString ImgClipText;
     QString VideoClipText;
+    QString AudioClipText;
     for(int n = 0; n < addList.size(); n++){
         for(int i = 0; i < fileInfoVec.size(); ++i){
             ImgData data = fileInfoVec.at(i);
@@ -162,6 +177,16 @@ bool FileOperation::clipFilesByFileInfo(const QStringList addList, QVector<ImgDa
                 // 1. 组成MP4的Markdown代码
                 if(newAssetsPath.right(4) == ".mp4"){
                     VideoClipText += QString("<center>    \n") + clipMarkdownCodeItem(newAssetsPath, data.widthZoom) + QString("\n</center>    \n    \n    \n");
+                }else if(newAssetsPath.right(4) == ".mp3") {
+                    if(data.widthZoom == AssetsZoomSize::Size5) {
+                        AudioClipText +="<p>文本&nbsp; " + clipMarkdownCodeItem(newAssetsPath, data.widthZoom)
+                                         + " &nbsp;文本</p>" + QString("    \n");
+                    }else{
+//<center>
+//<audio src="./../01 心情和感受.mp3" style=width:50%; />
+//</center>
+                        AudioClipText += QString("<center>    \n") + clipMarkdownCodeItem(newAssetsPath, data.widthZoom) + QString("\n</center>    \n    \n    \n");
+                    }
                 }else {
                 // 2. 组成IMG的Markdown代码
                     ImgClipText += clipMarkdownCodeItem(newAssetsPath, data.widthZoom) + QString("    \n");
@@ -174,7 +199,9 @@ bool FileOperation::clipFilesByFileInfo(const QStringList addList, QVector<ImgDa
     }
     // 先添加MP4
     clipText = VideoClipText +"  \n  \n";
-    // 再添加IMG
+    // 再添加mp3
+    clipText += AudioClipText + "  \n  \n";
+    // 最后添加IMG
     if(ImgClipText.size() > 2) {
         clipText += QString("<center>    \n")+ ImgClipText.chopped(2)+QString("\n</center>    \n");
     }

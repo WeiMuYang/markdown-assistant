@@ -5,12 +5,16 @@
         "99-*.bmp",
         "99-*.jpeg",
         "99-*.gif",
+        "*.mp3",
         "99-*.mp4"
     ],
-    "Date": "2023.12.26",
+    "Date": "2023.12.27",
     "ImagePath": [
         {
             "Desktop": "Desktop"
+        },
+        {
+            "02-unit": "D:/Markdown-Assistant-Version/IELTS-Test-rename11/09-MP3/02-5-5分班教材音频/02-unit"
         }
     ],
     "Interval": [
@@ -28,10 +32,19 @@
             "Ramses": "D:/YangWeiBin/01-sync-file-level-1/02-ramses-composer"
         },
         {
-            "Android": "D:/YangWeiBin/01-sync-file-level-1/05-Android"
+            "Python": "D:/YangWeiBin/01-sync-file-level-1/06-Python"
         },
         {
-            "BMW PngTest": "D:/YangWeiBin/png/test"
+            "Lua": "D:/YangWeiBin/01-sync-file-level-1/07-Lua"
+        },
+        {
+            "Thunder": "D:/YangWeiBin/01-sync-file-level-1/01-thunder-bmw"
+        },
+        {
+            "IELTS": "D:/YangWeiBin/01-sync-file-level-1/04-IELTS/02-exam"
+        },
+        {
+            "Android": "D:/YangWeiBin/01-sync-file-level-1/05-Android"
         },
         {
             "IELTS-Test-rename": "D:/Markdown-Assistant-Version/IELTS-Test-rename"

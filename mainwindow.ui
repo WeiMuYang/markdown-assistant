@@ -52,7 +52,7 @@
         <property name="title">
          <string>资源列表</string>
         </property>
-        <layout class="QVBoxLayout" name="listLayout" stretch="2,5,0,5">
+        <layout class="QVBoxLayout" name="listLayout" stretch="2,5,5">
          <property name="topMargin">
           <number>20</number>
          </property>
@@ -183,13 +183,6 @@
              <width>0</width>
              <height>0</height>
             </size>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="Line" name="line_2">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
            </property>
           </widget>
          </item>
@@ -717,7 +710,7 @@
      <x>0</x>
      <y>0</y>
      <width>905</width>
-     <height>17</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -731,6 +724,7 @@
     <addaction name="actionAddConfFile"/>
     <addaction name="separator"/>
     <addaction name="actionOpenCurrentDir"/>
+    <addaction name="actionOpenAssetsDir"/>
     <addaction name="separator"/>
     <addaction name="actionAddMarkDownSoftWare"/>
     <addaction name="actionAddVSCodePath"/>
@@ -741,18 +735,32 @@
     <property name="title">
      <string>编辑</string>
     </property>
+    <widget class="QMenu" name="menu_2">
+     <property name="title">
+      <string>仓库操作</string>
+     </property>
+     <addaction name="actionAddRepo"/>
+     <addaction name="actionParent2Repo"/>
+     <addaction name="actionSub2Repo"/>
+     <addaction name="actionDelRepo"/>
+    </widget>
+    <widget class="QMenu" name="menu_3">
+     <property name="title">
+      <string>资源操作</string>
+     </property>
+     <addaction name="actionGetAssets"/>
+     <addaction name="actionaddAssetsDir"/>
+     <addaction name="actionDelCurrentAssetsDir"/>
+     <addaction name="actionDelFromSrcList"/>
+    </widget>
+    <addaction name="menu_3"/>
+    <addaction name="menu_2"/>
     <addaction name="actionClearLog"/>
     <addaction name="actionSubDirHistoryFile"/>
     <addaction name="separator"/>
-    <addaction name="actionAddRepo"/>
-    <addaction name="actionSub2Repo"/>
-    <addaction name="actionParent2Repo"/>
-    <addaction name="actionDelRepo"/>
     <addaction name="separator"/>
-    <addaction name="actionGetAssets"/>
     <addaction name="actionRename"/>
     <addaction name="separator"/>
-    <addaction name="actionDelFromSrcList"/>
     <addaction name="actionCopyHistoryFilePath"/>
     <addaction name="actionGetRelativePathOfMeetFile"/>
     <addaction name="actionOpenREADME"/>
@@ -895,6 +903,21 @@
   <action name="actionAddRepo">
    <property name="text">
     <string>添加仓库目录</string>
+   </property>
+  </action>
+  <action name="actionaddAssetsDir">
+   <property name="text">
+    <string>添加资源目录</string>
+   </property>
+  </action>
+  <action name="actionOpenAssetsDir">
+   <property name="text">
+    <string>打开资源目录</string>
+   </property>
+  </action>
+  <action name="actionDelCurrentAssetsDir">
+   <property name="text">
+    <string>删除当前资源目录</string>
    </property>
   </action>
  </widget>

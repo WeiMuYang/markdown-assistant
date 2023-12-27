@@ -6,9 +6,11 @@
 #include <QListWidgetItem>
 #include <QLabel>
 #include <QComboBox>
+#include <QShowEvent>
 #include <QTimer>
 #include <QKeyEvent>
 #include <QSystemTrayIcon>
+#include <QMediaPlayer>
 #include "conf_dialog.h"
 #include "video_thr.h"
 #include "file_operation.h"
@@ -40,6 +42,7 @@ public:
     void updateLastModifyFile();
     void updateRepoHistoryFileList();
     void setWindowStyle();
+    void setItemIcon(const ImgData& data, QListWidgetItem* item);
     void initTray();
     void initStatusBar();
     void InitMainWindowMenu();
@@ -60,6 +63,9 @@ public:
     void writeCurrentFile(QString str);
     QString getAssetsPath();
     bool addRepo2Conf(QString name,QString path);
+    bool addAssetsDir2Conf(QString newName,QString pathAbs);
+    void playAudioMp3(const QString& path);
+    void adjustMovieSize(QMovie* movie, const QSize& labelSize);
 private slots:
     void updateListDataAndWgtSlot();
     void changeModeSlot();
@@ -81,6 +87,7 @@ private slots:
     void clipFromDelListSlot();
     void itemEnteredSlot(QListWidgetItem *item);
     void changeSelectSatusSlot();
+
 
     void ChangeToHistoryFile();
     void OpenHistoryFile();
@@ -138,7 +145,10 @@ private slots:
     void addSub2RepoSlot();
     void addParent2RepoSlot();
     void addRepoSlot();
+    void addAssstsDirSlot();
+    void openAssstsDirSlot();
     void delCurrentRepoSlot();
+    void delAssstsDirSlot();
 
     void openConfDirSlot();
     void modifyMarkdownSoftSlot();
@@ -151,6 +161,8 @@ protected:
     bool eventFilter(QObject *obj, QEvent *e);
 
     void closeEvent(QCloseEvent *event);
+public:
+    void show(); // 声明show函数
 
 private:
     Ui::MainWindow *ui;
@@ -159,7 +171,7 @@ private:
     QClipboard *clip_;
     bool isIconMode_{false};
     unsigned int clickNum_{0};
-    QString imgPath_;
+    QString imgPath_;       // Path or desktop
     QString tarPath_;       // D:/YangWeiBin/01-sync-file-level-1/02-ramses-composer
     QString subDirName_;    // 05-test
     QString fullTarPath_;   // D:/YangWeiBin/01-sync-file-level-1/02-ramses-composer/05-test
@@ -194,6 +206,8 @@ private:
 
     QSystemTrayIcon *trayIcon_;
     QMenu *trayMenu_;
+
+    QMediaPlayer *audioPlayer_; // = new QMediaPlayer;
 };
 
 #endif // MAINWINDOW_H
