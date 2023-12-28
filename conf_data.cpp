@@ -43,7 +43,7 @@ void ConfigData::analysisJson(QJsonObject &rootObj){
         NamePath namePath;
         namePath.key = data.keys().at(0);  // 只有一个
         namePath.value = data[namePath.key].toString();
-        imgNamePathMap_.push_back(namePath);
+        assetsNamePathMap_.push_back(namePath);
     }
     QJsonArray TarPathArr = rootObj["TargetPath"].toArray();
     for(int i = 0; i < TarPathArr.size(); ++i){
@@ -51,7 +51,7 @@ void ConfigData::analysisJson(QJsonObject &rootObj){
         NamePath namePath;
         namePath.key = data.keys().at(0);
         namePath.value = data[namePath.key].toString();
-        tarNamePathMap_.push_back(namePath);
+        repoNamePathMap_.push_back(namePath);
     }
     QJsonArray IntervalArr = rootObj["Interval"].toArray();
     for(int i = 0; i < IntervalArr.size(); ++i){
@@ -77,7 +77,7 @@ void ConfigData::analysisJson(QJsonObject &rootObj){
 }
 
 QString ConfigData::getImgPathByKey(QString key){
-    for(auto it = imgNamePathMap_.begin(); it != imgNamePathMap_.end(); ++it)
+    for(auto it = assetsNamePathMap_.begin(); it != assetsNamePathMap_.end(); ++it)
     {
         if(it->key == key)
         {
@@ -92,7 +92,7 @@ QString ConfigData::getTarPathByKey(QString key){
     if(key.isEmpty()){
         return QString("");
     }
-    for(auto it = tarNamePathMap_.begin(); it != tarNamePathMap_.end(); ++it)
+    for(auto it = repoNamePathMap_.begin(); it != repoNamePathMap_.end(); ++it)
     {
         if(it->key == key)
         {
@@ -104,7 +104,7 @@ QString ConfigData::getTarPathByKey(QString key){
 }
 
 bool ConfigData::findTarPath(QString key, NamePath& data){
-    for(auto it = tarNamePathMap_.begin(); it != tarNamePathMap_.end(); ++it)
+    for(auto it = repoNamePathMap_.begin(); it != repoNamePathMap_.end(); ++it)
     {
         if(it->key == key)
         {
@@ -116,7 +116,7 @@ bool ConfigData::findTarPath(QString key, NamePath& data){
 }
 
 bool ConfigData::findImgPathByName(QString key, NamePath& data){
-    for(auto it = imgNamePathMap_.begin(); it != imgNamePathMap_.end(); ++it)
+    for(auto it = assetsNamePathMap_.begin(); it != assetsNamePathMap_.end(); ++it)
     {
         if(it->value == key)
         {
@@ -229,8 +229,8 @@ bool ConfigData::writeIniFile() {
 }
 
 void ConfigData::confDataClear(){
-    imgNamePathMap_.clear();
-    tarNamePathMap_.clear();
+    assetsNamePathMap_.clear();
+    repoNamePathMap_.clear();
     intervalArr_.clear();
     assetsType_.clear();
     meetFilePath_.clear();
@@ -239,8 +239,8 @@ void ConfigData::confDataClear(){
 }
 
 void ConfigData::clearAll(){
-    imgNamePathMap_.clear();
-    tarNamePathMap_.clear();
+    assetsNamePathMap_.clear();
+    repoNamePathMap_.clear();
     intervalArr_.clear();
     assetsType_.clear();
     meetFilePath_.clear();
@@ -293,18 +293,18 @@ bool ConfigData::writeConfJson() {
     QJsonObject jsonObject;
     // 添加路径数组
     QJsonArray imagePathArray;
-    for(int i = 0; i < imgNamePathMap_.size(); ++i){
+    for(int i = 0; i < assetsNamePathMap_.size(); ++i){
         QJsonObject imagePathObject;
-        imagePathObject[imgNamePathMap_.at(i).key] = imgNamePathMap_.at(i).value;
+        imagePathObject[assetsNamePathMap_.at(i).key] = assetsNamePathMap_.at(i).value;
         imagePathArray.append(imagePathObject);
     }
     jsonObject["ImagePath"] = imagePathArray;
 
     // 添加目标路径数组
     QJsonArray targetPathArray;
-    for(int i = 0; i < tarNamePathMap_.size(); ++i){
+    for(int i = 0; i < repoNamePathMap_.size(); ++i){
         QJsonObject targetPathObject;
-        targetPathObject[tarNamePathMap_.at(i).key] = tarNamePathMap_.at(i).value;
+        targetPathObject[repoNamePathMap_.at(i).key] = repoNamePathMap_.at(i).value;
         targetPathArray.append(targetPathObject);
     }
     jsonObject["TargetPath"] = targetPathArray;

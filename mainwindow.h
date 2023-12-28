@@ -19,6 +19,7 @@
 #include "get_assets_dialog.h"
 #include "about_dialog.h"
 #include "rename_file_name.h"
+#include "modify_conf_dialog.h"
 
 
 namespace Ui {
@@ -154,6 +155,8 @@ private slots:
     void modifyMarkdownSoftSlot();
     void modifyDataDirSoftSlot();
 
+    void confDataSettingSlot();
+
 protected:
     // 窗口设置为随着窗口变化而变化
     virtual void resizeEvent(QResizeEvent *event) override;
@@ -171,11 +174,11 @@ private:
     QClipboard *clip_;
     bool isIconMode_{false};
     unsigned int clickNum_{0};
-    QString imgPath_;       // Path or desktop
-    QString tarPath_;       // D:/YangWeiBin/01-sync-file-level-1/02-ramses-composer
+    QString assetsPath_;       // Path or desktop
+    QString repoPath_;       // D:/YangWeiBin/01-sync-file-level-1/02-ramses-composer
     QString subDirName_;    // 05-test
-    QString fullTarPath_;   // D:/YangWeiBin/01-sync-file-level-1/02-ramses-composer/05-test
-    QString currentFile_;   // 63-车模2-IDC测试.md
+    QString fullCurrentMarkdownDirPath_;   // D:/YangWeiBin/01-sync-file-level-1/02-ramses-composer/05-test
+    QString currentMarkdownFileName_;   // 63-车模2-IDC测试.md
     QString labelPath_;
     VideoThr* videoThr_;
     FileOperation fileOp_;
@@ -208,6 +211,8 @@ private:
     QMenu *trayMenu_;
 
     QMediaPlayer *audioPlayer_; // = new QMediaPlayer;
+
+    ModifyConfDialog* modifyConfDlg_;
 };
 
 #endif // MAINWINDOW_H

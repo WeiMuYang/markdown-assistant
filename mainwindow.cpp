@@ -38,6 +38,7 @@ MainWindow::MainWindow(QWidget *parent) :
     getAssetsDialog_ = new GetAssetsDialog(this);
     aboutDialog_ = new AboutDialog(this);
     renameFileName_ = new RenameFileName(this);
+    modifyConfDlg_ = new ModifyConfDialog(this);
     initScreenResNormal();
     // 0. 托盘
     initTray();
@@ -256,9 +257,9 @@ void MainWindow::copyHistoryFilePathSlot()
         return;
     }
     QString path =list.at(0)->text();
-    QDir curDir(fullTarPath_);
-    curDir.setCurrent(fullTarPath_);
-    QString filePath = curDir.relativeFilePath(tarPath_ + "/" + path);
+    QDir curDir(fullCurrentMarkdownDirPath_);
+    curDir.setCurrent(fullCurrentMarkdownDirPath_);
+    QString filePath = curDir.relativeFilePath(repoPath_ + "/" + path);
     QString FileName = path.split("/").last();
     int start = FileName.indexOf("-");
     int num = FileName.lastIndexOf(".") - start - 1;
@@ -276,8 +277,8 @@ void MainWindow::copyHistoryFilePathOfMeetFileSlot()
     }
     QString path =list.at(0)->text();
     QDir curDir(confDialog_.getMeetFilePath());
-    curDir.setCurrent(fullTarPath_);
-    QString filePath = curDir.relativeFilePath(tarPath_ + "/" + path);
+    curDir.setCurrent(fullCurrentMarkdownDirPath_);
+    QString filePath = curDir.relativeFilePath(repoPath_ + "/" + path);
     //
     QString FileName = path.split("/").last();
     int start = FileName.indexOf("-");
@@ -328,11 +329,11 @@ void MainWindow::updateDataAndWidget(){
 void MainWindow::updateRepoHistoryFileList(){
     QFileInfoList fileListTop20;
     ui->historyFileList->clear();
-    fileOp_.getHistoryFileList(tarPath_, fileListTop20);
+    fileOp_.getHistoryFileList(repoPath_, fileListTop20);
     ui->historyFileList->setRowCount(fileListTop20.size());        //设置行数/
     for(int i = 0; i < fileListTop20.size(); ++i){
         QFileInfo fileInfo = fileListTop20.at(i);
-        QString name = fileInfo.filePath().split(tarPath_).last().remove(0,1);
+        QString name = fileInfo.filePath().split(repoPath_).last().remove(0,1);
         QString modifyTime = fileInfo.lastModified().toString("yyyy-MM-dd HH:mm:ss ddd");
         QTableWidgetItem *pItem1 = new QTableWidgetItem(name);
         QTableWidgetItem *pItem2 = new QTableWidgetItem(modifyTime);
@@ -382,11 +383,11 @@ void MainWindow::delSrcFromListSlot() {
 void MainWindow::updateSubDirHistoryFileListSlot() {
     QFileInfoList fileListTop20;
     ui->historyFileList->clear();
-    fileOp_.getHistorySubDirFileList(tarPath_ + "/" + subDirName_, fileListTop20);
+    fileOp_.getHistorySubDirFileList(repoPath_ + "/" + subDirName_, fileListTop20);
     ui->historyFileList->setRowCount(fileListTop20.size());        //设置行数/
     for(int i = 0; i < fileListTop20.size(); ++i){
         QFileInfo fileInfo = fileListTop20.at(i);
-        QString name = fileInfo.filePath().split(tarPath_).last().remove(0,1);
+        QString name = fileInfo.filePath().split(repoPath_).last().remove(0,1);
         QString modifyTime = fileInfo.lastModified().toString("yyyy-MM-dd HH:mm:ss ddd");
         QTableWidgetItem *pItem1 = new QTableWidgetItem(name);
         QTableWidgetItem *pItem2 = new QTableWidgetItem(modifyTime);
@@ -506,7 +507,6 @@ void MainWindow::InitMainWindowMenu(){
     ui->actionDelRepo->setShortcut(QKeySequence("Alt+Delete"));
     connect(ui->actionDelRepo, &QAction::triggered, this, &MainWindow::delCurrentRepoSlot);
 
-
     ui->actionOpenConfDir->setShortcut(QKeySequence("Ctrl+/"));
     connect(ui->actionOpenConfDir, &QAction::triggered, this, &MainWindow::openConfDirSlot);
 
@@ -530,6 +530,10 @@ void MainWindow::InitMainWindowMenu(){
     // actionDelCurrentAssetsDir
 //    ui->actionOpenAssetsDir->setShortcut(QKeySequence("Alt+D"));
     connect(ui->actionDelCurrentAssetsDir, &QAction::triggered, this, &MainWindow::delAssstsDirSlot);
+
+    // actionConfdata
+    connect(ui->actionConfdata, &QAction::triggered, this, &MainWindow::confDataSettingSlot);
+
 }
 
 void MainWindow::switchConfFileSlot(){
@@ -570,7 +574,7 @@ void MainWindow::modifyConfSlot()
 void MainWindow::openReadMeSlot()
 {
     QString readMeFilePath;
-    if(fileOp_.getReadMePath(tarPath_,readMeFilePath)){
+    if(fileOp_.getReadMePath(repoPath_,readMeFilePath)){
         openExPro_.OpenMarkdownAndDirSlot(readMeFilePath);
         appendTextToLog(QString("打开ReadMe文件: " + readMeFilePath +" 成功 !"));
     }else{
@@ -649,13 +653,13 @@ void MainWindow::setStatusBar(QString msg, bool isCorrect){
         pStatusLabelIcon_->setPixmap(QPixmap::fromImage(image));
         pStatusLabelIcon_->setMinimumWidth(15);
         pStatusLabelMsg_->setText(u8"正常");
-        pStatusLabelCurrentFile_->setText("|  " +subDirName_ +"/"+ currentFile_);
+        pStatusLabelCurrentFile_->setText("|  " +subDirName_ +"/"+ currentMarkdownFileName_);
     }else{
         QImage image(QString(":/qss/psblack/checkbox_checked_disable.png"));
         pStatusLabelIcon_->setPixmap(QPixmap::fromImage(image));
         pStatusLabelIcon_->setMinimumWidth(15);
         pStatusLabelMsg_->setText(u8"错误");
-        pStatusLabelCurrentFile_->setText("|  " + currentFile_);
+        pStatusLabelCurrentFile_->setText("|  " + currentMarkdownFileName_);
     }
 
     ui->statusBar->addWidget(pStatusLabelIcon_);
@@ -683,21 +687,21 @@ void MainWindow::appendTextToLog(QString log)
 // 3.
 void MainWindow::updateLastModifyFile(){
     // 获取最后修改的文件序号
-    int num = fileOp_.getLastmodifiedTimeFileNum(tarPath_,fullTarPath_,currentFile_);
+    int num = fileOp_.getLastmodifiedTimeFileNum(repoPath_,fullCurrentMarkdownDirPath_,currentMarkdownFileName_);
     if(num == -1){
         ui->subPathComBox->setCurrentText("no file");
         ui->numSpinBox->setValue(num);
 //        tarPath_.clear();
 //        fullTarPath_.clear();
-        currentFile_.clear();
+        currentMarkdownFileName_.clear();
         appendTextToLog(QString(u8"当前的目标路径不存在 !"));
         setStatusBar("", false);
         whoIsBoxSelection(BoxSelect::SubCombox);
-        QFileInfo repoInfo(tarPath_);
+        QFileInfo repoInfo(repoPath_);
         this->setWindowTitle("Error - " + repoInfo.fileName() + " - [" + configFilePath_ + "]");
 
     }else{
-        QStringList strList = fullTarPath_.split(tarPath_);
+        QStringList strList = fullCurrentMarkdownDirPath_.split(repoPath_);
         QString subPath =strList.last().replace("/","");
         ui->subPathComBox->setCurrentText(subPath);
         ui->numSpinBox->setValue(num);
@@ -705,8 +709,8 @@ void MainWindow::updateLastModifyFile(){
         subDirName_ = subPath;
         whoIsBoxSelection(BoxSelect::NumSpinBox);
 
-        QFileInfo currentInfo(currentFile_);
-        QFileInfo repoInfo(tarPath_);
+        QFileInfo currentInfo(currentMarkdownFileName_);
+        QFileInfo repoInfo(repoPath_);
         this->setWindowTitle(currentInfo.fileName() + " - " + repoInfo.fileName() + " - [" + configFilePath_ + "]");
     }
 }
@@ -726,8 +730,8 @@ void MainWindow::initImgPathTarPathCombox()
     for(auto it = confDialog_.getTarPaths().begin();it != confDialog_.getTarPaths().end(); ++it){
         ui->tarPathCombox->addItem(it->key);
     }
-    imgPath_ = confDialog_.getImgPathByKey(ui->imgPathCombox->currentText());
-    tarPath_ = confDialog_.getTarPathByKey(ui->tarPathCombox->currentText());
+    assetsPath_ = confDialog_.getImgPathByKey(ui->imgPathCombox->currentText());
+    repoPath_ = confDialog_.getTarPathByKey(ui->tarPathCombox->currentText());
     connect(ui->tarPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setTarPathSlot);
     connect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
     connect(ui->imgPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setImgPathSlot);
@@ -744,7 +748,7 @@ void MainWindow::setComboBoxToolTip(QComboBox * box){
 void MainWindow::updateSubDirCombox(){
     disconnect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
     ui->subPathComBox->clear();
-    ui->subPathComBox->addItems(fileOp_.getSubDirNames(this->tarPath_));
+    ui->subPathComBox->addItems(fileOp_.getSubDirNames(this->repoPath_));
     setComboBoxToolTip(ui->subPathComBox);
     subDirName_ = ui->subPathComBox->currentText();
     whoIsBoxSelection(BoxSelect::SubCombox);
@@ -752,19 +756,19 @@ void MainWindow::updateSubDirCombox(){
 }
 
 void MainWindow::setImgPathSlot(QString currentStr){
-    imgPath_ = confDialog_.getImgPathByKey(ui->imgPathCombox->currentText());
+    assetsPath_ = confDialog_.getImgPathByKey(ui->imgPathCombox->currentText());
 }
 
 void MainWindow::setTarPathSlot(QString currentStr){
-    this->tarPath_ = confDialog_.getTarPathByKey(currentStr);
-    if(tarPath_.isEmpty() || !fileOp_.isPathExist(this->tarPath_)){
+    this->repoPath_ = confDialog_.getTarPathByKey(currentStr);
+    if(repoPath_.isEmpty() || !fileOp_.isPathExist(this->repoPath_)){
         ui->subPathComBox->clear();
-        fullTarPath_.clear();
+        fullCurrentMarkdownDirPath_.clear();
         subDirName_.clear();
-        tarPath_.clear();
+        repoPath_.clear();
         ui->numSpinBox->setValue(-1);
         appendTextToLog(QString(u8"当前的目标路径不存在 !"));
-        currentFile_.clear();
+        currentMarkdownFileName_.clear();
         setStatusBar("", false);
         whoIsBoxSelection(BoxSelect::None);
         return;
@@ -780,7 +784,7 @@ void MainWindow::setSubPathSlot(QString currentStr){
         return;
     }
     subDirName_ = currentStr;
-    int num = fileOp_.getLastmodifiedTimeFileNumSubDir(tarPath_,subDirName_, fullTarPath_,currentFile_);
+    int num = fileOp_.getLastmodifiedTimeFileNumSubDir(repoPath_,subDirName_, fullCurrentMarkdownDirPath_,currentMarkdownFileName_);
     if(num == -1){
 //        fullTarPath_.clear();
         ui->numSpinBox->setValue(num);
@@ -788,7 +792,7 @@ void MainWindow::setSubPathSlot(QString currentStr){
         setStatusBar("", false);
         whoIsBoxSelection(BoxSelect::SubCombox);
     }else{
-        QStringList strList = fullTarPath_.split(tarPath_);
+        QStringList strList = fullCurrentMarkdownDirPath_.split(repoPath_);
         QString subPathName =strList.last().replace("/","");
         ui->subPathComBox->setCurrentText(subPathName);
         ui->numSpinBox->setValue(num);
@@ -1042,7 +1046,7 @@ void MainWindow::sycImgDataByOldName(QString oldName){
 }
 
 void MainWindow::writeCurrentFile(QString str) {
-    QFile file(fullTarPath_+ "/" + currentFile_);
+    QFile file(fullCurrentMarkdownDirPath_+ "/" + currentMarkdownFileName_);
     if (file.open(QIODevice::ReadWrite | QIODevice::Text)) {
         QTextStream stream(&file);
         // 将文件光标移动到文件的末尾
@@ -1253,7 +1257,7 @@ void MainWindow::clipFromDelListSlot() {
         appendTextToLog(u8"列表为空 ! ! !");
         return;
     }
-    if(fullTarPath_.isEmpty()){
+    if(fullCurrentMarkdownDirPath_.isEmpty()){
         DebugBox(__FUNCTION__, __LINE__, "path error");
         appendTextToLog(u8"当前的目标路径不存在 ! ! !");
         return;
@@ -1268,7 +1272,7 @@ void MainWindow::clipFromDelListSlot() {
 
     QString clipText;
     clip_->clear();
-    if(fileOp_.clipFilesByFileInfo(list, addDelListData_.getDelList(), fullTarPath_,ui->numSpinBox->value(), clipText)){
+    if(fileOp_.clipFilesByFileInfo(list, addDelListData_.getDelList(), fullCurrentMarkdownDirPath_,ui->numSpinBox->value(), clipText)){
         clip_->setText(clipText);
         appendTextToLog(u8"剪切文件完成 !");
     }else{
@@ -1284,7 +1288,7 @@ void MainWindow::on_clipPbn_clicked()
         appendTextToLog(u8"添加列表为空 ! ! !");
         return;
     }
-    if(fullTarPath_.isEmpty()){
+    if(fullCurrentMarkdownDirPath_.isEmpty()){
         DebugBox(__FUNCTION__, __LINE__, "path error");
         appendTextToLog(u8"当前的目标路径不存在 ! ! !");
         return;
@@ -1298,7 +1302,7 @@ void MainWindow::on_clipPbn_clicked()
     }
     QString clipText;
     clip_->clear();
-    if(fileOp_.clipFilesByFileInfo(list, addDelListData_.getAddList(), fullTarPath_,ui->numSpinBox->value(), clipText)){
+    if(fileOp_.clipFilesByFileInfo(list, addDelListData_.getAddList(), fullCurrentMarkdownDirPath_,ui->numSpinBox->value(), clipText)){
         clip_->setText(clipText);
         appendTextToLog(u8"剪切文件完成 !");
     }else{
@@ -1311,10 +1315,10 @@ void MainWindow::on_clipPbn_clicked()
 QString MainWindow::getAssetsPath(){
     QString path;
     NamePath namePath;
-    if(imgPath_ == "Desktop"){
+    if(assetsPath_ == "Desktop"){
         path = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
     }else{
-        path = imgPath_;
+        path = assetsPath_;
     }
     return path;
 }
@@ -1364,13 +1368,13 @@ void MainWindow::on_toolPbn_clicked()
 {
     switch (boxSelect_) {
     case BoxSelect::NumSpinBox:
-        openExPro_.OpenMarkdownAndDirSlot(fullTarPath_+"/" + currentFile_);
+        openExPro_.OpenMarkdownAndDirSlot(fullCurrentMarkdownDirPath_+"/" + currentMarkdownFileName_);
         break;
     case BoxSelect::SubCombox:
-        openExPro_.OpenDirSlot(tarPath_+"/" + subDirName_);
+        openExPro_.OpenDirSlot(repoPath_+"/" + subDirName_);
         break;
     case BoxSelect::TarCombox:
-        openExPro_.OpenDirSlot(tarPath_);
+        openExPro_.OpenDirSlot(repoPath_);
         break;
     default:
         appendTextToLog(u8"没有选中文件需要打开!");
@@ -1386,11 +1390,11 @@ void MainWindow::addSub2RepoSlot(){
     }
     QString newRepoName = subDirName_;
     QString existName;
-    addRepo2Conf(newRepoName, tarPath_ + "/" + newRepoName);
+    addRepo2Conf(newRepoName, repoPath_ + "/" + newRepoName);
 }
 
 void MainWindow::addParent2RepoSlot() {
-    QDir repoDir(tarPath_);
+    QDir repoDir(repoPath_);
     if(repoDir.cdUp()) {
         QString parentAbs = repoDir.absolutePath();
         QString newName = repoDir.dirName();
@@ -1399,7 +1403,7 @@ void MainWindow::addParent2RepoSlot() {
         }
         addRepo2Conf(newName, parentAbs);
     }else{
-        appendTextToLog(QString("当前仓库:\"") + tarPath_ + "\"已经是根目录!");
+        appendTextToLog(QString("当前仓库:\"") + repoPath_ + "\"已经是根目录!");
     }
 }
 
@@ -1418,7 +1422,7 @@ bool MainWindow::addRepo2Conf(QString newName,QString pathAbs) {
 }
 
 void MainWindow::addRepoSlot(){
-    QString repoPath = QFileDialog::getExistingDirectory(this,"选择重命名目录",tarPath_,QFileDialog::ShowDirsOnly);
+    QString repoPath = QFileDialog::getExistingDirectory(this,"选择重命名目录",repoPath_,QFileDialog::ShowDirsOnly);
     if(repoPath.isEmpty()) {
         appendTextToLog("添加仓库\"" + repoPath + "\"为空，无法添加!");
         return ;
@@ -1429,7 +1433,7 @@ void MainWindow::addRepoSlot(){
 }
 
 void MainWindow::addAssstsDirSlot() {
-    QString path = QFileDialog::getExistingDirectory(this,"选择重命名目录",tarPath_,QFileDialog::ShowDirsOnly);
+    QString path = QFileDialog::getExistingDirectory(this,"选择重命名目录",repoPath_,QFileDialog::ShowDirsOnly);
     if(path.isEmpty()) {
         appendTextToLog("添加资源目录\"" + path + "\"为空，无法添加!");
         return ;
@@ -1486,8 +1490,8 @@ void MainWindow::modifyDataDirSoftSlot(){
 }
 
 void MainWindow::delCurrentRepoSlot(){
-    QString delRepoPath = tarPath_;
-    confDialog_.delTarNamePath(tarPath_);
+    QString delRepoPath = repoPath_;
+    confDialog_.delTarNamePath(repoPath_);
     confDialog_.writeConfJson();
     updateDataAndWidget();
     appendTextToLog(QString("删除\"") + delRepoPath + "\"仓库成功!");
@@ -1501,16 +1505,20 @@ void MainWindow::delAssstsDirSlot(){
     appendTextToLog(QString("删除\"") + delAssetPath + "\"资源目录成功!");
 }
 
+void MainWindow::confDataSettingSlot() {
+    modifyConfDlg_->show();
+}
+
 void MainWindow::openCurrentDirSlot(){
     switch (boxSelect_) {
     case BoxSelect::NumSpinBox:
-        openExPro_.OpenDirSlot(tarPath_+"/" + subDirName_);
+        openExPro_.OpenDirSlot(repoPath_+"/" + subDirName_);
         break;
     case BoxSelect::SubCombox:
-        openExPro_.OpenDirSlot(tarPath_+"/" + subDirName_);
+        openExPro_.OpenDirSlot(repoPath_+"/" + subDirName_);
         break;
     case BoxSelect::TarCombox:
-        openExPro_.OpenDirSlot(tarPath_);
+        openExPro_.OpenDirSlot(repoPath_);
         break;
     default:
         appendTextToLog(u8"没有选中文件需要打开!");
@@ -1524,36 +1532,36 @@ void MainWindow::on_numSpinBox_valueChanged(int num)
         whoIsBoxSelection(BoxSelect::SubCombox);
         return;
     }
-    if(fullTarPath_.isEmpty()){
+    if(fullCurrentMarkdownDirPath_.isEmpty()){
         appendTextToLog(u8"当前的目标路径不存在 !");
         whoIsBoxSelection(BoxSelect::SubCombox);
 
-        QFileInfo currentInfo(currentFile_);
-        QFileInfo repoInfo(tarPath_);
+        QFileInfo currentInfo(currentMarkdownFileName_);
+        QFileInfo repoInfo(repoPath_);
         this->setWindowTitle("Error - " + repoInfo.fileName() + " - [" + configFilePath_ + "]");
         return;
     }
-    if(fileOp_.getFileNameByNum(fullTarPath_, num, currentFile_)){
-        if(currentFile_.size() >3 && currentFile_.right(2) == "md"){
-            appendTextToLog(u8"当前文档为：" + currentFile_);
+    if(fileOp_.getFileNameByNum(fullCurrentMarkdownDirPath_, num, currentMarkdownFileName_)){
+        if(currentMarkdownFileName_.size() >3 && currentMarkdownFileName_.right(2) == "md"){
+            appendTextToLog(u8"当前文档为：" + currentMarkdownFileName_);
         }else{
-            appendTextToLog(u8"当前目录为：" + currentFile_);
+            appendTextToLog(u8"当前目录为：" + currentMarkdownFileName_);
         }
         setStatusBar("",true);
         whoIsBoxSelection(BoxSelect::NumSpinBox);
 
 
-        QFileInfo currentInfo(currentFile_);
-        QFileInfo repoInfo(tarPath_);
+        QFileInfo currentInfo(currentMarkdownFileName_);
+        QFileInfo repoInfo(repoPath_);
         this->setWindowTitle(currentInfo.fileName() + " - " + repoInfo.fileName() + " - [" + configFilePath_ + "]");
 
     }else{
         setStatusBar("",false);
-        currentFile_.clear();
+        currentMarkdownFileName_.clear();
         whoIsBoxSelection(BoxSelect::SubCombox);
 
-        QFileInfo currentInfo(currentFile_);
-        QFileInfo repoInfo(tarPath_);
+        QFileInfo currentInfo(currentMarkdownFileName_);
+        QFileInfo repoInfo(repoPath_);
         this->setWindowTitle("Error - " + repoInfo.fileName() + " - [" + configFilePath_ + "]");
 
     }
@@ -1580,8 +1588,8 @@ void MainWindow::ChangeToHistoryFile(){
     }
     int num =nameArr.at(0).toInt();
     ui->numSpinBox->setValue(num);
-    currentFile_ = testList.at(1);
-    fullTarPath_ = tarPath_ + "/" + subDirName_;
+    currentMarkdownFileName_ = testList.at(1);
+    fullCurrentMarkdownDirPath_ = repoPath_ + "/" + subDirName_;
     setStatusBar("", true);
     whoIsBoxSelection(BoxSelect::NumSpinBox);
 }
@@ -1713,15 +1721,15 @@ void MainWindow::openAboutSlot()
 void MainWindow::searchAssetsByCodeSlot(QString code,QString renameList)
 {
     QString result;
-    fileOp_.getSearchResultFromMarkdownCode(fullTarPath_, code,renameList, result);
+    fileOp_.getSearchResultFromMarkdownCode(fullCurrentMarkdownDirPath_, code,renameList, result);
 }
 
 void MainWindow::on_createMarkdownPbn_clicked()
 {
     QString currentFileName;
-    if(fileOp_.createMarkdownFile(fullTarPath_, currentFileName)){
+    if(fileOp_.createMarkdownFile(fullCurrentMarkdownDirPath_, currentFileName)){
         on_lastFileNumPbn_clicked();
-        openExPro_.OpenMarkdownAndDirSlot(fullTarPath_+"/" + currentFile_);
+        openExPro_.OpenMarkdownAndDirSlot(fullCurrentMarkdownDirPath_+"/" + currentMarkdownFileName_);
     }
 }
 
@@ -1734,11 +1742,11 @@ void MainWindow::on_historySearchPbn_clicked()
 void MainWindow::updateRepoHistoryFileListBySearchSlot(QString txt){
     QFileInfoList fileListTop20;
     ui->historyFileList->clear();
-    fileOp_.getSearchFileList(tarPath_, fileListTop20, txt);
+    fileOp_.getSearchFileList(repoPath_, fileListTop20, txt);
     ui->historyFileList->setRowCount(fileListTop20.size());        //设置行数/
     for(int i = 0; i < fileListTop20.size(); ++i){
         QFileInfo fileInfo = fileListTop20.at(i);
-        QString name = fileInfo.filePath().split(tarPath_).last().remove(0,1);
+        QString name = fileInfo.filePath().split(repoPath_).last().remove(0,1);
         QString modifyTime = fileInfo.lastModified().toString("yyyy-MM-dd HH:mm:ss ddd");
         QTableWidgetItem *pItem1 = new QTableWidgetItem(name);
         QTableWidgetItem *pItem2 = new QTableWidgetItem(modifyTime);
@@ -1763,8 +1771,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 }
 
 void MainWindow::showModifyNameDlg(){
-    renameFileName_->setRepoPath(tarPath_);
-    renameFileName_->setRenameDirPath(tarPath_);
+    renameFileName_->setRepoPath(repoPath_);
+    renameFileName_->setRenameDirPath(repoPath_);
     renameFileName_->setRenameConfPath(confDialog_.getIniFile().iniAndJsonPath + "/99-CharReplace.json");
     renameFileName_->setRenameListPath(confDialog_.getIniFile().iniAndJsonPath + "/99-RenameList.txt");
     renameFileName_->setSize(getScrrenRes());

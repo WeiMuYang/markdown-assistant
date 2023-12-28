@@ -21,10 +21,10 @@ public:
     bool findTarPath(QString key, NamePath& data);
     bool findImgPathByName(QString key, NamePath& data);
     const QList<NamePath>& getTarPaths(){
-        return tarNamePathMap_;
+        return repoNamePathMap_;
     }
     const QList<NamePath>& getImgPaths(){
-        return imgNamePathMap_;
+        return assetsNamePathMap_;
     }
     QString getMeetFilePath(){
         return meetFilePath_;
@@ -60,13 +60,13 @@ public:
         NamePath np;
         np.key = name;
         np.value = path;
-        for(int i = 0; i < tarNamePathMap_.size(); ++i) {
-            if(tarNamePathMap_.at(i).value == path) {
-                existName = tarNamePathMap_.at(i).key;
+        for(int i = 0; i < repoNamePathMap_.size(); ++i) {
+            if(repoNamePathMap_.at(i).value == path) {
+                existName = repoNamePathMap_.at(i).key;
                 return false;
             }
         }
-        tarNamePathMap_.append(np);
+        repoNamePathMap_.append(np);
         return true;
     }
 
@@ -74,33 +74,32 @@ public:
         NamePath np;
         np.key = name;
         np.value = path;
-        for(int i = 0; i < imgNamePathMap_.size(); ++i) {
-            if(imgNamePathMap_.at(i).value == path) {
-                existName = imgNamePathMap_.at(i).key;
+        for(int i = 0; i < assetsNamePathMap_.size(); ++i) {
+            if(assetsNamePathMap_.at(i).value == path) {
+                existName = assetsNamePathMap_.at(i).key;
                 return false;
             }
         }
-        imgNamePathMap_.append(np);
+        assetsNamePathMap_.append(np);
         return true;
     }
     bool delTarNamePath(QString path) {
-        for(int i = 0; i < tarNamePathMap_.size(); ++i) {
-            if(tarNamePathMap_.at(i).value == path) {
-                tarNamePathMap_.removeAt(i);
+        for(int i = 0; i < repoNamePathMap_.size(); ++i) {
+            if(repoNamePathMap_.at(i).value == path) {
+                repoNamePathMap_.removeAt(i);
             }
         }
         return false;
     }
 
     bool delAssetsNamePath(QString path) {
-        for(int i = 0; i < imgNamePathMap_.size(); ++i) {
-            if(imgNamePathMap_.at(i).value == path) {
-                imgNamePathMap_.removeAt(i);
+        for(int i = 0; i < assetsNamePathMap_.size(); ++i) {
+            if(assetsNamePathMap_.at(i).value == path) {
+                assetsNamePathMap_.removeAt(i);
             }
         }
         return false;
     }
-
 
     void setMarkdownSoftWarePath(const QString& path){
         markdownSoftWarePath_ = path;
@@ -113,9 +112,15 @@ public:
     ///////////  rename file  ////////
     bool readCharConfFile(QString path, QMap<QString, QString> &map);
     void analysisCharConfJson(QJsonObject &rootObj,QMap<QString, QString>& replaceCharListMap);
+
+    QList<NamePath> getAssetsPathDir() {
+        return assetsNamePathMap_;
+    }
+
+
 private: // need to change to private
-    QList<NamePath> imgNamePathMap_;
-    QList<NamePath> tarNamePathMap_;
+    QList<NamePath> assetsNamePathMap_;
+    QList<NamePath> repoNamePathMap_;
     QVector<QString> intervalArr_;
     QStringList assetsType_;
     QString markdownSoftWarePath_;
