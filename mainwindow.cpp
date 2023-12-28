@@ -306,6 +306,8 @@ void MainWindow::updateConfFileSlot()
     addDelListData_.setAssetsTypes(confDialog_.getAssetsTypes());
     fileOp_.setAssetsTypes(confDialog_.getAssetsTypes());
 
+
+
     updateDataAndWidget();
 }
 
@@ -406,8 +408,6 @@ void MainWindow::setConfigFilePathByUserName(const IniFile& iniFile){
             break;
         }
     }
-    QFileInfo configInfo(configFilePath_);
-    this->setWindowTitle(configInfo.baseName() + " - Markdown Assistant - [" + configFilePath_ + "]");
     if(!hasUserConf){
         appendTextToLog(QString("未配置该用户文件 !"));
     }
@@ -693,6 +693,9 @@ void MainWindow::updateLastModifyFile(){
         appendTextToLog(QString(u8"当前的目标路径不存在 !"));
         setStatusBar("", false);
         whoIsBoxSelection(BoxSelect::SubCombox);
+        QFileInfo repoInfo(tarPath_);
+        this->setWindowTitle("Error - " + repoInfo.fileName() + " - [" + configFilePath_ + "]");
+
     }else{
         QStringList strList = fullTarPath_.split(tarPath_);
         QString subPath =strList.last().replace("/","");
@@ -701,6 +704,10 @@ void MainWindow::updateLastModifyFile(){
         setStatusBar("", true);
         subDirName_ = subPath;
         whoIsBoxSelection(BoxSelect::NumSpinBox);
+
+        QFileInfo currentInfo(currentFile_);
+        QFileInfo repoInfo(tarPath_);
+        this->setWindowTitle(currentInfo.fileName() + " - " + repoInfo.fileName() + " - [" + configFilePath_ + "]");
     }
 }
 // 1 Init
@@ -724,6 +731,7 @@ void MainWindow::initImgPathTarPathCombox()
     connect(ui->tarPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setTarPathSlot);
     connect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
     connect(ui->imgPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setImgPathSlot);
+
 }
 
 void MainWindow::setComboBoxToolTip(QComboBox * box){
@@ -1519,6 +1527,10 @@ void MainWindow::on_numSpinBox_valueChanged(int num)
     if(fullTarPath_.isEmpty()){
         appendTextToLog(u8"当前的目标路径不存在 !");
         whoIsBoxSelection(BoxSelect::SubCombox);
+
+        QFileInfo currentInfo(currentFile_);
+        QFileInfo repoInfo(tarPath_);
+        this->setWindowTitle("Error - " + repoInfo.fileName() + " - [" + configFilePath_ + "]");
         return;
     }
     if(fileOp_.getFileNameByNum(fullTarPath_, num, currentFile_)){
@@ -1529,10 +1541,20 @@ void MainWindow::on_numSpinBox_valueChanged(int num)
         }
         setStatusBar("",true);
         whoIsBoxSelection(BoxSelect::NumSpinBox);
+
+
+        QFileInfo currentInfo(currentFile_);
+        QFileInfo repoInfo(tarPath_);
+        this->setWindowTitle(currentInfo.fileName() + " - " + repoInfo.fileName() + " - [" + configFilePath_ + "]");
+
     }else{
         setStatusBar("",false);
         currentFile_.clear();
         whoIsBoxSelection(BoxSelect::SubCombox);
+
+        QFileInfo currentInfo(currentFile_);
+        QFileInfo repoInfo(tarPath_);
+        this->setWindowTitle("Error - " + repoInfo.fileName() + " - [" + configFilePath_ + "]");
 
     }
 }

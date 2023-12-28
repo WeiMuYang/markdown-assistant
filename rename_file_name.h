@@ -6,7 +6,7 @@
 #include <QMap>
 #include <QTableWidgetItem>
 #include "file_operation.h"
-#include "conf_dialog.h"
+#include "conf_data.h"
 #include "open_ex_program.h"
 #include "data_type.h"
 #include <QMenu>
@@ -107,7 +107,7 @@ private:
     QVector<DirRenameInfo> replaceNameDirInfoList_; // 更新后目录列表
     QVector<FileRenameInfo> replaceNameFileInfoList_; // 更新后文件名列表
     FileOperation* fileOperaton_;
-    confDialog* confFile_;
+    ConfigData* confFile_;
     OpenExProgram* openExPro_;
     QString backUpPath_;
     QMenu* renameListMenu_;

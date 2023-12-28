@@ -8,13 +8,10 @@
         "*.mp3",
         "99-*.mp4"
     ],
-    "Date": "2023.12.27",
+    "Date": "2023.12.28",
     "ImagePath": [
         {
             "Desktop": "Desktop"
-        },
-        {
-            "02-unit": "D:/Markdown-Assistant-Version/IELTS-Test-rename11/09-MP3/02-5-5分班教材音频/02-unit"
         }
     ],
     "Interval": [
@@ -45,9 +42,6 @@
         },
         {
             "Android": "D:/YangWeiBin/01-sync-file-level-1/05-Android"
-        },
-        {
-            "IELTS-Test-rename": "D:/Markdown-Assistant-Version/IELTS-Test-rename"
         }
     ],
     "Version": "v0.1.0"

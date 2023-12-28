@@ -1,5 +1,5 @@
-#ifndef CONF_DIALOG_H
-#define CONF_DIALOG_H
+#ifndef CONF_DATA_H
+#define CONF_DATA_H
 
 #include <QWidget>
 #include <QList>
@@ -8,10 +8,10 @@
 #include "data_type.h"
 
 // 用来读写配置文件
-class confDialog
+class ConfigData
 {
 public:
-    confDialog();
+    ConfigData();
     bool readConf(QString path);
     void analysisJson(QJsonObject &rootObj);
     QString getImgPathByKey(QString key);
@@ -124,4 +124,4 @@ private: // need to change to private
     IniFile iniFile_;
 };
 
-#endif // CONF_DIALOG_H
+#endif // CONF_DATA_H

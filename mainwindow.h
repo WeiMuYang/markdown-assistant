@@ -11,7 +11,7 @@
 #include <QKeyEvent>
 #include <QSystemTrayIcon>
 #include <QMediaPlayer>
-#include "conf_dialog.h"
+#include "conf_data.h"
 #include "video_thr.h"
 #include "file_operation.h"
 #include "open_ex_program.h"
@@ -167,7 +167,7 @@ public:
 private:
     Ui::MainWindow *ui;
     AssetsData addDelListData_;
-    confDialog confDialog_;
+    ConfigData confDialog_;
     QClipboard *clip_;
     bool isIconMode_{false};
     unsigned int clickNum_{0};

@@ -29,11 +29,12 @@ msvc:QMAKE_CXXFLAGS += -execution-charset:utf-8
 SOURCES += \
     about_dialog.cpp \
     assets_data.cpp \
+    conf_data.cpp \
     file_operation.cpp \
     get_assets_dialog.cpp \
         main.cpp \
         mainwindow.cpp \
-    conf_dialog.cpp \
+    modify_conf_dialog.cpp \
     open_ex_program.cpp \
     rename_file_name.cpp \
     video_thr.cpp \
@@ -42,10 +43,11 @@ SOURCES += \
 HEADERS += \
     about_dialog.h \
     assets_data.h \
+    conf_data.h \
     file_operation.h \
     get_assets_dialog.h \
         mainwindow.h \
-    conf_dialog.h \
+    modify_conf_dialog.h \
     open_ex_program.h \
     rename_file_name.h \
     video_thr.h \
@@ -56,6 +58,7 @@ FORMS += \
         about_dialog.ui \
         get_assets_dialog.ui \
         mainwindow.ui \
+        modify_conf_dialog.ui \
         rename_file_name.ui
 
 # Default rules for deployment.

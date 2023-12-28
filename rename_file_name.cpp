@@ -14,7 +14,7 @@ RenameFileName::RenameFileName(QWidget *parent) :
 {
     ui->setupUi(this);
     fileOperaton_ = new FileOperation(this);
-    confFile_ = new confDialog;
+    confFile_ = new ConfigData;
     renameListMenu_ = new QMenu(this);
     QSplitter *splitterList = new QSplitter(Qt::Horizontal,nullptr); // 水平布置
     splitterList->addWidget(ui->referFileListWgt);

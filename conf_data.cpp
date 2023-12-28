@@ -1,4 +1,4 @@
-#include "conf_dialog.h"
+#include "conf_data.h"
 #include <QFile>
 #include <QJsonDocument>
 #include <QJsonObject>
@@ -6,11 +6,11 @@
 #include <QMessageBox>
 #include "debug_box.h"
 
-confDialog::confDialog()
+ConfigData::ConfigData()
 {
 }
 
-bool confDialog::readConf(QString path)
+bool ConfigData::readConf(QString path)
 {
     QFile file(path);
     if(!file.open(QIODevice::ReadOnly)){
@@ -34,7 +34,7 @@ bool confDialog::readConf(QString path)
     return true;
 }
 
-void confDialog::analysisJson(QJsonObject &rootObj){
+void ConfigData::analysisJson(QJsonObject &rootObj){
     //1. 读取ImagePath
     QJsonArray ImagePathArr = rootObj["ImagePath"].toArray();
     //2. 获取ImagePathObj中指定键的值（值对应的类型直接使用对应函数转）
@@ -76,7 +76,7 @@ void confDialog::analysisJson(QJsonObject &rootObj){
     meetFilePath_ = rootObj["MeetFilePath"].toString();
 }
 
-QString confDialog::getImgPathByKey(QString key){
+QString ConfigData::getImgPathByKey(QString key){
     for(auto it = imgNamePathMap_.begin(); it != imgNamePathMap_.end(); ++it)
     {
         if(it->key == key)
@@ -88,7 +88,7 @@ QString confDialog::getImgPathByKey(QString key){
     return QString("");
 }
 
-QString confDialog::getTarPathByKey(QString key){
+QString ConfigData::getTarPathByKey(QString key){
     if(key.isEmpty()){
         return QString("");
     }
@@ -103,7 +103,7 @@ QString confDialog::getTarPathByKey(QString key){
     return QString("");
 }
 
-bool confDialog::findTarPath(QString key, NamePath& data){
+bool ConfigData::findTarPath(QString key, NamePath& data){
     for(auto it = tarNamePathMap_.begin(); it != tarNamePathMap_.end(); ++it)
     {
         if(it->key == key)
@@ -115,7 +115,7 @@ bool confDialog::findTarPath(QString key, NamePath& data){
     return false;
 }
 
-bool confDialog::findImgPathByName(QString key, NamePath& data){
+bool ConfigData::findImgPathByName(QString key, NamePath& data){
     for(auto it = imgNamePathMap_.begin(); it != imgNamePathMap_.end(); ++it)
     {
         if(it->value == key)
@@ -147,7 +147,7 @@ bool iniFilePath(QString& iniPath, QString& iniAndjsonPath){
 }
 
 
-void confDialog::getRencentJsonFiles(const QString& path) {
+void ConfigData::getRencentJsonFiles(const QString& path) {
     QDir dir(path);
     QStringList filters;
     filters << "*.json";
@@ -162,7 +162,7 @@ void confDialog::getRencentJsonFiles(const QString& path) {
     }
 }
 
-bool confDialog::readIniFile()
+bool ConfigData::readIniFile()
 {
     QString iniPath;
     QString iniAndjsonDir;
@@ -198,7 +198,7 @@ bool confDialog::readIniFile()
 }
 
 
-bool confDialog::writeIniFile() {
+bool ConfigData::writeIniFile() {
     QJsonObject jsonObject;
     jsonObject["HostName"] = iniFile_.hostName;
     QJsonArray recentFileArray;
@@ -228,7 +228,7 @@ bool confDialog::writeIniFile() {
     }
 }
 
-void confDialog::confDataClear(){
+void ConfigData::confDataClear(){
     imgNamePathMap_.clear();
     tarNamePathMap_.clear();
     intervalArr_.clear();
@@ -238,7 +238,7 @@ void confDialog::confDataClear(){
     dataDirSoftWarePath_.clear();
 }
 
-void confDialog::clearAll(){
+void ConfigData::clearAll(){
     imgNamePathMap_.clear();
     tarNamePathMap_.clear();
     intervalArr_.clear();
@@ -252,7 +252,7 @@ void confDialog::clearAll(){
     iniFile_.date.clear();
 }
 
-bool confDialog::readCharConfFile(QString path, QMap<QString, QString>& map)
+bool ConfigData::readCharConfFile(QString path, QMap<QString, QString>& map)
 {
     QFile file(path);
     if(!file.open(QIODevice::ReadOnly)){
@@ -274,7 +274,7 @@ bool confDialog::readCharConfFile(QString path, QMap<QString, QString>& map)
     return true;
 }
 
-void confDialog::analysisCharConfJson(QJsonObject &rootObj,QMap<QString, QString>& replaceCharListMap){
+void ConfigData::analysisCharConfJson(QJsonObject &rootObj,QMap<QString, QString>& replaceCharListMap){
     //1. replaceCharList
     QJsonArray replaceCharList = rootObj["replaceCharList"].toArray();
     for(int i = 0; i < replaceCharList.size(); ++i){
@@ -288,7 +288,7 @@ void confDialog::analysisCharConfJson(QJsonObject &rootObj,QMap<QString, QString
     }
 }
 
-bool confDialog::writeConfJson() {
+bool ConfigData::writeConfJson() {
     // 创建一个 JSON 对象
     QJsonObject jsonObject;
     // 添加路径数组
