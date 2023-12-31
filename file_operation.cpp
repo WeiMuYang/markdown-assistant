@@ -182,9 +182,6 @@ bool FileOperation::clipFilesByFileInfo(const QStringList addList, QVector<ImgDa
                         AudioClipText +="<p>文本&nbsp; " + clipMarkdownCodeItem(newAssetsPath, data.widthZoom)
                                          + " &nbsp;文本</p>" + QString("    \n");
                     }else{
-//<center>
-//<audio src="./../01 心情和感受.mp3" style=width:50%; />
-//</center>
                         AudioClipText += QString("<center>    \n") + clipMarkdownCodeItem(newAssetsPath, data.widthZoom) + QString("\n</center>    \n    \n    \n");
                     }
                 }else {
@@ -198,9 +195,13 @@ bool FileOperation::clipFilesByFileInfo(const QStringList addList, QVector<ImgDa
         }
     }
     // 先添加MP4
-    clipText = VideoClipText +"  \n  \n";
+    if(!VideoClipText.isEmpty()) {
+        clipText = VideoClipText +"  \n  \n";
+    }
     // 再添加mp3
-    clipText += AudioClipText + "  \n  \n";
+    if(!AudioClipText.isEmpty()) {
+        clipText += AudioClipText + "  \n  \n";
+    }
     // 最后添加IMG
     if(ImgClipText.size() > 2) {
         clipText += QString("<center>    \n")+ ImgClipText.chopped(2)+QString("\n</center>    \n");

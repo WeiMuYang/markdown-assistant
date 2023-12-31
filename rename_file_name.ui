@@ -550,17 +550,17 @@
         </column>
         <column>
          <property name="text">
-          <string>被引文件数</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
           <string>新名称</string>
          </property>
         </column>
         <column>
          <property name="text">
           <string>原名称</string>
+         </property>
+        </column>
+        <column>
+         <property name="text">
+          <string>引用次数</string>
          </property>
         </column>
        </widget>

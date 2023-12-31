@@ -140,12 +140,15 @@ void MainWindow::initTray() {
     trayIcon_ = new QSystemTrayIcon(this);
     trayIcon_->setIcon(QIcon(":/qss/icon/markdown-assistant.ico"));
     trayMenu_ = new QMenu(this);
-    QAction *showAction = new QAction("显    示", this);
-    QAction *quitAction = new QAction("退    出", this);
+    QAction *showAction = new QAction("显      示", this);
+    QAction *switchIconAction = new QAction("新  图  标", this);
+    QAction *quitAction = new QAction("退      出", this);
     trayMenu_->addAction(showAction);
+    trayMenu_->addAction(switchIconAction);
     trayMenu_->addAction(quitAction);
     trayIcon_->setContextMenu(trayMenu_);
     connect(showAction, &QAction::triggered, this, &MainWindow::show);
+    connect(switchIconAction, &QAction::triggered, this, &MainWindow::switchIconSlot);
     connect(quitAction, &QAction::triggered, this, &MainWindow::quitAppSlot);
     connect(trayIcon_, &QSystemTrayIcon::activated, this, &MainWindow::trayIconClickedSlot);
     trayIcon_->show();
@@ -185,6 +188,23 @@ void MainWindow::show()
 
 void MainWindow::quitAppSlot() {
     QApplication::quit();
+}
+
+void MainWindow::switchIconSlot() {
+    icoNum_ += 1;
+    QIcon icon;
+    if(icoNum_ % 4 == 0) {
+        icon.addFile(":/qss/icon/markdown-assistant.ico");
+    }else if(icoNum_ % 4 == 1){
+        icon.addFile(":/qss/icon/markdown-assistant-1.ico");
+    }else if(icoNum_ % 4 == 2){
+        icon.addFile(":/qss/icon/markdown-assistant-2.ico");
+    }else {
+        icon.addFile(":/qss/icon/markdown-assistant-3.ico");
+    }
+
+    trayIcon_->setIcon(icon);
+    this->setWindowIcon(icon);
 }
 
 void MainWindow::trayIconClickedSlot(QSystemTrayIcon::ActivationReason reason)
@@ -524,7 +544,7 @@ void MainWindow::InitMainWindowMenu(){
     ui->actionOpenConfDir->setShortcut(QKeySequence("Ctrl+/"));
     connect(ui->actionOpenConfDir, &QAction::triggered, this, &MainWindow::openConfDirSlot);
 
-    ui->actionAddMarkDownSoftWare->setShortcut(QKeySequence("Alt+M"));
+    ui->actionAddMarkDownSoftWare->setShortcut(QKeySequence("Alt+F"));
     connect(ui->actionAddMarkDownSoftWare, &QAction::triggered, this, &MainWindow::modifyMarkdownSoftSlot);
 
     ui->actionAddVSCodePath->setShortcut(QKeySequence("Alt+V"));
@@ -546,6 +566,7 @@ void MainWindow::InitMainWindowMenu(){
     connect(ui->actionDelCurrentAssetsDir, &QAction::triggered, this, &MainWindow::delAssstsDirSlot);
 
     // actionConfdata
+    ui->actionConfdata->setShortcut(QKeySequence("Alt+M"));
     connect(ui->actionConfdata, &QAction::triggered, this, &MainWindow::confDataSettingSlot);
 
 }
@@ -1520,6 +1541,7 @@ void MainWindow::delAssstsDirSlot(){
 
 void MainWindow::confDataSettingSlot() {
     modifyConfDlg_->setScreenRes(getScrrenRes());
+    confData_.setVersion(VERSION);
     modifyConfDlg_->setConfigData(confData_);
     modifyConfDlg_->showWindow();
 }
@@ -1730,7 +1752,8 @@ void MainWindow::simpleViewSlot()
 
 void MainWindow::openAboutSlot()
 {
-    aboutDialog_->show();
+    aboutDialog_->setVersion(VERSION);
+    aboutDialog_->showWindow();
 }
 
 void MainWindow::searchAssetsByCodeSlot(QString code,QString renameList)

@@ -1,5 +1,5 @@
 #include "create_markdown_dir.h"
-#include "ui_create_markdown.h"
+#include "ui_create_markdown_dir.h"
 #include <QDir>
 #include <QDebug>
 
@@ -8,7 +8,6 @@ CreateMarkdownAndSubDir::CreateMarkdownAndSubDir(QWidget *parent) :
     ui(new Ui::CreateMarkdown)
 {
     ui->setupUi(this);
-
 }
 
 CreateMarkdownAndSubDir::~CreateMarkdownAndSubDir()
@@ -74,6 +73,8 @@ void CreateMarkdownAndSubDir::updateSubDirWgt()
 void CreateMarkdownAndSubDir::showWindow() {
     ui->stackedWidget->setCurrentIndex(0);
     ui->fileRadioBtn->setChecked(true);
+    ui->newDirFileNameEdit->setText("");
+    ui->newFileNameEdit->setText("");
     updateMarkdownWgt();
     updateSubDirWgt();
     show();
@@ -135,15 +136,10 @@ void CreateMarkdownAndSubDir::numDirSpinBoxStatus(int flags) {
     }
 }
 
-QString CreateMarkdownAndSubDir::getTempleMarkdownFile(){
-    return "";
-}
-
 void CreateMarkdownAndSubDir::on_numOldMarkdownSpinBox_valueChanged(int fileNum)
 {
     QDir dir(subDirPath_);
     QString fileName;
-    QString templeFileName;
     QStringList filters;
     QString nameNum = QString("%1").arg(fileNum, 2, 10, QLatin1Char('0'))+"*";
     filters << nameNum;
@@ -241,7 +237,7 @@ void CreateMarkdownAndSubDir::on_yesPbn_clicked()
 }
 
 bool CreateMarkdownAndSubDir::createMarkdown(QString& path) {
-    QString tempFileName = QString("%1").arg(ui->numNewMarkdownSpinBox->value(), 2, 10,
+    QString tempFileName = QString("%1").arg(ui->numOldMarkdownSpinBox->value(), 2, 10,
                                              QLatin1Char('0')) + "-" + ui->templeFileNameEdit->text();
     QString fileName = QString("%1").arg(ui->numNewMarkdownSpinBox->value(), 2, 10,
                                          QLatin1Char('0')) + "-" + ui->newFileNameEdit->text() + ".md";
@@ -269,7 +265,7 @@ bool CreateMarkdownAndSubDir::createMarkdown(QString& path) {
 bool CreateMarkdownAndSubDir::createSubDir(QString& path)
 {
     QString dirName = QString("%1").arg(ui->numSubDirSpinBox->value(), 2, 10,
-                                         QLatin1Char('0')) + "-" + ui->newDirFileNameEdit->text();
+                                        QLatin1Char('0')) + "-" + ui->newDirFileNameEdit->text();
     QString newDirPathAbs = repoPath_ + "/" + dirName;
     path = newDirPathAbs;
     QDir newDir(repoPath_);
@@ -297,18 +293,16 @@ bool CreateMarkdownAndSubDir::createSubDir(QString& path)
     return true;
 }
 
-
 void CreateMarkdownAndSubDir::on_cancelPbn_clicked()
 {
     emit sigCreateMarkdownAndDirLog(QString("取消创建!"));
     this->close();
 }
 
-
 void CreateMarkdownAndSubDir::on_openTempPbn_clicked()
 {
     if(ui->fileRadioBtn->isChecked() && ui->newFileNameEdit->isEnabled()) {
-        QString tempFileName = QString("%1").arg(ui->numNewMarkdownSpinBox->value(), 2, 10,
+        QString tempFileName = QString("%1").arg(ui->numOldMarkdownSpinBox->value(), 2, 10,
                                                  QLatin1Char('0')) + "-" + ui->templeFileNameEdit->text();
         QString templateFileAbs = subDirPath_ + "/" + tempFileName;
         emit sigOpenTempleMarkdown(templateFileAbs);
@@ -316,4 +310,3 @@ void CreateMarkdownAndSubDir::on_openTempPbn_clicked()
         emit sigCreateMarkdownAndDirLog(QString("参考文件名字为空无法打开!"));
     }
 }
-

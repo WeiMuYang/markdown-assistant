@@ -13,6 +13,12 @@ AboutDialog::~AboutDialog()
     delete ui;
 }
 
+void AboutDialog::showWindow()
+{
+    ui->versionLab->setText(version_);
+    show();
+}
+
 void AboutDialog::on_okPbn_clicked()
 {
     close();

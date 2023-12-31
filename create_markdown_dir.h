@@ -29,7 +29,6 @@ public:
     void numNewMarkdownSpinBoxStatus(int flags);
     void numDirSpinBoxStatus(int flags);
     void updateSubDirWgt();
-    QString getTempleMarkdownFile();
     bool createMarkdown(QString &path);
     bool createSubDir(QString &path);
 

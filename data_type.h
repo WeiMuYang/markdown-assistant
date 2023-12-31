@@ -9,6 +9,7 @@
 #define  MARKDOWN_SOFTWARE "MarkdownSoftware"
 #define  DATA_DIR_SOFTWARE "DataDirSoftware"
 
+#define VERSION "v1.0.0.beta"
 
 enum AssetsZoomSize{
     Size100 = 100, Size80 = 80, Size50 = 49, Size30 = 32, Size5 = 5

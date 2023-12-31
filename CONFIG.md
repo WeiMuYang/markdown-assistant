@@ -6,7 +6,7 @@
 
 ```json
 {
-    "?HostName": "当前主机名，用来标记读取RecentFile中的哪个Json：Lenovo、BMW",
+    "?HostName": "当前主机名，用来标记读取当前活跃的json文件",
 	"HostName": "Lenovo",
     "?RecentFile": "Json文件列表，也就是当前conf文件中的Json文件",
     "RecentFile": [  
@@ -74,7 +74,7 @@
 
 ## 3 更新配置   
 
-默认情况下，一个电脑中，对应于一个ini文件和Json文件：
+默认情况下，一个电脑中，对应于一个ini文件和多个Json文件：
 
 - ini文件中配置主机的名字，以及主机对应的json文件  
 - json文件中需要将仓库的目录配置等信息配置  

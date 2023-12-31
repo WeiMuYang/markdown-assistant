@@ -23,5 +23,8 @@
         <file>qss/icon/do-not-exist.png</file>
         <file>qss/icon/audio.gif</file>
         <file>qss/icon/mp3.ico</file>
+        <file>qss/icon/markdown-assistant-1.ico</file>
+        <file>qss/icon/markdown-assistant-2.ico</file>
+        <file>qss/icon/markdown-assistant-3.ico</file>
     </qresource>
 </RCC>

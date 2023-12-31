@@ -719,16 +719,13 @@
     </property>
     <addaction name="actionModifySysFile"/>
     <addaction name="separator"/>
-    <addaction name="actionConfdata"/>
-    <addaction name="actionModifyConf"/>
-    <addaction name="actionOpenConfDir"/>
     <addaction name="actionAddConfFile"/>
+    <addaction name="actionOpenConfDir"/>
+    <addaction name="actionConfdata"/>
     <addaction name="separator"/>
     <addaction name="actionOpenCurrentDir"/>
     <addaction name="actionOpenAssetsDir"/>
     <addaction name="separator"/>
-    <addaction name="actionAddMarkDownSoftWare"/>
-    <addaction name="actionAddVSCodePath"/>
     <addaction name="separator"/>
     <addaction name="actionRestart"/>
    </widget>
@@ -740,9 +737,9 @@
      <property name="title">
       <string>仓库操作</string>
      </property>
-     <addaction name="actionAddRepo"/>
      <addaction name="actionParent2Repo"/>
      <addaction name="actionSub2Repo"/>
+     <addaction name="actionAddRepo"/>
      <addaction name="actionDelRepo"/>
     </widget>
     <widget class="QMenu" name="menu_3">
@@ -756,13 +753,10 @@
     </widget>
     <addaction name="menu_3"/>
     <addaction name="menu_2"/>
+    <addaction name="actionRename"/>
+    <addaction name="actionCopyHistoryFilePath"/>
     <addaction name="actionClearLog"/>
     <addaction name="actionSubDirHistoryFile"/>
-    <addaction name="separator"/>
-    <addaction name="separator"/>
-    <addaction name="actionRename"/>
-    <addaction name="separator"/>
-    <addaction name="actionCopyHistoryFilePath"/>
     <addaction name="actionGetRelativePathOfMeetFile"/>
     <addaction name="actionOpenREADME"/>
    </widget>
@@ -923,7 +917,10 @@
   </action>
   <action name="actionConfdata">
    <property name="text">
-    <string>软件配置</string>
+    <string>当前配置</string>
+   </property>
+   <property name="toolTip">
+    <string>当前配置</string>
    </property>
   </action>
  </widget>

@@ -156,6 +156,10 @@ public:
         return assetsNamePathList_;
     }
 
+    void setVersion(QString v) {
+        iniFile_.version = v;
+    }
+
 
 private: // need to change to private
     QList<NamePath> assetsNamePathList_;

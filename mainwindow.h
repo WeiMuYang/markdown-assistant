@@ -142,6 +142,7 @@ private slots:
 
     void openCurrentDirSlot();
     void quitAppSlot();
+    void switchIconSlot();
     void trayIconClickedSlot(QSystemTrayIcon::ActivationReason reason);
     void on_zoomPercentPtn_clicked();
     void addSub2RepoSlot();
@@ -179,11 +180,11 @@ private:
     QClipboard *clip_;
     bool isIconMode_{false};
     unsigned int clickNum_{0};
-    QString assetsPath_;       // Path or desktop
-    QString repoPath_;       // D:/YangWeiBin/01-sync-file-level-1/02-ramses-composer
-    QString subDirName_;    // 05-test
-    QString fullCurrentMarkdownDirPath_;   // D:/YangWeiBin/01-sync-file-level-1/02-ramses-composer/05-test
-    QString currentMarkdownFileName_;   // 63-车模2-IDC测试.md
+    QString assetsPath_;        // Path or desktop
+    QString repoPath_;          // D:/YangWeiBin/01-sync-file-level-1/02-ramses-composer
+    QString subDirName_;        // 05-test
+    QString fullCurrentMarkdownDirPath_;    // D:/YangWeiBin/01-sync-file-level-1/02-ramses-composer/05-test
+    QString currentMarkdownFileName_;       // 63-车模2-IDC测试.md
     QString labelPath_;
     VideoThr* videoThr_;
     FileOperation fileOp_;
@@ -191,7 +192,6 @@ private:
     QLabel* pStatusLabelIcon_;
     QLabel* pStatusLabelMsg_;
     QLabel* pStatusLabelCurrentFile_;
-
     OpenExProgram openExPro_;
 
     int scrrenWidth_;
@@ -219,6 +219,7 @@ private:
 
     ModifyConfDialog* modifyConfDlg_;
     CreateMarkdownAndSubDir* createMarkdownAndSubDirDlg_;
+    int icoNum_{0};
 };
 
 #endif // MAINWINDOW_H
