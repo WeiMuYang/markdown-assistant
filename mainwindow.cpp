@@ -39,6 +39,7 @@ MainWindow::MainWindow(QWidget *parent) :
     aboutDialog_ = new AboutDialog(this);
     renameFileName_ = new RenameFileName(this);
     modifyConfDlg_ = new ModifyConfDialog(this);
+    createMarkdownAndSubDirDlg_ = new CreateMarkdownAndSubDir(this);
     initScreenResNormal();
     // 0. 托盘
     initTray();
@@ -101,6 +102,10 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(getAssetsDialog_,&GetAssetsDialog::sigGetAssetsDlgLogText,this,&MainWindow::appendTextToLog);
     connect(&openExPro_,&OpenExProgram::sigOpenExProLog,this,&MainWindow::appendTextToLog);
     connect(renameFileName_,&RenameFileName::sigRenameFileNameLog,this,&MainWindow::appendTextToLog);
+    connect(createMarkdownAndSubDirDlg_,&CreateMarkdownAndSubDir::sigCreateMarkdownAndDirLog,this,&MainWindow::appendTextToLog);
+    // sigModifyConfDlgLog
+    connect(modifyConfDlg_,&ModifyConfDialog::sigModifyConfDlgLog,this,&MainWindow::appendTextToLog);
+    connect(modifyConfDlg_,&ModifyConfDialog::sigModifyConfigData,this,&MainWindow::modifyConfDlgSlot);
     // dialog --> fileOp
     connect(getAssetsDialog_,&GetAssetsDialog::sigSearchMarkdownCode,this,&MainWindow::searchAssetsByCodeSlot);
     // historyLineEdit
@@ -120,6 +125,12 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(renameFileName_,&RenameFileName::sigRenameFileReferFile,[this](QString path) {
         openExPro_.OpenMarkdownAndDirSlot(path);
     });
+    // createMarkdownDlg
+    connect(createMarkdownAndSubDirDlg_,&CreateMarkdownAndSubDir::sigCreateType,this,&MainWindow::createMarkdownAndSubDirSlot);
+    // createMarkdownDlg
+    connect(createMarkdownAndSubDirDlg_,&CreateMarkdownAndSubDir::sigOpenTempleMarkdown,[this](QString path) {
+        openExPro_.OpenMarkdownAndDirSlot(path);
+    });
     InitMainWindowMenu();
     initAddDelListMenu();
     startSlot();
@@ -129,8 +140,8 @@ void MainWindow::initTray() {
     trayIcon_ = new QSystemTrayIcon(this);
     trayIcon_->setIcon(QIcon(":/qss/icon/markdown-assistant.ico"));
     trayMenu_ = new QMenu(this);
-    QAction *showAction = new QAction("显  示", this);
-    QAction *quitAction = new QAction("退  出", this);
+    QAction *showAction = new QAction("显    示", this);
+    QAction *quitAction = new QAction("退    出", this);
     trayMenu_->addAction(showAction);
     trayMenu_->addAction(quitAction);
     trayIcon_->setContextMenu(trayMenu_);
@@ -146,6 +157,12 @@ void MainWindow::closeEvent(QCloseEvent *event)
         hide();
         event->ignore();
     }
+}
+
+void MainWindow::modifyConfDlgSlot(ConfigData data) {
+    confData_ = data;
+    confData_.writeConfJson();
+    updateDataAndWidget();
 }
 
 void MainWindow::show()
@@ -181,13 +198,13 @@ void MainWindow::trayIconClickedSlot(QSystemTrayIcon::ActivationReason reason)
 }
 
 void MainWindow::startSlot() {
-    confDialog_.clearAll();
-    if(!confDialog_.readIniFile()){
+    confData_.clearAll();
+    if(!confData_.readIniFile()){
         appendTextToLog(QString("iniFile读取失败 !"));
     }
     updateActionConfFileList();
     // 根据用户名设置路径
-    setConfigFilePathByUserName(confDialog_.getIniFile());
+    setConfigFilePathByUserName(confData_.getIniFile());
     // 必须初始化StatusBar，否则第一个菜单栏的菜单单击不到
     setStatusBar("",false);
     updateConfFileSlot();
@@ -272,11 +289,11 @@ void MainWindow::copyHistoryFilePathSlot()
 void MainWindow::copyHistoryFilePathOfMeetFileSlot()
 {
     QList<QTableWidgetItem*> list = ui->historyFileList->selectedItems();
-    if(list.isEmpty() || confDialog_.getMeetFilePath().isEmpty()){
+    if(list.isEmpty() || confData_.getMeetFilePath().isEmpty()){
         return;
     }
     QString path =list.at(0)->text();
-    QDir curDir(confDialog_.getMeetFilePath());
+    QDir curDir(confData_.getMeetFilePath());
     curDir.setCurrent(fullCurrentMarkdownDirPath_);
     QString filePath = curDir.relativeFilePath(repoPath_ + "/" + path);
     //
@@ -301,14 +318,11 @@ void MainWindow::updateConfFileSlot()
     ui->tarPathCombox->clear();
     connect(ui->tarPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setTarPathSlot);
     connect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
-    confDialog_.readConf(configFilePath_);
-    openExPro_.setMarkdownSoftWarePath(confDialog_.getMarkdownSoftPath());
-    openExPro_.setDataDirSoftWarePath(confDialog_.getDataDirSoftPath());
-    addDelListData_.setAssetsTypes(confDialog_.getAssetsTypes());
-    fileOp_.setAssetsTypes(confDialog_.getAssetsTypes());
-
-
-
+    confData_.readConf(configFilePath_);
+    openExPro_.setMarkdownSoftWarePath(confData_.getMarkdownSoftPath());
+    openExPro_.setDataDirSoftWarePath(confData_.getDataDirSoftPath());
+    addDelListData_.setAssetsTypes(confData_.getAssetsTypes());
+    fileOp_.setAssetsTypes(confData_.getAssetsTypes());
     updateDataAndWidget();
 }
 
@@ -415,7 +429,7 @@ void MainWindow::setConfigFilePathByUserName(const IniFile& iniFile){
 }
 
 void MainWindow::updateActionConfFileList()  {
-    IniFile iniFile = confDialog_.getIniFile();
+    IniFile iniFile = confData_.getIniFile();
     confFileList_->clear();
     for (int i = 0; i < iniFile.recentFileList.size(); ++i) {
         QAction *actionFileName = new QAction(confFileList_);
@@ -474,7 +488,7 @@ void MainWindow::InitMainWindowMenu(){
     connect(ui->actionSimpleView, &QAction::triggered, this, &MainWindow::simpleViewSlot,Qt::UniqueConnection);
 
     ui->actionModifyConf->setShortcut(QKeySequence("Ctrl+M"));
-    connect(ui->actionModifyConf, &QAction::triggered, this, &MainWindow::modifyConfSlot);
+    connect(ui->actionModifyConf, &QAction::triggered, this, &MainWindow::modifyConfByVsCodeSlot);
 
     ui->actionCopyHistoryFilePath->setShortcut(QKeySequence("Ctrl+C"));
     connect(ui->actionCopyHistoryFilePath,&QAction::triggered, this, &MainWindow::copyHistoryFilePathSlot);
@@ -538,11 +552,11 @@ void MainWindow::InitMainWindowMenu(){
 
 void MainWindow::switchConfFileSlot(){
     QAction *action=qobject_cast<QAction *>(sender());
-    QString fileName = confDialog_.getIniFile().iniAndJsonPath + "/"+ action->text();
+    QString fileName = confData_.getIniFile().iniAndJsonPath + "/"+ action->text();
     configFilePath_ = fileName;
     QFileInfo configFile(configFilePath_);
-    confDialog_.setIniFileHostName(configFile.baseName());
-    confDialog_.writeIniFile();
+    confData_.setIniFileHostName(configFile.baseName());
+    confData_.writeIniFile();
     startSlot();
 }
 
@@ -557,15 +571,15 @@ void MainWindow::clearTabWgtSlot()
 
 void MainWindow::openIniFileSlot()
 {
-    openExPro_.OpenMarkdownAndDirSlot(confDialog_.getIniFile().iniAndJsonPath+ "/conf.ini");
+    openExPro_.OpenMarkdownAndDirSlot(confData_.getIniFile().iniAndJsonPath+ "/conf.ini");
 }
 
 void MainWindow::modifyIniFileSlot(){
-    openExPro_.OpenJsonAndIniSlot(confDialog_.getIniFile().iniAndJsonPath+ "/conf.ini");
+    openExPro_.OpenJsonAndIniSlot(confData_.getIniFile().iniAndJsonPath+ "/conf.ini");
     startSlot();
 }
 
-void MainWindow::modifyConfSlot()
+void MainWindow::modifyConfByVsCodeSlot()
 {
     openExPro_.OpenJsonAndIniSlot(configFilePath_);
     updateConfFileSlot();
@@ -724,14 +738,14 @@ void MainWindow::initImgPathTarPathCombox()
     ui->tarPathCombox->clear();
     ui->imgPathCombox->clear();
 
-    for(auto it = confDialog_.getImgPaths().begin();it != confDialog_.getImgPaths().end(); ++it){
+    for(auto it = confData_.getAssetPaths().begin();it != confData_.getAssetPaths().end(); ++it){
         ui->imgPathCombox->addItem(it->key);
     }
-    for(auto it = confDialog_.getTarPaths().begin();it != confDialog_.getTarPaths().end(); ++it){
+    for(auto it = confData_.getRepoPaths().begin();it != confData_.getRepoPaths().end(); ++it){
         ui->tarPathCombox->addItem(it->key);
     }
-    assetsPath_ = confDialog_.getImgPathByKey(ui->imgPathCombox->currentText());
-    repoPath_ = confDialog_.getTarPathByKey(ui->tarPathCombox->currentText());
+    assetsPath_ = confData_.getAssetsPathByKey(ui->imgPathCombox->currentText());
+    repoPath_ = confData_.getRepoPathByKey(ui->tarPathCombox->currentText());
     connect(ui->tarPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setTarPathSlot);
     connect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
     connect(ui->imgPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setImgPathSlot);
@@ -756,11 +770,11 @@ void MainWindow::updateSubDirCombox(){
 }
 
 void MainWindow::setImgPathSlot(QString currentStr){
-    assetsPath_ = confDialog_.getImgPathByKey(ui->imgPathCombox->currentText());
+    assetsPath_ = confData_.getAssetsPathByKey(ui->imgPathCombox->currentText());
 }
 
 void MainWindow::setTarPathSlot(QString currentStr){
-    this->repoPath_ = confDialog_.getTarPathByKey(currentStr);
+    this->repoPath_ = confData_.getRepoPathByKey(currentStr);
     if(repoPath_.isEmpty() || !fileOp_.isPathExist(this->repoPath_)){
         ui->subPathComBox->clear();
         fullCurrentMarkdownDirPath_.clear();
@@ -1409,8 +1423,8 @@ void MainWindow::addParent2RepoSlot() {
 
 bool MainWindow::addRepo2Conf(QString newName,QString pathAbs) {
     QString existName;
-    if(confDialog_.addTarNamePath(newName, pathAbs, existName)){
-        confDialog_.writeConfJson();
+    if(confData_.addRepoPath(newName, pathAbs, existName)){
+        confData_.writeConfJson();
         updateDataAndWidget();
         ui->tarPathCombox->setCurrentText(newName);
         appendTextToLog(QString("添加\"") + newName + "\"仓库成功!");
@@ -1449,9 +1463,8 @@ void MainWindow::openAssstsDirSlot(){
 
 bool MainWindow::addAssetsDir2Conf(QString newName,QString pathAbs) {
     QString existName;
-    if(confDialog_.addImgNamePath(newName, pathAbs, existName)){
-        confDialog_.writeConfJson();
-        ////////////////////-------------------------------------------error
+    if(confData_.addAssetsPath(newName, pathAbs, existName)){
+        confData_.writeConfJson();
         updateDataAndWidget();
         ui->tarPathCombox->setCurrentText(newName);
         appendTextToLog(QString("添加\"") + newName + "\"仓库成功!");
@@ -1463,15 +1476,15 @@ bool MainWindow::addAssetsDir2Conf(QString newName,QString pathAbs) {
 }
 
 void MainWindow::openConfDirSlot() {
-    openExPro_.OpenDirSlot(confDialog_.getIniFile().iniAndJsonPath);
+    openExPro_.OpenDirSlot(confData_.getIniFile().iniAndJsonPath);
 }
 
 void MainWindow::modifyMarkdownSoftSlot(){
     QString MarkdownSoftPath = QFileDialog::getOpenFileName(this,"选择markdown软件",QDir::homePath(),tr("EXE files(*.exe);;Shell files(*.sh);;bash files(*.bat);;All files(*.*)"));
     if(!MarkdownSoftPath.isEmpty()) {
-        confDialog_.setMarkdownSoftWarePath(MarkdownSoftPath);
+        confData_.setMarkdownSoftWarePath(MarkdownSoftPath);
         openExPro_.setMarkdownSoftWarePath(MarkdownSoftPath);
-        confDialog_.writeConfJson();
+        confData_.writeConfJson();
         appendTextToLog(QString("修改Markdown软件为\"") + MarkdownSoftPath + "\"成功!");
     }else {
         appendTextToLog(QString("MarkDown软件:\"") + MarkdownSoftPath + "\"为空，修改失败!");
@@ -1480,8 +1493,8 @@ void MainWindow::modifyMarkdownSoftSlot(){
 void MainWindow::modifyDataDirSoftSlot(){
     QString DataDirSoftPath = QFileDialog::getOpenFileName(this,"选择Data软件",QDir::homePath(),tr("EXE files(*.exe);;Shell files(*.sh);;bash files(*.bat);;All files(*.*)"));
     if(!DataDirSoftPath.isEmpty()) {
-        confDialog_.writeConfJson();
-        confDialog_.setDataDirSoftWarePath(DataDirSoftPath);
+        confData_.writeConfJson();
+        confData_.setDataDirSoftWarePath(DataDirSoftPath);
         openExPro_.setDataDirSoftWarePath(DataDirSoftPath);
         appendTextToLog(QString("修改Data软件为\"") + DataDirSoftPath + "\"成功!");
     }else {
@@ -1491,22 +1504,24 @@ void MainWindow::modifyDataDirSoftSlot(){
 
 void MainWindow::delCurrentRepoSlot(){
     QString delRepoPath = repoPath_;
-    confDialog_.delTarNamePath(repoPath_);
-    confDialog_.writeConfJson();
+    confData_.delRepoPath(repoPath_);
+    confData_.writeConfJson();
     updateDataAndWidget();
     appendTextToLog(QString("删除\"") + delRepoPath + "\"仓库成功!");
 }
 
 void MainWindow::delAssstsDirSlot(){
     QString delAssetPath = getAssetsPath();
-    confDialog_.delAssetsNamePath(delAssetPath);
-    confDialog_.writeConfJson();
+    confData_.delAssetsPath(delAssetPath);
+    confData_.writeConfJson();
     updateDataAndWidget();
     appendTextToLog(QString("删除\"") + delAssetPath + "\"资源目录成功!");
 }
 
 void MainWindow::confDataSettingSlot() {
-    modifyConfDlg_->show();
+    modifyConfDlg_->setScreenRes(getScrrenRes());
+    modifyConfDlg_->setConfigData(confData_);
+    modifyConfDlg_->showWindow();
 }
 
 void MainWindow::openCurrentDirSlot(){
@@ -1666,8 +1681,8 @@ void MainWindow::getAssetsSlot()
 void MainWindow::newConfFileSlot()
 {
     QString newFileName;
-    if(fileOp_.createJsonFile(confDialog_.getIniFile().iniAndJsonPath, newFileName)){
-        openExPro_.OpenMarkdownAndDirSlot(confDialog_.getIniFile().iniAndJsonPath+"/" + newFileName);
+    if(fileOp_.createJsonFile(confData_.getIniFile().iniAndJsonPath, newFileName)){
+        openExPro_.OpenMarkdownAndDirSlot(confData_.getIniFile().iniAndJsonPath+"/" + newFileName);
     }
 }
 
@@ -1724,13 +1739,22 @@ void MainWindow::searchAssetsByCodeSlot(QString code,QString renameList)
     fileOp_.getSearchResultFromMarkdownCode(fullCurrentMarkdownDirPath_, code,renameList, result);
 }
 
-void MainWindow::on_createMarkdownPbn_clicked()
+void MainWindow::createMarkdownAndSubDirSlot(int type, QString namePathAbs)
 {
-    QString currentFileName;
-    if(fileOp_.createMarkdownFile(fullCurrentMarkdownDirPath_, currentFileName)){
+    if(1 == type) {
         on_lastFileNumPbn_clicked();
         openExPro_.OpenMarkdownAndDirSlot(fullCurrentMarkdownDirPath_+"/" + currentMarkdownFileName_);
+    }else if (2 == type){
+        updateDataAndWidget();
+        openExPro_.OpenDirSlot(namePathAbs);
     }
+}
+
+void MainWindow::on_createMarkdownPbn_clicked()
+{
+    createMarkdownAndSubDirDlg_->setSubDirPath(fullCurrentMarkdownDirPath_);
+    createMarkdownAndSubDirDlg_->setRepoPath(repoPath_);
+    createMarkdownAndSubDirDlg_->showWindow();
 }
 
 void MainWindow::on_historySearchPbn_clicked()
@@ -1773,8 +1797,8 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event)
 void MainWindow::showModifyNameDlg(){
     renameFileName_->setRepoPath(repoPath_);
     renameFileName_->setRenameDirPath(repoPath_);
-    renameFileName_->setRenameConfPath(confDialog_.getIniFile().iniAndJsonPath + "/99-CharReplace.json");
-    renameFileName_->setRenameListPath(confDialog_.getIniFile().iniAndJsonPath + "/99-RenameList.txt");
+    renameFileName_->setRenameConfPath(confData_.getIniFile().iniAndJsonPath + "/99-CharReplace.json");
+    renameFileName_->setRenameListPath(confData_.getIniFile().iniAndJsonPath + "/99-RenameList.txt");
     renameFileName_->setSize(getScrrenRes());
     renameFileName_->renameListClear();
     renameFileName_->show();

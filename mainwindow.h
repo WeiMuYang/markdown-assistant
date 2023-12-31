@@ -20,6 +20,7 @@
 #include "about_dialog.h"
 #include "rename_file_name.h"
 #include "modify_conf_dialog.h"
+#include "create_markdown_dir.h"
 
 
 namespace Ui {
@@ -129,7 +130,7 @@ private slots:
 
     void openIniFileSlot();
     void modifyIniFileSlot();
-    void modifyConfSlot();
+    void modifyConfByVsCodeSlot();
     void openReadMeSlot();
     void delSrcFromListSlot();
 
@@ -157,6 +158,10 @@ private slots:
 
     void confDataSettingSlot();
 
+    void modifyConfDlgSlot(ConfigData data);
+
+    void createMarkdownAndSubDirSlot(int type, QString namePathAbs);
+
 protected:
     // 窗口设置为随着窗口变化而变化
     virtual void resizeEvent(QResizeEvent *event) override;
@@ -170,7 +175,7 @@ public:
 private:
     Ui::MainWindow *ui;
     AssetsData addDelListData_;
-    ConfigData confDialog_;
+    ConfigData confData_;
     QClipboard *clip_;
     bool isIconMode_{false};
     unsigned int clickNum_{0};
@@ -213,6 +218,7 @@ private:
     QMediaPlayer *audioPlayer_; // = new QMediaPlayer;
 
     ModifyConfDialog* modifyConfDlg_;
+    CreateMarkdownAndSubDir* createMarkdownAndSubDirDlg_;
 };
 
 #endif // MAINWINDOW_H

@@ -43,7 +43,7 @@ void ConfigData::analysisJson(QJsonObject &rootObj){
         NamePath namePath;
         namePath.key = data.keys().at(0);  // 只有一个
         namePath.value = data[namePath.key].toString();
-        assetsNamePathMap_.push_back(namePath);
+        assetsNamePathList_.push_back(namePath);
     }
     QJsonArray TarPathArr = rootObj["TargetPath"].toArray();
     for(int i = 0; i < TarPathArr.size(); ++i){
@@ -51,7 +51,7 @@ void ConfigData::analysisJson(QJsonObject &rootObj){
         NamePath namePath;
         namePath.key = data.keys().at(0);
         namePath.value = data[namePath.key].toString();
-        repoNamePathMap_.push_back(namePath);
+        repoNamePathList_.push_back(namePath);
     }
     QJsonArray IntervalArr = rootObj["Interval"].toArray();
     for(int i = 0; i < IntervalArr.size(); ++i){
@@ -76,8 +76,8 @@ void ConfigData::analysisJson(QJsonObject &rootObj){
     meetFilePath_ = rootObj["MeetFilePath"].toString();
 }
 
-QString ConfigData::getImgPathByKey(QString key){
-    for(auto it = assetsNamePathMap_.begin(); it != assetsNamePathMap_.end(); ++it)
+QString ConfigData::getAssetsPathByKey(QString key){
+    for(auto it = assetsNamePathList_.begin(); it != assetsNamePathList_.end(); ++it)
     {
         if(it->key == key)
         {
@@ -88,11 +88,11 @@ QString ConfigData::getImgPathByKey(QString key){
     return QString("");
 }
 
-QString ConfigData::getTarPathByKey(QString key){
+QString ConfigData::getRepoPathByKey(QString key){
     if(key.isEmpty()){
         return QString("");
     }
-    for(auto it = repoNamePathMap_.begin(); it != repoNamePathMap_.end(); ++it)
+    for(auto it = repoNamePathList_.begin(); it != repoNamePathList_.end(); ++it)
     {
         if(it->key == key)
         {
@@ -104,7 +104,7 @@ QString ConfigData::getTarPathByKey(QString key){
 }
 
 bool ConfigData::findTarPath(QString key, NamePath& data){
-    for(auto it = repoNamePathMap_.begin(); it != repoNamePathMap_.end(); ++it)
+    for(auto it = repoNamePathList_.begin(); it != repoNamePathList_.end(); ++it)
     {
         if(it->key == key)
         {
@@ -116,7 +116,7 @@ bool ConfigData::findTarPath(QString key, NamePath& data){
 }
 
 bool ConfigData::findImgPathByName(QString key, NamePath& data){
-    for(auto it = assetsNamePathMap_.begin(); it != assetsNamePathMap_.end(); ++it)
+    for(auto it = assetsNamePathList_.begin(); it != assetsNamePathList_.end(); ++it)
     {
         if(it->value == key)
         {
@@ -229,8 +229,8 @@ bool ConfigData::writeIniFile() {
 }
 
 void ConfigData::confDataClear(){
-    assetsNamePathMap_.clear();
-    repoNamePathMap_.clear();
+    assetsNamePathList_.clear();
+    repoNamePathList_.clear();
     intervalArr_.clear();
     assetsType_.clear();
     meetFilePath_.clear();
@@ -239,8 +239,8 @@ void ConfigData::confDataClear(){
 }
 
 void ConfigData::clearAll(){
-    assetsNamePathMap_.clear();
-    repoNamePathMap_.clear();
+    assetsNamePathList_.clear();
+    repoNamePathList_.clear();
     intervalArr_.clear();
     assetsType_.clear();
     meetFilePath_.clear();
@@ -293,18 +293,18 @@ bool ConfigData::writeConfJson() {
     QJsonObject jsonObject;
     // 添加路径数组
     QJsonArray imagePathArray;
-    for(int i = 0; i < assetsNamePathMap_.size(); ++i){
+    for(int i = 0; i < assetsNamePathList_.size(); ++i){
         QJsonObject imagePathObject;
-        imagePathObject[assetsNamePathMap_.at(i).key] = assetsNamePathMap_.at(i).value;
+        imagePathObject[assetsNamePathList_.at(i).key] = assetsNamePathList_.at(i).value;
         imagePathArray.append(imagePathObject);
     }
     jsonObject["ImagePath"] = imagePathArray;
 
     // 添加目标路径数组
     QJsonArray targetPathArray;
-    for(int i = 0; i < repoNamePathMap_.size(); ++i){
+    for(int i = 0; i < repoNamePathList_.size(); ++i){
         QJsonObject targetPathObject;
-        targetPathObject[repoNamePathMap_.at(i).key] = repoNamePathMap_.at(i).value;
+        targetPathObject[repoNamePathList_.at(i).key] = repoNamePathList_.at(i).value;
         targetPathArray.append(targetPathObject);
     }
     jsonObject["TargetPath"] = targetPathArray;

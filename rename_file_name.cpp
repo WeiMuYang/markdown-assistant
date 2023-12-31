@@ -751,7 +751,6 @@ void RenameFileName::setSize(ScreenRes screen) {
     }
 }
 
-
 void RenameFileName::on_charRadioBtn_stateChanged(int arg1)
 {
     Q_UNUSED(arg1);
@@ -794,7 +793,6 @@ void RenameFileName::on_addNumRadioBtn_stateChanged(int arg1)
 }
 
 void RenameFileName::renameByNum(bool status) {
-    // 待完成。。。
     int len = ui->renameFileListWgt->rowCount();
     for(int i = 0; i < len; ++i) {
         QString name = ui->renameFileListWgt->item(i, 1)->text();

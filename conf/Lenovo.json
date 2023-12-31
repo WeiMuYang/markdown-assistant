@@ -8,10 +8,13 @@
         "*.mp3",
         "99-*.mp4"
     ],
-    "Date": "2023.12.24",
+    "Date": "2023.12.29",
     "ImagePath": [
         {
             "Desktop": "Desktop"
+        },
+        {
+            "IELTS-Test-rename11": "C:/Users/Administrator/Desktop/IELTS-Test-rename11"
         }
     ],
     "Interval": [
@@ -21,8 +24,8 @@
         "today"
     ],
     "Software": {
-        "MarkdownSoftware": "D:/Typora/Typora.exe",
-        "DataDirSoftware": "D:/Microsoft VS Code/Code.exe"
+        "DataDirSoftware": "D:/Microsoft VS Code/Code.exe",
+        "MarkdownSoftware": "D:/Typora/Typora.exe"
     },
     "TargetPath": [
         {

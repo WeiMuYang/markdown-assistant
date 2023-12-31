@@ -30,6 +30,7 @@ SOURCES += \
     about_dialog.cpp \
     assets_data.cpp \
     conf_data.cpp \
+    create_markdown_dir.cpp \
     file_operation.cpp \
     get_assets_dialog.cpp \
         main.cpp \
@@ -44,6 +45,7 @@ HEADERS += \
     about_dialog.h \
     assets_data.h \
     conf_data.h \
+    create_markdown_dir.h \
     file_operation.h \
     get_assets_dialog.h \
         mainwindow.h \
@@ -56,6 +58,7 @@ HEADERS += \
 
 FORMS += \
         about_dialog.ui \
+        create_markdown_dir.ui \
         get_assets_dialog.ui \
         mainwindow.ui \
         modify_conf_dialog.ui \
