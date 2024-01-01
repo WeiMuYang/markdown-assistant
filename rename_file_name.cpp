@@ -299,7 +299,9 @@ void RenameFileName::updateReferList(const QVector<ReFile>& reFileList) {
 QString RenameFileName::highlightDifferences(const QString& str1, const QString& str2) {
     QString highlightedStr;
     // " /\;:[]()."
-    QRegularExpression regex("[\\s/\\\\;:\\[\\]\\(\\)\\.]");
+//    QRegularExpression regex("[\\s/\\\\;:\\[\\]\\(\\)\\.]");
+    // "/\;:[]()."
+    QRegularExpression regex("[/\\\\;:\\[\\]\\(\\)\\.]");
     QRegularExpressionMatchIterator iterator1 = regex.globalMatch(str1);
     QRegularExpressionMatchIterator iterator2 = regex.globalMatch(str2);
     int prevIndex1 = 0;
@@ -624,7 +626,12 @@ void RenameFileName::on_ChooseDirPbn_clicked()
 
 void RenameFileName::on_ChooseConfPbn_clicked()
 {
-    renameConfPath_ = QFileDialog::getOpenFileName(this,"选择配置文件",repoPath_,tr("Json files(*.json);;txt files(*.txt);;All files(*.*)"));
+    QString path = QFileDialog::getOpenFileName(this,"选择字符替换文件",repoPath_,tr("Json files(*.json);;txt files(*.txt);;All files(*.*)"));
+    if(path.isEmpty()) {
+        emit sigRenameFileNameLog(QString("字符替换文件名有不能为空!"));
+        return ;
+    }
+    renameConfPath_ = path;
     ui->NameConfFilePathEdit->setText(renameConfPath_);
     on_refreshPbn_clicked();
 }
@@ -722,7 +729,13 @@ void RenameFileName::on_ReplaceByListPbn_clicked()
 
 void RenameFileName::on_ChooseListPbn_clicked()
 {
-    renameListPath_ = QFileDialog::QFileDialog::getOpenFileName(this,"选择配置文件",repoPath_,tr("txt files(*.txt);;Json files(*.json);;All files(*.*)"));
+    QString path = QFileDialog::QFileDialog::getOpenFileName(this,"选择重命名列表",repoPath_,tr("txt files(*.txt);;Json files(*.json);;All files(*.*)"));
+    if(path.isEmpty()) {
+        emit sigRenameFileNameLog(QString("列表文件名有不能为空!"));
+        return;
+    }
+
+    renameListPath_ = path;
     ui->NameListPathEdit->setText(renameListPath_);
     on_refreshPbn_clicked();
 }
