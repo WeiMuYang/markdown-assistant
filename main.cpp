@@ -32,10 +32,10 @@ int main(int argc, char *argv[])
         a.setFont(font);
     }else{
         QFont font = a.font();
-        font.setPointSize(10);
+        font.setPointSize(11);
         a.setFont(font);
     }
-    w.show();
+    w.showSlot();
 
     return a.exec();
 }

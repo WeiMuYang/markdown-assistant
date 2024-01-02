@@ -171,7 +171,7 @@ protected:
 
     void closeEvent(QCloseEvent *event);
 public:
-    void show(); // 声明show函数
+    void showSlot(); // 声明show函数
 
 private:
     Ui::MainWindow *ui;
@@ -194,7 +194,7 @@ private:
     QLabel* pStatusLabelCurrentFile_;
     OpenExProgram openExPro_;
 
-    int scrrenWidth_;
+    int screenWidth_;
     BoxSelect boxSelect_;
 
     GetAssetsDialog* getAssetsDialog_;

@@ -25,7 +25,7 @@
   <property name="windowTitle">
    <string>重命名</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_8" stretch="1,1,1">
+  <layout class="QVBoxLayout" name="verticalLayout_8" stretch="2,3,3">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="2,1">
      <item>
@@ -39,7 +39,7 @@
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>200</height>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
@@ -64,7 +64,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>50</width>
+              <width>0</width>
               <height>0</height>
              </size>
             </property>
@@ -92,7 +92,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>50</width>
+              <width>0</width>
               <height>0</height>
              </size>
             </property>
@@ -120,7 +120,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>50</width>
+              <width>0</width>
               <height>0</height>
              </size>
             </property>
@@ -332,7 +332,7 @@
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>200</height>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
@@ -452,7 +452,7 @@
              <string>备份</string>
             </property>
             <property name="checked">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
            </widget>
           </item>

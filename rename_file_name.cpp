@@ -745,23 +745,28 @@ void RenameFileName::on_OpenListFilePbn_clicked()
     emit sigRenameFileConfFile(renameListPath_);
 }
 
-void RenameFileName::setSize(ScreenRes screen) {
+void RenameFileName::setWidth(int width) {
+    width_ = width;
+}
+
+void RenameFileName::initWindowSize() {
 //    pathConfBox
-    if(screen == ScreenRes::High){
-        this->setMinimumSize(QSize(1600, 1000));
-        this->resize(QSize(1600, 1000));
-        ui->pathConfBox->setMinimumHeight(200);
-        ui->pathConfBox->setMaximumHeight(200);
-        ui->replaceStrategyBox->setMinimumHeight(200);
-        ui->replaceStrategyBox->setMaximumHeight(200);
-    }else{
-        this->setMinimumSize(QSize(700, 600));
-        this->resize(QSize(700, 600));
-        ui->pathConfBox->setMinimumHeight(100);
-        ui->pathConfBox->setMaximumHeight(100);
-        ui->replaceStrategyBox->setMinimumHeight(100);
-        ui->replaceStrategyBox->setMaximumHeight(100);
+    double widthIn4K = 1300;
+    double heightIn4K = 980;
+    double zoom = 1;
+    if(width_ < 3840) {
+        zoom = 1;
     }
+    // 1600 1000
+    // 高 宽 比
+    double WindowAspect =heightIn4K / widthIn4K;
+    // 占屏比
+    double Proportion = widthIn4K / 3840.0;
+    // 宽 高
+    int width = width_ * Proportion ;
+    int height = width * WindowAspect;
+    setMinimumSize(QSize(width, height) * zoom);
+    this->resize(QSize(width, height) * zoom);
 }
 
 void RenameFileName::on_charRadioBtn_stateChanged(int arg1)

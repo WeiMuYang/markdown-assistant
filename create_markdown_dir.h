@@ -31,6 +31,11 @@ public:
     void updateSubDirWgt();
     bool createMarkdown(QString &path);
     bool createSubDir(QString &path);
+    void initSize();
+
+    void setWidth(int res) {
+        width_ = res;
+    }
 
 private slots:
 
@@ -60,6 +65,7 @@ private:
     Ui::CreateMarkdown *ui;
     QString subDirPath_;
     QString repoPath_;
+    int width_;
 };
 
 #endif // CREATE_MARKDOWN_DIR_H

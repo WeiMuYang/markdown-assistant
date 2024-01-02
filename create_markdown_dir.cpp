@@ -75,9 +75,29 @@ void CreateMarkdownAndSubDir::showWindow() {
     ui->fileRadioBtn->setChecked(true);
     ui->newDirFileNameEdit->setText("");
     ui->newFileNameEdit->setText("");
+    initSize();
     updateMarkdownWgt();
     updateSubDirWgt();
     show();
+}
+
+void CreateMarkdownAndSubDir::initSize() {
+    double widthIn4K = 830;
+    double heightIn4K = 400;
+    double zoom = 1;
+    if(width_ < 3840) {
+        zoom = 1.2;
+    }
+    // 830 400
+    // 宽高比
+    double WindowAspect = heightIn4K / widthIn4K;
+    // 占屏比
+    double Proportion = widthIn4K / 3840.0;
+    // 宽 高
+    int width = width_ * Proportion ;
+    int height = width * WindowAspect;
+    setMinimumSize(QSize(width, height) * zoom);
+    this->resize(QSize(width, height) * zoom);
 }
 
 

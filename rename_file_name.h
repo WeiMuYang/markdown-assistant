@@ -52,7 +52,8 @@ public:
     QString highlightDifferences(const QString& str1, const QString& str2);
 
     void initListMenu();
-    void setSize(ScreenRes screen);
+    void setWidth(int width);
+    void initWindowSize();
     bool modifyReferMarkdown(const QString& markdownPathAbs, const QVector<ReText>& reTextList);
 
 private slots:
@@ -74,11 +75,6 @@ private slots:
     void updateReferTextClickedSlot(QModelIndex index);
 
     void on_OpenListFilePbn_clicked();
-
-
-
-
-
 
     void on_charRadioBtn_stateChanged(int arg1);
 
@@ -113,6 +109,8 @@ private:
     QMenu* renameListMenu_;
     bool includeDir_{true};
     bool includeFile_{true};
+
+    int width_;
 };
 
 #endif // RENAME_FILE_NAME_H

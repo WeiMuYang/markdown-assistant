@@ -3,13 +3,13 @@
 #include <QDebug>
 #include <QFileDialog>
 #include <QStandardPaths>
+#include <QScreen>
 
 ModifyConfDialog::ModifyConfDialog(QWidget *parent) :
     QDialog(parent),
     ui(new Ui::ModifyConfDialog)
 {
     ui->setupUi(this);
-    screenRes_ = ScreenRes::High;
     initWindow();
 }
 
@@ -48,18 +48,6 @@ void ModifyConfDialog::initWindow() {
         connect(ui->repoDirList,&QTableWidget::itemChanged,this, &ModifyConfDialog::updateRepoListEditSlot);
     }
     {
-        QFont font;
-        if(screenRes_ == ScreenRes::High){
-            font = ui->assetsTypeList->font();
-            font.setPointSize(13);
-            ui->assetsTypeList->setFont(font);
-            multiple_ = 2;
-        }else{
-            font = ui->assetsTypeList->font();
-            font.setPointSize(10);
-            ui->assetsTypeList->setFont(font);
-            multiple_ = 1;
-        }
         connect(ui->assetsTypeList,&QListWidget::itemChanged,this, &ModifyConfDialog::updateAssetsTypeListEditSlot);
     }
 }
@@ -111,14 +99,22 @@ void ModifyConfDialog::updateAssetsType()
 }
 
 void ModifyConfDialog::initWindowsSize() {
-    if(screenRes_ == ScreenRes::High) {
-        this->setMinimumSize(1000, 870);
-        this->resize(1000, 870);
-    } else {
-        // ===============
-        this->setMinimumSize(800, 720);
-        this->resize(800, 720);
+    double widthIn4K = 1250;
+    double heightIn4K = 1000;
+    double zoom = 1;
+    if(width_ < 3840) {
+        zoom = 1.1;
     }
+    // 1000 870
+    // 宽高比
+    double WindowAspect = heightIn4K / widthIn4K;
+    // 占屏比
+    double Proportion = widthIn4K / 3840.0;
+    // 宽 高
+    int width = width_ * Proportion ;
+    int height = width * WindowAspect;
+    setMinimumSize(QSize(width, height) * zoom);
+    this->resize(QSize(width, height) * zoom);
 }
 
 void ModifyConfDialog::showWindow() {

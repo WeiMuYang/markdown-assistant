@@ -26,6 +26,11 @@ public:
 
     QString getCurrentFullPath();
     void setCurrentFullPath(const QString& str);
+    void initSize();
+
+    void setWidth(int res) {
+        width_ = res;
+    }
 
 signals:
     void sigGetAssetsDlgLogText(QString log);
@@ -43,6 +48,7 @@ private slots:
 private:
     Ui::GetAssetsDialog *ui;
     bool isOK{false};
+    int width_;
 };
 
 #endif // GET_ASSETS_DIALOG_H

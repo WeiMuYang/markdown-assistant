@@ -32,8 +32,8 @@ public:
     void updateSoftWarePath();
     void updateMeetingPath();
 
-    void setScreenRes(ScreenRes res) {
-        screenRes_ = res;
+    void setWidth(int res) {
+        width_ = res;
     }
 
 private slots:
@@ -73,7 +73,7 @@ private:
 
     ConfigData configdata_;
 
-    ScreenRes screenRes_;
+    int width_;
     int multiple_;
 };
 

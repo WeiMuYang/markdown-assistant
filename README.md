@@ -176,6 +176,7 @@ Markdown助手的主要是用于Markdown文件编写过程中，资源的管理�
 <center>    
 <img src=./img/01-14.gif alt=img-01-14 width=80%;/>   
 </center>    
+
 ### 2.8 托盘功能     
 
 关闭窗口的话，需要从托盘进行退出。同时也可以有三种图标可以切换。 

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1000</width>
-    <height>870</height>
+    <height>850</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -21,7 +21,7 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_4">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_10" stretch="4,13">
+    <layout class="QHBoxLayout" name="horizontalLayout_10" stretch="3,13">
      <item>
       <widget class="QGroupBox" name="listWgt">
        <property name="sizePolicy">
@@ -47,16 +47,16 @@
        </property>
        <layout class="QVBoxLayout" name="listLayout" stretch="0,5">
         <property name="spacing">
-         <number>2</number>
+         <number>0</number>
         </property>
         <property name="leftMargin">
-         <number>5</number>
+         <number>0</number>
         </property>
         <property name="topMargin">
-         <number>6</number>
+         <number>1</number>
         </property>
         <property name="rightMargin">
-         <number>5</number>
+         <number>0</number>
         </property>
         <property name="bottomMargin">
          <number>0</number>
@@ -120,14 +120,14 @@
              </property>
              <property name="minimumSize">
               <size>
-               <width>40</width>
-               <height>40</height>
+               <width>25</width>
+               <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>40</width>
-               <height>40</height>
+               <width>25</width>
+               <height>25</height>
               </size>
              </property>
              <property name="font">
@@ -156,14 +156,14 @@
              </property>
              <property name="minimumSize">
               <size>
-               <width>40</width>
-               <height>40</height>
+               <width>25</width>
+               <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>40</width>
-               <height>40</height>
+               <width>25</width>
+               <height>25</height>
               </size>
              </property>
              <property name="styleSheet">
@@ -184,14 +184,14 @@
              </property>
              <property name="minimumSize">
               <size>
-               <width>40</width>
-               <height>40</height>
+               <width>25</width>
+               <height>25</height>
               </size>
              </property>
              <property name="maximumSize">
               <size>
-               <width>40</width>
-               <height>40</height>
+               <width>25</width>
+               <height>25</height>
               </size>
              </property>
              <property name="styleSheet">
@@ -243,12 +243,15 @@
          <property name="title">
           <string>资源目录</string>
          </property>
-         <layout class="QVBoxLayout" name="listLayout_2" stretch="0,0">
+         <layout class="QVBoxLayout" name="listLayout_2" stretch="0,7">
+          <property name="spacing">
+           <number>0</number>
+          </property>
           <property name="leftMargin">
-           <number>5</number>
+           <number>0</number>
           </property>
           <property name="topMargin">
-           <number>5</number>
+           <number>1</number>
           </property>
           <property name="rightMargin">
            <number>5</number>
@@ -300,7 +303,7 @@
                <property name="sizeHint" stdset="0">
                 <size>
                  <width>40</width>
-                 <height>20</height>
+                 <height>10</height>
                 </size>
                </property>
               </spacer>
@@ -315,14 +318,14 @@
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>40</width>
-                 <height>40</height>
+                 <width>25</width>
+                 <height>25</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>40</width>
-                 <height>40</height>
+                 <width>25</width>
+                 <height>25</height>
                 </size>
                </property>
                <property name="styleSheet">
@@ -343,14 +346,14 @@
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>40</width>
-                 <height>40</height>
+                 <width>25</width>
+                 <height>25</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>40</width>
-                 <height>40</height>
+                 <width>25</width>
+                 <height>25</height>
                 </size>
                </property>
                <property name="styleSheet">
@@ -428,15 +431,18 @@
          <property name="title">
           <string>仓库目录</string>
          </property>
-         <layout class="QVBoxLayout" name="listLayout_3" stretch="0,0">
+         <layout class="QVBoxLayout" name="listLayout_3" stretch="1,7">
+          <property name="spacing">
+           <number>0</number>
+          </property>
           <property name="leftMargin">
-           <number>5</number>
+           <number>0</number>
           </property>
           <property name="topMargin">
-           <number>5</number>
+           <number>1</number>
           </property>
           <property name="rightMargin">
-           <number>5</number>
+           <number>0</number>
           </property>
           <property name="bottomMargin">
            <number>0</number>
@@ -493,21 +499,21 @@
              <item>
               <widget class="QPushButton" name="addRepoDir">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>40</width>
-                 <height>40</height>
+                 <width>25</width>
+                 <height>25</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>40</width>
-                 <height>40</height>
+                 <width>25</width>
+                 <height>25</height>
                 </size>
                </property>
                <property name="styleSheet">
@@ -521,21 +527,21 @@
              <item>
               <widget class="QPushButton" name="delRepoDir">
                <property name="sizePolicy">
-                <sizepolicy hsizetype="Preferred" vsizetype="Expanding">
+                <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                  <horstretch>0</horstretch>
                  <verstretch>0</verstretch>
                 </sizepolicy>
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>40</width>
-                 <height>40</height>
+                 <width>25</width>
+                 <height>25</height>
                 </size>
                </property>
                <property name="maximumSize">
                 <size>
-                 <width>40</width>
-                 <height>40</height>
+                 <width>25</width>
+                 <height>25</height>
                 </size>
                </property>
                <property name="styleSheet">
@@ -607,7 +613,7 @@
        <property name="minimumSize">
         <size>
          <width>0</width>
-         <height>230</height>
+         <height>0</height>
         </size>
        </property>
        <property name="maximumSize">
@@ -644,7 +650,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>50</width>
+              <width>30</width>
               <height>0</height>
              </size>
             </property>
@@ -672,7 +678,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>50</width>
+              <width>30</width>
               <height>0</height>
              </size>
             </property>
@@ -700,7 +706,7 @@
             </property>
             <property name="minimumSize">
              <size>
-              <width>50</width>
+              <width>30</width>
               <height>0</height>
              </size>
             </property>
@@ -723,7 +729,7 @@
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_7" stretch="1,1,1">
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="7,2">
+           <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="7,0">
             <item>
              <widget class="QLineEdit" name="markdownSoftEdit">
               <property name="enabled">
@@ -752,15 +758,15 @@
             <item>
              <widget class="QToolButton" name="markdownSoftPbn">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>60</width>
-                <height>60</height>
+                <width>30</width>
+                <height>30</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -777,7 +783,7 @@
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout" stretch="7,2">
+           <layout class="QHBoxLayout" name="horizontalLayout" stretch="7,0">
             <item>
              <widget class="QLineEdit" name="dataDirSoftEdit">
               <property name="sizePolicy">
@@ -803,15 +809,15 @@
             <item>
              <widget class="QToolButton" name="dataDirSoftPbn">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>60</width>
-                <height>60</height>
+                <width>30</width>
+                <height>30</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -828,7 +834,7 @@
            </layout>
           </item>
           <item>
-           <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="7,2">
+           <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="7,0">
             <item>
              <widget class="QLineEdit" name="meetingFilePathEdit">
               <property name="sizePolicy">
@@ -854,15 +860,15 @@
             <item>
              <widget class="QToolButton" name="meetingFilePathPtn">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
               <property name="minimumSize">
                <size>
-                <width>60</width>
-                <height>60</height>
+                <width>30</width>
+                <height>30</height>
                </size>
               </property>
               <property name="maximumSize">
@@ -883,10 +889,20 @@
        </layout>
       </widget>
      </item>
-     <item>
-      <layout class="QVBoxLayout" name="verticalLayout"/>
-     </item>
     </layout>
+   </item>
+   <item>
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_8">
@@ -914,13 +930,13 @@
        <property name="minimumSize">
         <size>
          <width>140</width>
-         <height>70</height>
+         <height>30</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>70</height>
+         <height>65</height>
         </size>
        </property>
        <property name="text">
@@ -939,13 +955,13 @@
        <property name="minimumSize">
         <size>
          <width>140</width>
-         <height>70</height>
+         <height>30</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>70</height>
+         <height>65</height>
         </size>
        </property>
        <property name="text">
@@ -964,13 +980,13 @@
        <property name="minimumSize">
         <size>
          <width>140</width>
-         <height>70</height>
+         <height>30</height>
         </size>
        </property>
        <property name="maximumSize">
         <size>
          <width>16777215</width>
-         <height>70</height>
+         <height>65</height>
         </size>
        </property>
        <property name="text">

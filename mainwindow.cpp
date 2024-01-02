@@ -30,7 +30,7 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    scrrenWidth_ = printscreeninfo();
+    screenWidth_ = printscreeninfo();
     videoThr_ = new VideoThr;
     audioPlayer_ = new QMediaPlayer;
     clip_ = QApplication::clipboard();
@@ -140,14 +140,14 @@ void MainWindow::initTray() {
     trayIcon_ = new QSystemTrayIcon(this);
     trayIcon_->setIcon(QIcon(":/qss/icon/markdown-assistant.ico"));
     trayMenu_ = new QMenu(this);
-    QAction *showAction = new QAction("显      示", this);
-    QAction *switchIconAction = new QAction("新  图  标", this);
-    QAction *quitAction = new QAction("退      出", this);
+    QAction *showAction = new QAction("显         示", this);
+    QAction *switchIconAction = new QAction("切 换 图 标", this);
+    QAction *quitAction = new QAction("退         出", this);
     trayMenu_->addAction(showAction);
     trayMenu_->addAction(switchIconAction);
     trayMenu_->addAction(quitAction);
     trayIcon_->setContextMenu(trayMenu_);
-    connect(showAction, &QAction::triggered, this, &MainWindow::show);
+    connect(showAction, &QAction::triggered, this, &MainWindow::showSlot);
     connect(switchIconAction, &QAction::triggered, this, &MainWindow::switchIconSlot);
     connect(quitAction, &QAction::triggered, this, &MainWindow::quitAppSlot);
     connect(trayIcon_, &QSystemTrayIcon::activated, this, &MainWindow::trayIconClickedSlot);
@@ -168,21 +168,8 @@ void MainWindow::modifyConfDlgSlot(ConfigData data) {
     updateDataAndWidget();
 }
 
-void MainWindow::show()
+void MainWindow::showSlot()
 {
-    // 单击操作
-    int width = printscreeninfo();
-    QApplication* a = qApp;
-    if(width >= 3840){
-        QFont font = a->font();
-        font.setPointSize(13);
-        a->setFont(font);
-    }else{
-        QFont font = a->font();
-        font.setPointSize(10);
-        a->setFont(font);
-    }
-
     QMainWindow::show();
 }
 
@@ -210,10 +197,10 @@ void MainWindow::switchIconSlot() {
 void MainWindow::trayIconClickedSlot(QSystemTrayIcon::ActivationReason reason)
 {
     if (reason == QSystemTrayIcon::Trigger) {
-        show();
+        showSlot();
     } else if (reason == QSystemTrayIcon::DoubleClick) {
         // 双击操作
-        show();
+        showSlot();
     }
 }
 
@@ -489,10 +476,10 @@ void MainWindow::InitMainWindowMenu(){
         isStayTop_ = !isStayTop_;
         if(isStayTop_) {
             setWindowFlag(Qt::WindowStaysOnTopHint, true);
-            show();
+            showSlot();
         }else {
             setWindowFlag(Qt::WindowStaysOnTopHint, false);
-            show();
+            showSlot();
         }
     });
 
@@ -626,35 +613,48 @@ void MainWindow::initStatusBar(){
 }
 
 void MainWindow::setNormalViewByScreenRes(){
-    if(getScrrenRes() == ScreenRes::High){
-        this->setMinimumSize(QSize(1300, 1000));
-        this->resize(QSize(1300, 1000));
-        ui->pathWgt->setMinimumSize(QSize(500,155));
-        ui->listPbnWgt->setMinimumHeight(50);
-        ui->listPbnWgt->setMaximumHeight(65);
-        multiple = 2;
-    }else{
-        this->setMinimumSize(QSize(860, 600)); // int w, int h
-        this->resize(QSize(860, 600));
-        ui->pathWgt->setMaximumHeight(126);
-        ui->pathWgt->setMinimumSize(QSize(0,126));
-        ui->listPbnWgt->setMinimumHeight(40);
-        ui->listPbnWgt->setMaximumHeight(50);
-        ui->pathWgt->setMinimumWidth(440);
-        multiple = 1;
+    double widthIn4K = 1500;
+    double heightIn4K = 1000;
+    float zoom = 1;
+    if(screenWidth_ < 3840) {
+        zoom = 1.1;
     }
+    // 高宽比
+    double WindowAspect = heightIn4K / widthIn4K;
+    // 占屏比
+    double Proportion = widthIn4K / 3840.0;
+    // 宽 高
+    int width = screenWidth_ * Proportion * zoom;
+    int height = width * WindowAspect * zoom;
+    setMinimumSize(QSize(width, height));
+    this->resize(QSize(width, height));
 }
 
 void MainWindow::setSampleViewByScreenRes(){
-    if(getScrrenRes() == ScreenRes::High){
-        this->setMinimumSize(QSize(440, 240));
-        this->resize(QSize(880, 480));
-        ui->pathWgt->setMinimumWidth(440);
-    }else{
-        this->setMinimumSize(QSize(650, 350));
-        this->resize(QSize(650, 350));
-        ui->pathWgt->setMinimumWidth(350);
+
+    float zoom = 1;
+    if(screenWidth_ < 3840) {
+        zoom = 1.5;
     }
+    // 宽高比
+    double WindowAspect = 480.0 / 880.0;
+    // 占屏比
+    double Proportion = 880.0 / 3840.0;
+    // 宽 高
+    int width = screenWidth_ * Proportion ;
+    int height = width * WindowAspect;
+    setMinimumSize(QSize(width, height) * zoom);
+    this->resize(QSize(width, height) * zoom);
+
+//    if(getScrrenRes() == ScreenRes::High){
+//        this->setMinimumSize(QSize(440, 240));
+//        this->resize(QSize(880, 480));
+//        ui->pathWgt->setMinimumWidth(440);
+//    }else{
+//        this->setMinimumSize(QSize(650, 350));
+//        this->resize(QSize(650, 350));
+//        ui->pathWgt->setMinimumWidth(350);
+//    }
 }
 
 void MainWindow::initScreenResNormal(){
@@ -664,17 +664,17 @@ void MainWindow::initScreenResNormal(){
 
 void MainWindow::setScreenWitdh(int w)
 {
-    scrrenWidth_ = w;
+    screenWidth_ = w;
 }
 
 int MainWindow::getScreenWitdh()
 {
-    return scrrenWidth_;
+    return screenWidth_;
 }
 
 ScreenRes MainWindow::getScrrenRes()
 {
-    if(scrrenWidth_ >= 3840){
+    if(screenWidth_ >= 3840){
         return ScreenRes::High;
     }else{
         return ScreenRes::Low;
@@ -894,31 +894,8 @@ void MainWindow::updateListDataAndWgtSlot(){
 void MainWindow::initListWgt(){
     QFont font;
     if(getScrrenRes() == ScreenRes::High){
-        font = ui->addList->font();
-        font.setPointSize(13);
-        ui->addList->setFont(font);
-
-        font = ui->delList->font();
-        font.setPointSize(13);
-        ui->delList->setFont(font);
-
-        font = ui->historyFileList->font();
-        font.setPointSize(13);
-        ui->historyFileList->setFont(font);
         multiple = 2;
     }else{
-        font = ui->addList->font();
-        font.setPointSize(10);
-        ui->addList->setFont(font);
-
-        font = ui->delList->font();
-        font.setPointSize(10);
-        ui->delList->setFont(font);
-
-        font = ui->historyFileList->font();
-        font.setPointSize(10);
-        ui->historyFileList->setFont(font);
-
         multiple = 1;
     }
 }
@@ -952,11 +929,11 @@ void MainWindow::setItemIcon(const ImgData& data, QListWidgetItem* pItem) {
     }
 
     if(isIconMode_){
-        pItem->setSizeHint(QSize(200,100* multiple));
+        pItem->setSizeHint(QSize(200,100 * multiple));
         pItem->setText(data.oldName);
         pItem->setToolTip(data.oldName);
     }else{
-        pItem->setSizeHint(QSize(20,20*multiple));
+        pItem->setSizeHint(QSize(20,20 * multiple));
         pItem->setText(data.oldName);
         pItem->setToolTip(data.oldName);
     }
@@ -1540,7 +1517,7 @@ void MainWindow::delAssstsDirSlot(){
 }
 
 void MainWindow::confDataSettingSlot() {
-    modifyConfDlg_->setScreenRes(getScrrenRes());
+    modifyConfDlg_->setWidth(screenWidth_);
     confData_.setVersion(VERSION);
     modifyConfDlg_->setConfigData(confData_);
     modifyConfDlg_->showWindow();
@@ -1697,6 +1674,8 @@ void MainWindow::changTarPathStyle(bool flags){
 
 void MainWindow::getAssetsSlot()
 {
+    getAssetsDialog_->setWidth(screenWidth_);
+    getAssetsDialog_->initSize();
     getAssetsDialog_->show();
 }
 
@@ -1708,32 +1687,31 @@ void MainWindow::newConfFileSlot()
     }
 }
 
+// 极简窗口
 void MainWindow::setSampleView(){
     ui->tabWgt->hide();
     ui->delList->hide();
     ui->openWgt->hide();
     ui->createMarkdownPbn->hide();
-    //    ui->filePbnWgt->hide();
     ui->syncPbn->hide();
     ui->modePbn->hide();
     setSampleViewByScreenRes();
     isStayTop_ = true;
     setWindowFlag(Qt::WindowStaysOnTopHint, true);
-    show();
+    showSlot();
 }
-
+// 正常窗口
 void MainWindow::setNormalView(){
     ui->tabWgt->show();
     ui->delList->show();
     ui->openWgt->show();
     ui->createMarkdownPbn->show();
-    //    ui->filePbnWgt->show();
     ui->syncPbn->show();
     ui->modePbn->show();
     setNormalViewByScreenRes();
     isStayTop_ = false;
     setWindowFlag(Qt::WindowStaysOnTopHint, false);
-    show();
+    showSlot();
 }
 
 void MainWindow::simpleViewSlot()
@@ -1753,6 +1731,7 @@ void MainWindow::simpleViewSlot()
 void MainWindow::openAboutSlot()
 {
     aboutDialog_->setVersion(VERSION);
+    aboutDialog_->setWidth(screenWidth_);
     aboutDialog_->showWindow();
 }
 
@@ -1776,6 +1755,7 @@ void MainWindow::createMarkdownAndSubDirSlot(int type, QString namePathAbs)
 void MainWindow::on_createMarkdownPbn_clicked()
 {
     createMarkdownAndSubDirDlg_->setSubDirPath(fullCurrentMarkdownDirPath_);
+    createMarkdownAndSubDirDlg_->setWidth(screenWidth_);
     createMarkdownAndSubDirDlg_->setRepoPath(repoPath_);
     createMarkdownAndSubDirDlg_->showWindow();
 }
@@ -1822,7 +1802,8 @@ void MainWindow::showModifyNameDlg(){
     renameFileName_->setRenameDirPath(repoPath_);
     renameFileName_->setRenameConfPath(confData_.getIniFile().iniAndJsonPath + "/99-CharReplace.json");
     renameFileName_->setRenameListPath(confData_.getIniFile().iniAndJsonPath + "/99-RenameList.txt");
-    renameFileName_->setSize(getScrrenRes());
+    renameFileName_->setWidth(screenWidth_);
+    renameFileName_->initWindowSize();
     renameFileName_->renameListClear();
     renameFileName_->show();
 }

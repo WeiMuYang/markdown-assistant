@@ -19,7 +19,12 @@ public:
         version_ =  version;
     }
 
+    void setWidth(int res) {
+        width_ = res;
+    }
+
     void showWindow();
+    void initSize();
 
 private slots:
 
@@ -28,6 +33,7 @@ private slots:
 private:
     Ui::AboutDialog *ui;
     QString version_;
+    int width_;
 };
 
 #endif // ABOUT_DIALOG_H
