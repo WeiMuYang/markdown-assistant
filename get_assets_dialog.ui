@@ -103,6 +103,9 @@
          <height>35</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string extracomment="用逗号或者空格分割多个名字，不写的话，自动编号"/>
+       </property>
        <property name="text">
         <string> 文件名： </string>
        </property>
@@ -119,34 +122,30 @@
          <height>30</height>
         </size>
        </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QRadioButton" name="dirRadioButton">
-       <property name="minimumSize">
-        <size>
-         <width>0</width>
-         <height>30</height>
-        </size>
-       </property>
-       <property name="text">
-        <string>文件夹</string>
-       </property>
-       <property name="checked">
-        <bool>true</bool>
+       <property name="toolTip">
+        <string extracomment="用逗号或者空格分割多个名字，不写的话，自动编号"/>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QRadioButton" name="clipRadioButton">
+      <widget class="QPushButton" name="helpPbn">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="minimumSize">
         <size>
-         <width>0</width>
+         <width>28</width>
          <height>30</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string extracomment="解决非劳动饭"/>
+       </property>
        <property name="text">
-        <string>剪切板</string>
+        <string/>
        </property>
       </widget>
      </item>

@@ -19,7 +19,7 @@
   <property name="windowTitle">
    <string>配置信息</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_4">
+  <layout class="QVBoxLayout" name="verticalLayout_4" stretch="5,2,0,1">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_10" stretch="3,13">
      <item>
@@ -142,7 +142,11 @@
               <string notr="true"/>
              </property>
              <property name="text">
-              <string>?</string>
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset theme="help-about">
+               <normaloff>.</normaloff>.</iconset>
              </property>
             </widget>
            </item>

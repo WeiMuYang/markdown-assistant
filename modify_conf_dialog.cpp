@@ -4,6 +4,7 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QScreen>
+#include "debug_box.h"
 
 ModifyConfDialog::ModifyConfDialog(QWidget *parent) :
     QDialog(parent),
@@ -50,6 +51,8 @@ void ModifyConfDialog::initWindow() {
     {
         connect(ui->assetsTypeList,&QListWidget::itemChanged,this, &ModifyConfDialog::updateAssetsTypeListEditSlot);
     }
+    QIcon icon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxQuestion);
+    ui->helpAssetsTypePbn->setIcon(icon);
 }
 
 void ModifyConfDialog::updateAssetsDirList() {
@@ -161,7 +164,6 @@ void ModifyConfDialog::on_delAssetsDir_clicked()
         if (item->column() == 1) {
             QString path = item->text();
             configdata_.delAssetsPath(path);
-//            configdata_.writeConfJson();
         }
     }
     updateAssetsDirList();
@@ -177,13 +179,9 @@ void ModifyConfDialog::on_addRepoDir_clicked()
     }
     QFileInfo fileInfo(path);
     QString existName;
-    if(configdata_.addRepoPath(fileInfo.fileName(), fileInfo.filePath(), existName)) {
-//        configdata_.writeConfJson();
-        ////////////////////-------------------------------------------error
-//        updateDataAndWidget();
-//        ui->tarPathCombox->setCurrentText(newName);
-    }else{
+    if(!configdata_.addRepoPath(fileInfo.fileName(), fileInfo.filePath(), existName)) {
         emit sigModifyConfDlgLog("\"" + existName + "\"和\"" + fileInfo.fileName() + "\"是同一个仓库!");
+        return ;
     }
     updateRepoList();
 }
@@ -196,7 +194,6 @@ void ModifyConfDialog::on_delRepoDir_clicked()
         if (item->column() == 1) {
             QString path = item->text();
             configdata_.delRepoPath(path);
-//            configdata_.writeConfJson();
         }
     }
     updateRepoList();
@@ -281,5 +278,19 @@ void ModifyConfDialog::on_cancelPbn_clicked()
 void ModifyConfDialog::on_applyPbn_clicked()
 {
     emit sigModifyConfigData(configdata_);
+}
+
+void ModifyConfDialog::on_helpAssetsTypePbn_clicked()
+{
+    DebugBox box;
+    QString msg;
+    msg += "过滤器可以是简单的文件名，也可以是带有通配符的模式: \n";
+    msg += "1. \"*\"：匹配任意长度。  ";
+    msg += "2. \"?\"：匹配单个字符。   ";
+    msg += "3. \"[ ]\"：匹配括号内的任意单个字符。  ";
+    msg += "4. \"[! ]\"：匹配不在括号内的任意单个字符。  ";
+    msg += "5. \"{ }\"：匹配花括号内的任意字符序列。 \n";
+
+    box.helpBoxSlot(msg, width_);
 }
 

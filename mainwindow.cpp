@@ -13,6 +13,7 @@
 #include <QMenu>
 #include <QMovie>
 #include <QImageReader>
+#include <QScreen>
 #include "debug_box.h"
 
 int printscreeninfo()
@@ -613,12 +614,15 @@ void MainWindow::initStatusBar(){
 }
 
 void MainWindow::setNormalViewByScreenRes(){
-    double widthIn4K = 1500;
-    double heightIn4K = 1000;
-    float zoom = 1;
-    if(screenWidth_ < 3840) {
-        zoom = 1.1;
+    QScreen *screen = QGuiApplication::primaryScreen();
+    qreal logicalDpi = screen->logicalDotsPerInch();
+    double zoom = 1;
+    if(logicalDpi > 150) {
+        zoom = logicalDpi / 150.0;
     }
+    double widthIn4K = 1400;
+    double heightIn4K = 1100;
+
     // 高宽比
     double WindowAspect = heightIn4K / widthIn4K;
     // 占屏比
@@ -626,6 +630,14 @@ void MainWindow::setNormalViewByScreenRes(){
     // 宽 高
     int width = screenWidth_ * Proportion * zoom;
     int height = width * WindowAspect * zoom;
+    QDesktopWidget *dwsktopwidget = QApplication::desktop();
+    QRect deskrect = dwsktopwidget->availableGeometry();
+    if(width >= deskrect.width()) {
+        width = deskrect.width();
+    }
+    if(height >= deskrect.height()- 100 ) {
+        height = deskrect.height() - 100 ;
+    }
     setMinimumSize(QSize(width, height));
     this->resize(QSize(width, height));
 }
@@ -645,16 +657,6 @@ void MainWindow::setSampleViewByScreenRes(){
     int height = width * WindowAspect;
     setMinimumSize(QSize(width, height) * zoom);
     this->resize(QSize(width, height) * zoom);
-
-//    if(getScrrenRes() == ScreenRes::High){
-//        this->setMinimumSize(QSize(440, 240));
-//        this->resize(QSize(880, 480));
-//        ui->pathWgt->setMinimumWidth(440);
-//    }else{
-//        this->setMinimumSize(QSize(650, 350));
-//        this->resize(QSize(650, 350));
-//        ui->pathWgt->setMinimumWidth(350);
-//    }
 }
 
 void MainWindow::initScreenResNormal(){
@@ -726,8 +728,6 @@ void MainWindow::updateLastModifyFile(){
     if(num == -1){
         ui->subPathComBox->setCurrentText("no file");
         ui->numSpinBox->setValue(num);
-//        tarPath_.clear();
-//        fullTarPath_.clear();
         currentMarkdownFileName_.clear();
         appendTextToLog(QString(u8"当前的目标路径不存在 !"));
         setStatusBar("", false);
@@ -1840,4 +1840,3 @@ void MainWindow::on_zoomPercentPtn_clicked()
     ui->addList->clearSelection();
     ui->delList->clearSelection();
 }
-

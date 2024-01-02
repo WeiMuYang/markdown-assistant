@@ -62,6 +62,8 @@ private slots:
 
     void on_applyPbn_clicked();
 
+    void on_helpAssetsTypePbn_clicked();
+
 signals:
     void sigModifyConfDlgLog(QString log);
 

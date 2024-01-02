@@ -11,10 +11,11 @@ class DebugBox:public QObject
 public:
     DebugBox(QString FUNCTION, int LINE, QString msg);
     DebugBox(){}
-
-
+    QSize setWindowSize(int width);
+    int printscreeninfo();
 public slots:
     void debugBoxSlot(QString FUNCTION, int LINE, QString msg);
+    void helpBoxSlot(QString msg, int width);
 };
 
 #endif // LOG_BOX_H

@@ -8,7 +8,7 @@
         "*.mp3",
         "99-*.mp4"
     ],
-    "Date": "2023.12.29",
+    "Date": "2024.01.02",
     "ImagePath": [
         {
             "Desktop": "Desktop"
@@ -42,6 +42,9 @@
         },
         {
             "Android": "D:/YangWeiBin/01-sync-file-level-1/05-Android"
+        },
+        {
+            "IELTS-Test-rename11": "D:/Markdown-Assistant-Version/IELTS-Test-rename11"
         }
     ],
     "Version": "v1.0.0.beta"

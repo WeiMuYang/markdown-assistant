@@ -257,6 +257,10 @@ void CreateMarkdownAndSubDir::on_yesPbn_clicked()
 }
 
 bool CreateMarkdownAndSubDir::createMarkdown(QString& path) {
+    if(ui->newFileNameEdit->text().isEmpty()) {
+        emit sigCreateMarkdownAndDirLog(QString("新建文件名不能为空!"));
+        return false;
+    }
     QString tempFileName = QString("%1").arg(ui->numOldMarkdownSpinBox->value(), 2, 10,
                                              QLatin1Char('0')) + "-" + ui->templeFileNameEdit->text();
     QString fileName = QString("%1").arg(ui->numNewMarkdownSpinBox->value(), 2, 10,
@@ -268,6 +272,7 @@ bool CreateMarkdownAndSubDir::createMarkdown(QString& path) {
         if(!QFile::copy(templateFileAbs, newFilePathAbs))
         {
             emit sigCreateMarkdownAndDirLog(templateFileAbs + QString(" copy failed!"));
+            return false;
         }
         emit sigCreateMarkdownAndDirLog(QString("Copy: "+templateFileAbs+"\nTo Create:"+ newFilePathAbs + "\nCreate File Success  !!!"));
         // 将拷贝的文件追加回车，成为最近修改文件
@@ -284,6 +289,10 @@ bool CreateMarkdownAndSubDir::createMarkdown(QString& path) {
 
 bool CreateMarkdownAndSubDir::createSubDir(QString& path)
 {
+    if(ui->newDirFileNameEdit->text().isEmpty()){
+        emit sigCreateMarkdownAndDirLog(QString("新建子目录不能为空!"));
+        return false;
+    }
     QString dirName = QString("%1").arg(ui->numSubDirSpinBox->value(), 2, 10,
                                         QLatin1Char('0')) + "-" + ui->newDirFileNameEdit->text();
     QString newDirPathAbs = repoPath_ + "/" + dirName;

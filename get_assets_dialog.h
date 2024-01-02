@@ -45,6 +45,8 @@ private slots:
     void on_okPbn_clicked();
     void on_noPbn_clicked();
 
+    void on_helpPbn_clicked();
+
 private:
     Ui::GetAssetsDialog *ui;
     bool isOK{false};
