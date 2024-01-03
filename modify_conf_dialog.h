@@ -4,8 +4,9 @@
 #include <QDialog>
 #include <QListWidgetItem>
 #include <QTableWidgetItem>
-#include "data_type.h"
+
 #include "conf_data.h"
+#include "assets_type_item.h"
 
 namespace Ui {
 class ModifyConfDialog;
@@ -46,6 +47,7 @@ private slots:
     void on_delRepoDir_clicked();
 
     void on_addAssetsTypePbn_clicked();
+    void addAssetsTypeSlot(QString type);
 
     void on_delAssetsTypePbn_clicked();
     void updateAssetsTypeListEditSlot(QListWidgetItem *current);
@@ -77,6 +79,8 @@ private:
 
     int width_;
     int multiple_;
+
+    AssetsTypeItem* assetsTypeItem_;
 };
 
 #endif // MODIFY_CONF_DIALOG_H

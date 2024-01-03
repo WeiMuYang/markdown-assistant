@@ -2,6 +2,7 @@
 #define CREATE_MARKDOWN_DIR_H
 
 #include <QDialog>
+#include <QKeyEvent>
 
 namespace Ui {
 class CreateMarkdown;
@@ -30,6 +31,7 @@ public:
     void numDirSpinBoxStatus(int flags);
     void updateSubDirWgt();
     bool createMarkdown(QString &path);
+    QString getMarkdownTag(const QString &path);
     bool createSubDir(QString &path);
     void initSize();
 
@@ -60,6 +62,14 @@ signals:
     // 0: 不用创建  1: Markdown文件   2: 子目录文件夹
     void sigCreateType(int status, QString namePathAbs);
     void sigOpenTempleMarkdown(QString namePathAbs);
+
+protected:
+    // 回车相当于单击ok button
+    void keyPressEvent(QKeyEvent *event) override {
+        if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+            on_yesPbn_clicked();
+        }
+    }
 
 private:
     Ui::CreateMarkdown *ui;

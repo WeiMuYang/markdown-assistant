@@ -256,6 +256,28 @@ void CreateMarkdownAndSubDir::on_yesPbn_clicked()
     this->close();
 }
 
+QString CreateMarkdownAndSubDir::getMarkdownTag(const QString &markdownPathAbs) {
+    QString text = "> ######  _标签:_   ![](https://img.shields.io/badge/技术类-yellowgreen.svg)   ![ ](https://img.shields.io/badge/Protobuf-编译和使用-blue.svg)    [![](https://img.shields.io/badge/链接-github仓库-brightgreen.svg)](https://github.com/protocolbuffers/protobuf#protocol-compiler-installation)    [![](https://img.shields.io/badge/链接-代码文件-orange.svg)](../02-code/)    [![](https://img.shields.io/badge/链接-本地仓库-orange.svg)](../04-repo/)    [![](https://img.shields.io/badge/链接-数据文件-orange.svg)](../03-data/)  \n"   \
+                   ">  \n\n\n";
+    QFile file(markdownPathAbs);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    {
+        qDebug()<< "Can't open the file!";
+        return text;
+    }
+    QTextStream in(&file);
+    while (!in.atEnd()) {
+        QString line = in.readLine();
+        if(line.contains("标签")) {
+            text.clear();
+            text = line;
+            break;
+        }
+    }
+    file.close();
+    return text;
+}
+
 bool CreateMarkdownAndSubDir::createMarkdown(QString& path) {
     if(ui->newFileNameEdit->text().isEmpty()) {
         emit sigCreateMarkdownAndDirLog(QString("新建文件名不能为空!"));
@@ -267,24 +289,19 @@ bool CreateMarkdownAndSubDir::createMarkdown(QString& path) {
                                          QLatin1Char('0')) + "-" + ui->newFileNameEdit->text() + ".md";
     QString newFilePathAbs = subDirPath_ + "/" + fileName;
     path = newFilePathAbs;
-    if(!tempFileName.isEmpty()){
-        QString templateFileAbs = subDirPath_ + "/" + tempFileName;
-        if(!QFile::copy(templateFileAbs, newFilePathAbs))
-        {
-            emit sigCreateMarkdownAndDirLog(templateFileAbs + QString(" copy failed!"));
-            return false;
-        }
-        emit sigCreateMarkdownAndDirLog(QString("Copy: "+templateFileAbs+"\nTo Create:"+ newFilePathAbs + "\nCreate File Success  !!!"));
-        // 将拷贝的文件追加回车，成为最近修改文件
-        QFile file(newFilePathAbs);
-        file.open(QIODevice::ReadWrite | QIODevice::Append);
-        QTextStream txtOutput(&file);
-        txtOutput << "\n";
-        file.close();
-        return true;
+    QString templateFileAbs = subDirPath_ + "/" + tempFileName;
+    QFile file(path);
+    if (file.exists()) {
+        emit sigCreateMarkdownAndDirLog(QString("新建文件已存在！"));
+        return false;
     }
-
-    return false;
+    file.open(QIODevice::WriteOnly);
+    QString text = "# [" + ui->newFileNameEdit->text() + "](./)    [img](./img)   \n";
+    text += getMarkdownTag(templateFileAbs);
+    QByteArray str = text.toUtf8();
+    file.write(str);
+    file.close();
+    return true;
 }
 
 bool CreateMarkdownAndSubDir::createSubDir(QString& path)

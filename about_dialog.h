@@ -2,6 +2,7 @@
 #define ABOUT_DIALOG_H
 
 #include <QDialog>
+#include <QKeyEvent>
 
 namespace Ui {
 class AboutDialog;
@@ -25,10 +26,16 @@ public:
 
     void showWindow();
     void initSize();
-
 private slots:
 
     void on_okPbn_clicked();
+protected:
+
+    void keyPressEvent(QKeyEvent *event) override {
+        if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
+            on_okPbn_clicked();
+        }
+    }
 
 private:
     Ui::AboutDialog *ui;

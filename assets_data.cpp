@@ -11,6 +11,7 @@ AssetsData::AssetsData()
 
 bool AssetsData::updateImgVideoFile(QString path, int index)
 {
+    Q_UNUSED(index)
     QDir dir(path);
     if (!dir.exists()){
         return false;

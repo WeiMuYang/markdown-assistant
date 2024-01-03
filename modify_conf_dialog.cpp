@@ -12,6 +12,12 @@ ModifyConfDialog::ModifyConfDialog(QWidget *parent) :
 {
     ui->setupUi(this);
     initWindow();
+    assetsTypeItem_ = new AssetsTypeItem(this);
+
+    connect(assetsTypeItem_,&AssetsTypeItem::sigAssetsType,this, &ModifyConfDialog::addAssetsTypeSlot);
+    connect(assetsTypeItem_,&AssetsTypeItem::sigAssetsTypeLog,[this](QString msg) {
+        emit sigModifyConfDlgLog(msg);
+    });
 }
 
 ModifyConfDialog::~ModifyConfDialog()
@@ -199,11 +205,16 @@ void ModifyConfDialog::on_delRepoDir_clicked()
     updateRepoList();
 }
 
-void ModifyConfDialog::on_addAssetsTypePbn_clicked()
-{
-    QListWidgetItem *pItem = new QListWidgetItem("");
+void ModifyConfDialog::addAssetsTypeSlot(QString type) {
+    QListWidgetItem *pItem = new QListWidgetItem(type);
     pItem->setFlags(pItem->flags() | Qt::ItemIsEditable);
     ui->assetsTypeList->addItem(pItem);
+}
+
+void ModifyConfDialog::on_addAssetsTypePbn_clicked()
+{
+    assetsTypeItem_->setWidth(width_);
+    assetsTypeItem_->showWindow();
 }
 
 void ModifyConfDialog::on_delAssetsTypePbn_clicked()
@@ -218,6 +229,9 @@ void ModifyConfDialog::on_delAssetsTypePbn_clicked()
 }
 
 void ModifyConfDialog::updateAssetsTypeListEditSlot(QListWidgetItem *item) {
+    if(item->text() == "") {
+        emit sigModifyConfDlgLog( "AssetsType不能为空，无法添加!");
+    }
     configdata_.modifyAssetsTypes(ui->assetsTypeList->row(item), item->text());
 }
 
@@ -249,7 +263,6 @@ void ModifyConfDialog::on_markdownSoftPbn_clicked()
     configdata_.setMarkdownSoftWarePath(path);
 }
 
-
 void ModifyConfDialog::on_dataDirSoftPbn_clicked()
 {
     QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
@@ -261,7 +274,6 @@ void ModifyConfDialog::on_dataDirSoftPbn_clicked()
     ui->dataDirSoftEdit->setText(path);
     configdata_.setDataDirSoftWarePath(path);
 }
-
 
 void ModifyConfDialog::on_yesPbn_clicked()
 {

@@ -29,6 +29,7 @@ msvc:QMAKE_CXXFLAGS += -execution-charset:utf-8
 SOURCES += \
     about_dialog.cpp \
     assets_data.cpp \
+    assets_type_item.cpp \
     conf_data.cpp \
     create_markdown_dir.cpp \
     file_operation.cpp \
@@ -44,6 +45,7 @@ SOURCES += \
 HEADERS += \
     about_dialog.h \
     assets_data.h \
+    assets_type_item.h \
     conf_data.h \
     create_markdown_dir.h \
     file_operation.h \
@@ -58,6 +60,7 @@ HEADERS += \
 
 FORMS += \
         about_dialog.ui \
+        assets_type_item.ui \
         create_markdown_dir.ui \
         get_assets_dialog.ui \
         mainwindow.ui \
