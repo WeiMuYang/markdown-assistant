@@ -8,7 +8,7 @@
         "*.mp3",
         "99-*.mp4"
     ],
-    "Date": "2023.12.31",
+    "Date": "2024.01.04",
     "ImagePath": [
         {
             "Desktop": "Desktop"
@@ -54,6 +54,9 @@
         },
         {
             "IELTS-Test-rename11": "C:/Users/Administrator/Desktop/IELTS-Test-rename11"
+        },
+        {
+            "04-试一下删除": "H:/00-sync-file-work/04-IELTS/04-试一下删除"
         }
     ],
     "Version": "v1.0.0.beta"

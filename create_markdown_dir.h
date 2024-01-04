@@ -33,6 +33,7 @@ public:
     void numRepoSpinBoxStatus(int flags);
     bool createRepo(QString& path);
     bool createMarkdownTemple(const QString& newDirPathAbs);
+    bool createReadMe(const QString& dirPathAbs, int num, const QString& repoName);
     bool createSubDir(const QString& repoPathAbs, const QString& dirName);
     void updateSubDirWgt();
     bool createMarkdown(QString &path);

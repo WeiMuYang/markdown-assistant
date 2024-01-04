@@ -400,6 +400,25 @@ bool CreateMarkdownAndSubDir::createMarkdownTemple(const QString& dirPathAbs) {
     return true;
 }
 
+bool CreateMarkdownAndSubDir::createReadMe(const QString& dirPathAbs, int num,const QString& repoName) {
+    QString repoFileName = QString("%1").arg(num, 2, 10, QLatin1Char('0')) + "-" + repoName;
+    QString path = dirPathAbs + "/" + repoFileName + ".md";
+    QFile file(path);
+    if (file.exists()) {
+        emit sigCreateMarkdownAndDirLog(QString("新建文件已存在！"));
+        return false;
+    }
+    file.open(QIODevice::WriteOnly);  //  + repoName
+    QString text = "# [" + repoName + "](./)   \n|序号|名称|内容|备注|\n|:-:|:-:|:- |:-:|\n|0|[Book](./00-book)|||\n";
+    text += "|1|[Study](./01-study)|||\n|2|[Code](./02-code)|||\n|3|[Data](./03-data)|||\n|10|[Others](./10-others)|||\n\n";
+    text += "## 仓库简介   \n本仓库用于管理XXX.    \n## 资料介绍   \n\n";
+    QByteArray str = text.toUtf8();
+    file.write(str);
+    emit sigCreateMarkdownAndDirLog(QString("Create File") + path + "\nCreate File Success");
+    file.close();
+    return true;
+}
+
 bool CreateMarkdownAndSubDir::createRepo(QString& path)
 {
     if(ui->newRepoNameEdit->text().isEmpty()){
@@ -420,7 +439,7 @@ bool CreateMarkdownAndSubDir::createRepo(QString& path)
         createSubDir(newDirPathAbs, "02-code");
         createSubDir(newDirPathAbs, "00-book");
         createSubDir(newDirPathAbs, "01-study");
-
+        createReadMe(newDirPathAbs, ui->numNewRepoSpinBox->value() , ui->newRepoNameEdit->text());
     }else {
         emit sigCreateMarkdownAndDirLog(newDirPathAbs + QString(" Create failed!"));
         return false;
