@@ -1749,6 +1749,10 @@ void MainWindow::createMarkdownAndSubDirSlot(int type, QString namePathAbs)
     }else if (2 == type){
         updateDataAndWidget();
         openExPro_.OpenDirSlot(namePathAbs);
+    }else if(3 == type){
+        QDir repoDir(namePathAbs);
+        addRepo2Conf(repoDir.dirName(),repoDir.absolutePath());
+        openExPro_.OpenDirSlot(namePathAbs);
     }
 }
 

@@ -26,9 +26,14 @@ public:
     }
     void showWindow();
     void updateMarkdownWgt();
+    void updateRepoWgt();
     void numOldMarkdownSpinBoxStatus(int flags);
     void numNewMarkdownSpinBoxStatus(int flags);
     void numDirSpinBoxStatus(int flags);
+    void numRepoSpinBoxStatus(int flags);
+    bool createRepo(QString& path);
+    bool createMarkdownTemple(const QString& newDirPathAbs);
+    bool createSubDir(const QString& repoPathAbs, const QString& dirName);
     void updateSubDirWgt();
     bool createMarkdown(QString &path);
     QString getMarkdownTag(const QString &path);
@@ -56,6 +61,10 @@ private slots:
     void on_cancelPbn_clicked();
 
     void on_openTempPbn_clicked();
+
+    void on_numNewRepoSpinBox_valueChanged(int arg1);
+
+    void on_repoRadioBtn_clicked(bool checked);
 
 signals:
     void sigCreateMarkdownAndDirLog(QString msg);

@@ -67,17 +67,46 @@ void CreateMarkdownAndSubDir::updateSubDirWgt()
         num = numArr.last() + 1;
     }
     ui->numSubDirSpinBox->setValue(num);
+    emit ui->numSubDirSpinBox->valueChanged(num);
 }
 
+void CreateMarkdownAndSubDir::updateRepoWgt()
+{
+    QDir dirParent(repoPath_);
+    dirParent.cdUp();
+    QFileInfoList list = dirParent.entryInfoList(QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    QVector<int> numArr;
+    for(int i = 0; i < list.size(); ++i){
+        if(list.at(i).isDir()){
+            QStringList nameArr = list.at(i).fileName().split("-");
+            numArr.append(nameArr.at(0).toInt());
+        }
+    }
+    int num = -1;
+    std::sort(numArr.begin(), numArr.end());
+    for(int i = 0; i < numArr.size() - 1; ++i) {
+        if(numArr.at(i+1) - numArr.at(i) > 1  ) {
+            num = numArr.at(i) + 1;
+            break;
+        }
+    }
+    if(-1 == num) {
+        num = numArr.last() + 1;
+    }
+    ui->numNewRepoSpinBox->setValue(num);
+}
 
 void CreateMarkdownAndSubDir::showWindow() {
     ui->stackedWidget->setCurrentIndex(0);
     ui->fileRadioBtn->setChecked(true);
     ui->newDirFileNameEdit->setText("");
     ui->newFileNameEdit->setText("");
+    ui->newRepoNameEdit->setText("");
+
     initSize();
     updateMarkdownWgt();
     updateSubDirWgt();
+    updateRepoWgt();
     show();
 }
 
@@ -156,6 +185,18 @@ void CreateMarkdownAndSubDir::numDirSpinBoxStatus(int flags) {
     }
 }
 
+void CreateMarkdownAndSubDir::numRepoSpinBoxStatus(int flags) {
+    if(flags == 1){
+        ui->numNewRepoSpinBox->setStyleSheet("QSpinBox::up-button,QSpinBox::down-button\n{\n	width:0px;\n}");
+        ui->newRepoNameEdit->setStyleSheet("QLineEdit::up-button,QLineEdit::down-button\n{\n	width:0px;\n}");
+        ui->newRepoNameEdit->setEnabled(true);
+    }else{
+        ui->numNewRepoSpinBox->setStyleSheet("QSpinBox::up-button,QSpinBox::down-button\n{\n	width:0px;\n}\nQSpinBox{\nborder: 1px solid #ff0000\n}\n");
+        ui->newRepoNameEdit->setStyleSheet("QLineEdit::up-button,QLineEdit::down-button\n{\n	width:0px;\n}\nQLineEdit{\nborder: 1px solid #ff0000\n}\n");
+        ui->newRepoNameEdit->setEnabled(false);
+    }
+}
+
 void CreateMarkdownAndSubDir::on_numOldMarkdownSpinBox_valueChanged(int fileNum)
 {
     QDir dir(subDirPath_);
@@ -200,7 +241,7 @@ void CreateMarkdownAndSubDir::on_numSubDirSpinBox_valueChanged(int fileNum)
 {
     QDir dir(repoPath_);
     QStringList filters;
-    QString nameNum = QString("%1").arg(fileNum, 2, 10, QLatin1Char('0'))+"*";
+    QString nameNum = QString("%1").arg(fileNum, 2, 10, QLatin1Char('0')) + "*";
     filters << nameNum;
     dir.setFilter(QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
     dir.setNameFilters(filters);
@@ -213,7 +254,7 @@ void CreateMarkdownAndSubDir::on_numSubDirSpinBox_valueChanged(int fileNum)
         ui->oldDirFileNameEdit->setText(fileInfoList.first().fileName());
         return;
     }
-    ui->oldDirFileNameEdit->setText("编号没有被占用。");
+    ui->oldDirFileNameEdit->setText("编号\"" + QString("%1").arg(fileNum, 2, 10, QLatin1Char('0')) + "\"没有被占用。");
     numDirSpinBoxStatus(1);
 }
 
@@ -248,6 +289,11 @@ void CreateMarkdownAndSubDir::on_yesPbn_clicked()
         QString newSunDir;
         if(createSubDir(newSunDir)) {
             emit sigCreateType(2, newSunDir);
+        }
+    }else if(ui->repoRadioBtn->isChecked() && ui->newRepoNameEdit->isEnabled()){
+        QString newRepoDir;
+        if(createRepo(newRepoDir)) {
+            emit sigCreateType(3, newRepoDir);
         }
     }else{
         emit sigCreateMarkdownAndDirLog(QString("取消创建!"));
@@ -314,24 +360,67 @@ bool CreateMarkdownAndSubDir::createSubDir(QString& path)
                                         QLatin1Char('0')) + "-" + ui->newDirFileNameEdit->text();
     QString newDirPathAbs = repoPath_ + "/" + dirName;
     path = newDirPathAbs;
-    QDir newDir(repoPath_);
+    if(createSubDir(repoPath_, dirName)) {
+        emit sigCreateMarkdownAndDirLog(newDirPathAbs + QString(" Create Success!"));
+        createMarkdownTemple(newDirPathAbs);
+    }else {
+        emit sigCreateMarkdownAndDirLog(newDirPathAbs + QString(" Create failed!"));
+        return false;
+    }
+    return true;
+}
+
+bool CreateMarkdownAndSubDir::createSubDir(const QString& repoPathAbs, const QString& dirName) {
+    QDir newDir(repoPathAbs);
+    QString newDirPathAbs = repoPathAbs + "/" + dirName;
     if(newDir.mkpath(newDirPathAbs)) {
         emit sigCreateMarkdownAndDirLog(newDirPathAbs + QString(" Create Success!"));
-        QString path = newDirPathAbs + "/00-模板文件.md";
-        QFile file(path);
-        if (file.exists()) {
-            emit sigCreateMarkdownAndDirLog(QString("新建文件已存在！"));
-            return false;
-        }
-        file.open(QIODevice::WriteOnly);
-        QString text = "# [新建文件](./)  [img](./img)   \n" \
-                       "\n" \
-            "> ######  _标签:_   ![](https://img.shields.io/badge/技术类-yellowgreen.svg)   ![ ](https://img.shields.io/badge/Protobuf-编译和使用-blue.svg)    [![](https://img.shields.io/badge/链接-github仓库-brightgreen.svg)](https://github.com/protocolbuffers/protobuf#protocol-compiler-installation)    [![](https://img.shields.io/badge/链接-代码文件-orange.svg)](../02-code/)    [![](https://img.shields.io/badge/链接-本地仓库-orange.svg)](../04-repo/)    [![](https://img.shields.io/badge/链接-数据文件-orange.svg)](../03-data/)  \n"   \
-                       ">  \n\n\n";
-        QByteArray str = text.toUtf8();
-        file.write(str);
-        emit sigCreateMarkdownAndDirLog(QString("Create File") + path + "\nCreate File Success");
-        file.close();
+        createMarkdownTemple(newDirPathAbs);
+        return true;
+    }
+    return false;
+}
+
+bool CreateMarkdownAndSubDir::createMarkdownTemple(const QString& dirPathAbs) {
+    QString path = dirPathAbs + "/00-模板文件.md";
+    QFile file(path);
+    if (file.exists()) {
+        emit sigCreateMarkdownAndDirLog(QString("新建文件已存在！"));
+        return false;
+    }
+    file.open(QIODevice::WriteOnly);
+    QString text = "# [新建文件](./)  [img](./img)   \n" \
+                   "\n" \
+        "> ######  _标签:_   ![](https://img.shields.io/badge/技术类-yellowgreen.svg)   ![ ](https://img.shields.io/badge/Protobuf-编译和使用-blue.svg)    [![](https://img.shields.io/badge/链接-github仓库-brightgreen.svg)](https://github.com/protocolbuffers/protobuf#protocol-compiler-installation)    [![](https://img.shields.io/badge/链接-代码文件-orange.svg)](../02-code/)    [![](https://img.shields.io/badge/链接-本地仓库-orange.svg)](../04-repo/)    [![](https://img.shields.io/badge/链接-数据文件-orange.svg)](../03-data/)  \n"   \
+                   ">  \n\n\n";
+    QByteArray str = text.toUtf8();
+    file.write(str);
+    emit sigCreateMarkdownAndDirLog(QString("Create File") + path + "\nCreate File Success");
+    file.close();
+    return true;
+}
+
+bool CreateMarkdownAndSubDir::createRepo(QString& path)
+{
+    if(ui->newRepoNameEdit->text().isEmpty()){
+        emit sigCreateMarkdownAndDirLog(QString("新建子目录不能为空!"));
+        return false;
+    }
+    QDir repoParent(repoPath_);
+    repoParent.cdUp();
+    QString repoName = QString("%1").arg(ui->numNewRepoSpinBox->value(), 2, 10,
+                                        QLatin1Char('0')) + "-" + ui->newRepoNameEdit->text();
+    QString newDirPathAbs = repoParent.absolutePath() + "/" + repoName;
+    path = newDirPathAbs;
+
+    if(repoParent.mkpath(newDirPathAbs)) {
+        emit sigCreateMarkdownAndDirLog(newDirPathAbs + QString(" Create Success!"));
+        createSubDir(newDirPathAbs, "10-others");
+        createSubDir(newDirPathAbs, "03-data");
+        createSubDir(newDirPathAbs, "02-code");
+        createSubDir(newDirPathAbs, "00-book");
+        createSubDir(newDirPathAbs, "01-study");
+
     }else {
         emit sigCreateMarkdownAndDirLog(newDirPathAbs + QString(" Create failed!"));
         return false;
@@ -356,3 +445,34 @@ void CreateMarkdownAndSubDir::on_openTempPbn_clicked()
         emit sigCreateMarkdownAndDirLog(QString("参考文件名字为空无法打开!"));
     }
 }
+
+void CreateMarkdownAndSubDir::on_numNewRepoSpinBox_valueChanged(int fileNum)
+{
+    QDir dir(repoPath_);
+    dir.cdUp();
+    QStringList filters;
+    QString nameNum = QString("%1").arg(fileNum, 2, 10, QLatin1Char('0'))+"*";
+    filters << nameNum;
+    dir.setFilter(QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    dir.setNameFilters(filters);
+    QFileInfoList fileInfoList = dir.entryInfoList();
+    if(fileInfoList.size() > 0) {
+        QString msg;
+        msg = QString("序号为：\"") + QString("%1").arg(fileNum, 2, 10, QLatin1Char('0')) + QString("\"的目录被占用！").toUtf8();
+        qDebug() << msg;
+        numRepoSpinBoxStatus(0);
+        ui->oldRepoFileNameEdit->setText(fileInfoList.first().fileName());
+        return;
+    }
+    ui->oldRepoFileNameEdit->setText("编号\"" + QString("%1").arg(fileNum, 2, 10, QLatin1Char('0')) + "\"没有被占用。");
+    numRepoSpinBoxStatus(1);
+}
+
+
+void CreateMarkdownAndSubDir::on_repoRadioBtn_clicked(bool checked)
+{
+    if(checked) {
+        ui->stackedWidget->setCurrentIndex(2);
+    }
+}
+
