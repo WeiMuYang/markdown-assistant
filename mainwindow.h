@@ -54,8 +54,8 @@ public:
     void setScreenWitdh(int w);
     int getScreenWitdh();
     void initScreenResNormal();
-    void setNormalViewByScreenRes();
-    void setSampleViewByScreenRes();
+    void setInitNormalViewByScreenRes();
+    void setInitSampleViewByScreenRes();
     ScreenRes getScrrenRes();
     void updateSubDirCombox();
     void setSampleView();
@@ -199,7 +199,7 @@ private:
 
     GetAssetsDialog* getAssetsDialog_;
     AboutDialog* aboutDialog_;
-    int simpleViewNum_{0};
+    bool isSimpleView_{false};
     QString configFilePath_;
     QMenu *confFileList_;
     QMenu *addListMenu_;
@@ -220,6 +220,14 @@ private:
     ModifyConfDialog* modifyConfDlg_;
     CreateMarkdownAndSubDir* createMarkdownAndSubDirDlg_;
     int icoNum_{0};
+
+    int appNormalWidth_{0};
+    int appNormalHeight_{0};
+    int appNormalMinWidth_{0};
+    int appNormalMinHeight_{0};
+
+    int appSampleWidth_{0};
+    int appSampleHeight_{0};
 };
 
 #endif // MAINWINDOW_H

@@ -345,7 +345,6 @@ void MainWindow::updateDataAndWidget(){
     updateLastModifyFile();
     // 5 更新 Top20文件列表
     updateRepoHistoryFileList();
-//
 }
 
 void MainWindow::updateRepoHistoryFileList(){
@@ -484,7 +483,7 @@ void MainWindow::InitMainWindowMenu(){
         }
     });
 
-    if(simpleViewNum_ % 2 != 0){
+    if(isSimpleView_){
         setSampleView();
         ui->actionSimpleView->setText(u8"正常窗口");
         ui->actionSimpleView->setShortcut(QKeySequence("Ctrl+="));
@@ -493,7 +492,7 @@ void MainWindow::InitMainWindowMenu(){
         ui->actionSimpleView->setText(u8"极简窗口");
         ui->actionSimpleView->setShortcut(QKeySequence("Ctrl+-"));
     }
-    connect(ui->actionSimpleView, &QAction::triggered, this, &MainWindow::simpleViewSlot,Qt::UniqueConnection);
+    connect(ui->actionSimpleView, &QAction::triggered, this, &MainWindow::simpleViewSlot);
 
     ui->actionModifyConf->setShortcut(QKeySequence("Ctrl+M"));
     connect(ui->actionModifyConf, &QAction::triggered, this, &MainWindow::modifyConfByVsCodeSlot);
@@ -613,7 +612,7 @@ void MainWindow::initStatusBar(){
     pStatusLabelCurrentFile_->setAlignment(Qt::AlignHCenter);
 }
 
-void MainWindow::setNormalViewByScreenRes(){
+void MainWindow::setInitNormalViewByScreenRes(){
     QScreen *screen = QGuiApplication::primaryScreen();
     qreal logicalDpi = screen->logicalDotsPerInch();
     double zoom = 1;
@@ -638,11 +637,14 @@ void MainWindow::setNormalViewByScreenRes(){
     if(height >= deskrect.height()- 100 ) {
         height = deskrect.height() - 100 ;
     }
-    setMinimumSize(QSize(width, height));
-    this->resize(QSize(width, height));
+
+    appNormalWidth_ = width;
+    appNormalHeight_ = height;
+    appNormalMinWidth_ = width;
+    appNormalMinHeight_ = height;
 }
 
-void MainWindow::setSampleViewByScreenRes(){
+void MainWindow::setInitSampleViewByScreenRes(){
 
     float zoom = 1;
     if(screenWidth_ < 3840) {
@@ -655,12 +657,17 @@ void MainWindow::setSampleViewByScreenRes(){
     // 宽 高
     int width = screenWidth_ * Proportion ;
     int height = width * WindowAspect;
-    setMinimumSize(QSize(width, height) * zoom);
-    this->resize(QSize(width, height) * zoom);
+    appSampleWidth_ = width * zoom;
+    appSampleHeight_ = height * zoom;
 }
 
+
+
 void MainWindow::initScreenResNormal(){
-    setNormalViewByScreenRes();
+    setInitSampleViewByScreenRes();
+    setInitNormalViewByScreenRes();
+    this->resize(QSize(appNormalWidth_, appNormalHeight_));
+    setMinimumSize(QSize(appNormalWidth_, appNormalHeight_));
     initListWgt();
 }
 
@@ -1352,9 +1359,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
         // todo: 路径为空，需要添加一个默认图片
         ui->imgLabel->setAlignment(Qt::AlignCenter);
         ui->imgLabel->setPixmap(labelPath_);
-        return;
-    }
-    if(labelPath_.right(4) == ".mp4"){
+    }else if(labelPath_.right(4) == ".mp4"){
 
     }else if (labelPath_.right(4) == ".mp3"){
         QMovie *movie = new QMovie(":/qss/icon/audio.gif");
@@ -1368,13 +1373,18 @@ void MainWindow::resizeEvent(QResizeEvent *event)
         ui->imgLabel->setAlignment(Qt::AlignCenter);
         ui->imgLabel->setPixmap(map);
     }
+
+    if(!isSimpleView_){
+        appNormalHeight_ = this->height();
+        appNormalWidth_ = this->width();
+        qDebug() << "appNormal : "  << appNormalWidth_ << appNormalHeight_;
+    }
 }
 
 void MainWindow::on_lastFileNumPbn_clicked()
 {
     setSubPathSlot(subDirName_);
 }
-
 
 void MainWindow::on_toolPbn_clicked()
 {
@@ -1695,7 +1705,8 @@ void MainWindow::setSampleView(){
     ui->createMarkdownPbn->hide();
     ui->syncPbn->hide();
     ui->modePbn->hide();
-    setSampleViewByScreenRes();
+    setMinimumSize(QSize(appSampleWidth_ - 50, appSampleHeight_ - 50));
+    this->resize(QSize(appSampleWidth_, appSampleHeight_));
     isStayTop_ = true;
     setWindowFlag(Qt::WindowStaysOnTopHint, true);
     showSlot();
@@ -1708,7 +1719,8 @@ void MainWindow::setNormalView(){
     ui->createMarkdownPbn->show();
     ui->syncPbn->show();
     ui->modePbn->show();
-    setNormalViewByScreenRes();
+    this->resize(QSize(appNormalWidth_, appNormalHeight_));
+    setMinimumSize(QSize(appNormalMinWidth_, appNormalMinHeight_));
     isStayTop_ = false;
     setWindowFlag(Qt::WindowStaysOnTopHint, false);
     showSlot();
@@ -1716,8 +1728,8 @@ void MainWindow::setNormalView(){
 
 void MainWindow::simpleViewSlot()
 {
-    simpleViewNum_++;
-    if(simpleViewNum_ % 2 != 0){
+    isSimpleView_ = !isSimpleView_;
+    if(isSimpleView_){
         setSampleView();
         ui->actionSimpleView->setText(u8"正常窗口");
         ui->actionSimpleView->setShortcut(QKeySequence("Ctrl+="));
