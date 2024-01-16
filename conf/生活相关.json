@@ -7,7 +7,7 @@
         "99-*.gif",
         "99-*.mp4"
     ],
-    "Date": "2023.12.24",
+    "Date": "2024.01.07",
     "ImagePath": [
         {
             "Desktop": "Desktop"
@@ -20,15 +20,36 @@
         "today"
     ],
     "Software": {
-        "MarkdownSoftware": "D:/Program Files/Typora/Typora.exe",
-        "DataDirSoftware": "D:/Users/yang-wei-da/AppData/Local/Programs/Microsoft VS Code/Code.exe"
+        "DataDirSoftware": "D:/Users/yang-wei-da/AppData/Local/Programs/Microsoft VS Code/Code.exe",
+        "MarkdownSoftware": "D:/Typora/Typora.exe"
     },
     "TargetPath": [
         {
-            "购买记录": "F:/01-life-records/03-购买记录"
+            "不重要的": "F:/01-生活相关/05-不重要-nf"
         },
         {
-            "生活相关": "F:/01-life-records"
+            "房保税": "F:/01-生活相关/01-房屋-保险-个税"
+        },
+        {
+            "看病体检杨": "F:/01-生活相关/02-看病体检-杨伟彬"
+        },
+        {
+            "简历信息": "F:/01-生活相关/04-简历信息"
+        },
+        {
+            "购买记录": "F:/01-生活相关/06-购买记录"
+        },
+        {
+            "旅游材料": "F:/01-生活相关/07-出国旅游"
+        },
+        {
+            "看病体检王": "F:/01-生活相关/03-看病体检-王吴娜"
+        },
+        {
+            "结婚相关": "F:/01-生活相关/08-结婚相关-nf"
+        },
+        {
+            "通话记录": "F:/01-生活相关/09-通话记录"
         }
     ],
     "Version": "v1.0.0.beta"

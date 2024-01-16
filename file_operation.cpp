@@ -196,11 +196,11 @@ bool FileOperation::clipFilesByFileInfo(const QStringList addList, QVector<ImgDa
     }
     // 先添加MP4
     if(!VideoClipText.isEmpty()) {
-        clipText = VideoClipText +"  \n  \n";
+        clipText = VideoClipText +"  \n\n";
     }
     // 再添加mp3
     if(!AudioClipText.isEmpty()) {
-        clipText += AudioClipText + "  \n  \n";
+        clipText += AudioClipText + "  \n\n";
     }
     // 最后添加IMG
     if(ImgClipText.size() > 2) {

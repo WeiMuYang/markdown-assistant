@@ -209,6 +209,7 @@ void ModifyConfDialog::addAssetsTypeSlot(QString type) {
     QListWidgetItem *pItem = new QListWidgetItem(type);
     pItem->setFlags(pItem->flags() | Qt::ItemIsEditable);
     ui->assetsTypeList->addItem(pItem);
+    configdata_.addAssetsTypes(type);
 }
 
 void ModifyConfDialog::on_addAssetsTypePbn_clicked()
