@@ -35,6 +35,8 @@ int main(int argc, char *argv[])
         font.setPointSize(11);
         a.setFont(font);
     }
+
+    w.setIconNum(argc, argv);
     w.showSlot();
 
     return a.exec();

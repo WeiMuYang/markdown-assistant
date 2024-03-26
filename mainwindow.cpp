@@ -178,14 +178,13 @@ void MainWindow::quitAppSlot() {
     QApplication::quit();
 }
 
-void MainWindow::switchIconSlot() {
-    icoNum_ += 1;
+void MainWindow::setIconByNum() {
     QIcon icon;
-    if(icoNum_ % 4 == 0) {
+    if(icoNum_ == 0) {
         icon.addFile(":/qss/icon/markdown-assistant.ico");
-    }else if(icoNum_ % 4 == 1){
+    }else if(icoNum_ == 1){
         icon.addFile(":/qss/icon/markdown-assistant-1.ico");
-    }else if(icoNum_ % 4 == 2){
+    }else if(icoNum_ == 2){
         icon.addFile(":/qss/icon/markdown-assistant-2.ico");
     }else {
         icon.addFile(":/qss/icon/markdown-assistant-3.ico");
@@ -193,6 +192,12 @@ void MainWindow::switchIconSlot() {
 
     trayIcon_->setIcon(icon);
     this->setWindowIcon(icon);
+}
+
+void MainWindow::switchIconSlot() {
+    icoNum_ += 1;
+    icoNum_ = icoNum_ % 4;
+    setIconByNum();
 }
 
 void MainWindow::trayIconClickedSlot(QSystemTrayIcon::ActivationReason reason)
@@ -1349,6 +1354,20 @@ void MainWindow::adjustMovieSize(QMovie* movie, const QSize& labelSize) {
         qreal scaleFactor = qMin(newSize.width(), newSize.height());
         QSize scaledSize = QSize(scaleFactor, scaleFactor);
         movie->setScaledSize(scaledSize);
+    }
+}
+
+void MainWindow::setIconNum(int size, char *argv[])
+{
+    for(int i = 0; i < size; ++i) {
+        qDebug() << "argv[" << i << "]: " << argv[i];
+    }
+    // argv[ 0 ]:  C:\Users\qxz32h9\Desktop\markdown-assistant\Debug\debug\Markdown Assistant.exe
+    if(size > 1) {
+        icoNum_ =  QString(argv[1]).toInt();
+        setIconByNum();
+        QString log = QString("当前图标编号：") + argv[1];
+        ui->logText->append(log);
     }
 }
 

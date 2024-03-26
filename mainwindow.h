@@ -68,6 +68,8 @@ public:
     bool addAssetsDir2Conf(QString newName,QString pathAbs);
     void playAudioMp3(const QString& path);
     void adjustMovieSize(QMovie* movie, const QSize& labelSize);
+
+    void setIconNum(int num, char *argv[]);
 private slots:
     void updateListDataAndWgtSlot();
     void changeModeSlot();
@@ -173,6 +175,7 @@ protected:
 public:
     void showSlot(); // 声明show函数
 
+    void setIconByNum();
 private:
     Ui::MainWindow *ui;
     AssetsData addDelListData_;
