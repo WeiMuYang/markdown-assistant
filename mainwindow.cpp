@@ -545,7 +545,7 @@ void MainWindow::InitMainWindowMenu(){
     ui->actionAddRepo->setShortcut(QKeySequence("Alt+N"));
     connect(ui->actionAddRepo, &QAction::triggered, this, &MainWindow::addRepoSlot);
 
-//    ui.actionaddAssetsDir
+    //    ui.actionaddAssetsDir
     ui->actionaddAssetsDir->setShortcut(QKeySequence("Alt+A"));
     connect(ui->actionaddAssetsDir, &QAction::triggered, this, &MainWindow::addAssstsDirSlot);
 
@@ -554,7 +554,7 @@ void MainWindow::InitMainWindowMenu(){
     connect(ui->actionOpenAssetsDir, &QAction::triggered, this, &MainWindow::openAssstsDirSlot);
 
     // actionDelCurrentAssetsDir
-//    ui->actionOpenAssetsDir->setShortcut(QKeySequence("Alt+D"));
+    //    ui->actionOpenAssetsDir->setShortcut(QKeySequence("Alt+D"));
     connect(ui->actionDelCurrentAssetsDir, &QAction::triggered, this, &MainWindow::delAssstsDirSlot);
 
     // actionConfdata
@@ -833,7 +833,7 @@ void MainWindow::setSubPathSlot(QString currentStr){
     subDirName_ = currentStr;
     int num = fileOp_.getLastmodifiedTimeFileNumSubDir(repoPath_,subDirName_, fullCurrentMarkdownDirPath_,currentMarkdownFileName_);
     if(num == -1){
-//        fullTarPath_.clear();
+        //        fullTarPath_.clear();
         ui->numSpinBox->setValue(num);
         appendTextToLog(QString(u8"当前的目标路径不存在 !"));
         setStatusBar("", false);
@@ -1023,7 +1023,7 @@ void MainWindow::itemEnteredSlot(QListWidgetItem *item)
         ui->imgLabel->setScaledContents(false);
         adjustMovieSize(movie, ui->imgLabel->size());
         movie->start();
-//        playAudioMp3(labelPath_);
+        //        playAudioMp3(labelPath_);
     }else{
         audioPlayer_->stop();
         videoThr_->stop();
@@ -1638,8 +1638,15 @@ void MainWindow::ChangeToHistoryFile(){
 }
 
 void MainWindow::OpenHistoryFile(){
-    ChangeToHistoryFile();
-    on_toolPbn_clicked(); // 打开文件
+    //获取单元格内的内容
+    QTableWidgetItem* curItem = ui->historyFileList->currentItem();
+    QString text = curItem->text();
+    if(text.contains("-old/0")) {
+        openExPro_.OpenMarkdownAndDirSlot(repoPath_+"/" + text);
+    }else{
+        ChangeToHistoryFile();
+        on_toolPbn_clicked(); // 打开文件
+    }
 }
 void MainWindow::CompareRenameFileList(QString pathA, QString pathB){
     openExPro_.CompareFileSlot(pathA, pathB);
