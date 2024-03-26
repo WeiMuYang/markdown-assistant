@@ -33,7 +33,9 @@ void FileOperation::getDirAllFiles(const QString &dirPath)
         if(fileInfo.isDir()) //book  study  test目录
         {
             fileList_.append(getLastmodifiedTimeFileName(fileInfo.absoluteFilePath()));
-            //            getDirAllFiles(fileInfo.absoluteFilePath());
+            if(fileInfo.fileName().contains("-old")){  // 之前旧文件
+                getDirAllFiles(fileInfo.absoluteFilePath());
+            }
         }
     }
 }
@@ -65,7 +67,6 @@ int FileOperation::getLastmodifiedTimeFileNum(const QString &path, QString& full
     getDirAllFiles(dir.absolutePath());
     qSort(fileList_.begin(), fileList_.end(),&FileOperation::sortFileByInfo);
     if(fileList_.isEmpty()){
-//        DebugBox(__FUNCTION__, __LINE__,"Directory: \"" + path + "\" does not exist!");
         emit sigFileOperationLog("\"" + path + "\" does not has sub Directory!");
         return -1;
     }
@@ -405,11 +406,15 @@ void FileOperation::getHistoryFileList(const QString &dirPath, QFileInfoList& fi
         if(fileInfo.isDir()) //book  study  test目录
         {
             fileListTemp.clear();
-            getLastmodifiedTop20Files(fileInfo.absoluteFilePath(),fileListTemp);
+            getLastmodifiedTop20Files(fileInfo.absoluteFilePath(), fileListTemp);
             for(int i = 0; i < fileListTemp.size(); ++i){
                 resultFileList.append(fileListTemp.at(i));
             }
+            if(fileInfo.fileName().contains("-old")){  // 之前旧文件
+                getHistoryFileList(fileInfo.absoluteFilePath(), resultFileList);
+            }
         }
+
     }
     qSort(resultFileList.begin(),resultFileList.end(),compare);
     for(int i = 0; i < resultFileList.size() && i < topFileCount*2; ++i){
@@ -556,6 +561,9 @@ void FileOperation::getSearchFileList(const QString &dirPath, QFileInfoList& fil
             getSearchDirFiles(fileInfo.absoluteFilePath(), fileListTemp, txt);
             for(int i = 0; i < fileListTemp.size(); ++i){
                 resultFileList.append(fileListTemp.at(i));
+            }
+            if(fileInfo.fileName().contains("-old")){  // 之前旧文件
+                getSearchFileList(fileInfo.absoluteFilePath(), resultFileList, txt);
             }
         }
     }
@@ -925,6 +933,7 @@ void FileOperation::updateReplaceNameRefereceList(const QString &repoPath, const
             // 只遍历markdown文件
             getMarkdownQString(fileInfo.absoluteFilePath(), repoPath, renameDirPath, replaceNameDirInfoList, replaceNameFileInfoList, index);
         }
+        // 暂时不考虑old文件的引用重命名
     }
 }
 
