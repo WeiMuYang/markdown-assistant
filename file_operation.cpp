@@ -177,13 +177,13 @@ bool FileOperation::clipFilesByFileInfo(const QStringList addList, QVector<ImgDa
                 }
                 // 1. 组成MP4的Markdown代码
                 if(newAssetsPath.right(4) == ".mp4"){
-                    VideoClipText += QString("<center>    \n") + clipMarkdownCodeItem(newAssetsPath, data.widthZoom) + QString("\n</center>    \n    \n    \n");
+                    VideoClipText += QString("<center>    \n") + clipMarkdownCodeItem(newAssetsPath, data.widthZoom) + QString("\n</center>    \n\n\n");
                 }else if(newAssetsPath.right(4) == ".mp3") {
                     if(data.widthZoom == AssetsZoomSize::Size5) {
                         AudioClipText +="<p>文本&nbsp; " + clipMarkdownCodeItem(newAssetsPath, data.widthZoom)
                                          + " &nbsp;文本</p>" + QString("    \n");
                     }else{
-                        AudioClipText += QString("<center>    \n") + clipMarkdownCodeItem(newAssetsPath, data.widthZoom) + QString("\n</center>    \n    \n    \n");
+                        AudioClipText += QString("<center>    \n") + clipMarkdownCodeItem(newAssetsPath, data.widthZoom) + QString("\n</center>    \n\n\n");
                     }
                 }else {
                 // 2. 组成IMG的Markdown代码
@@ -197,11 +197,11 @@ bool FileOperation::clipFilesByFileInfo(const QStringList addList, QVector<ImgDa
     }
     // 先添加MP4
     if(!VideoClipText.isEmpty()) {
-        clipText = VideoClipText +"  \n\n";
+        clipText = VideoClipText +"\n";
     }
     // 再添加mp3
     if(!AudioClipText.isEmpty()) {
-        clipText += AudioClipText + "  \n\n";
+        clipText += AudioClipText + "\n";
     }
     // 最后添加IMG
     if(ImgClipText.size() > 2) {
