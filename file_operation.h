@@ -30,9 +30,10 @@ public:
         return file1.lastModified() < file2.lastModified();
     }
    //  bool getSearchResultFromMarkdownCode(const QString &currentFullPath,const QString &codeText,QString & searchResult);
-    bool getSearchResultFromMarkdownCode(const QString &currentFullPath, const QString &codeText, const QString& name, QString &searchResult);
+    bool getSearchResultFromMarkdownCode(const QString &currentFullPath, const QString &codeText, QString& name,
+                                         QString &searchResult, QString destPath = "", QString fileNum = "");
     QString newNumFileName(QString path, QString fileName, QString suffix);
-    bool copyImgVideo(QDir& CurrentPath, const QStringList& fileNameArr,const QString & name, QString &searchResult);
+    bool copyImgVideo(QDir& CurrentPath, const QStringList& fileNameArr,const QString & name, QString &searchResult, QString destPath = "");
     QString makeDirPath(QString dirPath);
 
     void getHistoryFileList(const QString &dirPath, QFileInfoList& fileListTop20);

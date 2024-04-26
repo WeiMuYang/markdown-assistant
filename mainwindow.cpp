@@ -41,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent) :
     renameFileName_ = new RenameFileName(this);
     modifyConfDlg_ = new ModifyConfDialog(this);
     createMarkdownAndSubDirDlg_ = new CreateMarkdownAndSubDir(this);
+    getMarkdownFileDig_ = new GetMarkdownDialog(this);
     initScreenResNormal();
     // 0. 托盘
     initTray();
@@ -132,6 +133,13 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(createMarkdownAndSubDirDlg_,&CreateMarkdownAndSubDir::sigOpenTempleMarkdown,[this](QString path) {
         openExPro_.OpenMarkdownAndDirSlot(path);
     });
+    connect(getMarkdownFileDig_,&GetMarkdownDialog::sigOpenTempleMarkdown,[this](QString path) {
+        openExPro_.OpenMarkdownAndDirSlot(path);
+    });
+
+    connect(getMarkdownFileDig_,&GetMarkdownDialog::sigGetMarkdownFileLog,this,&MainWindow::appendTextToLog);
+    connect(getMarkdownFileDig_,&GetMarkdownDialog::sigCopyAssetsToExportDir,this,&MainWindow::copyAssetsToExportDirSlot);
+
     InitMainWindowMenu();
     initAddDelListMenu();
     startSlot();
@@ -561,6 +569,9 @@ void MainWindow::InitMainWindowMenu(){
     ui->actionConfdata->setShortcut(QKeySequence("Alt+M"));
     connect(ui->actionConfdata, &QAction::triggered, this, &MainWindow::confDataSettingSlot);
 
+    // Export Markdown File
+    ui->actionExportMarkdown->setShortcut(QKeySequence("Alt+E"));
+    connect(ui->actionExportMarkdown, &QAction::triggered, this, &MainWindow::exportMarkdownSlot);
 }
 
 void MainWindow::switchConfFileSlot(){
@@ -1552,6 +1563,12 @@ void MainWindow::confDataSettingSlot() {
     modifyConfDlg_->showWindow();
 }
 
+void MainWindow::exportMarkdownSlot()
+{
+    getMarkdownFileDig_->initGetMarkdownDlg(repoPath_, repoPath_+ "/" +subDirName_, screenWidth_, ui->numSpinBox->value());
+    getMarkdownFileDig_->showWindow();
+}
+
 void MainWindow::openCurrentDirSlot(){
     switch (boxSelect_) {
     case BoxSelect::NumSpinBox:
@@ -1792,6 +1809,22 @@ void MainWindow::createMarkdownAndSubDirSlot(int type, QString namePathAbs)
         addRepo2Conf(repoDir.dirName(),repoDir.absolutePath());
         openExPro_.OpenDirSlot(namePathAbs);
     }
+}
+
+void MainWindow::copyAssetsToExportDirSlot(QString oldfileAbs, QString newFileDir, QString fileName)
+{
+    QString code;
+    QFile file(oldfileAbs);
+    if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        code = in.readAll();
+        file.close();
+    }
+    QString folderPath = QFileInfo(oldfileAbs).path();
+    QString fileNum = fileName.split("-").first();
+    QString renameList;
+    QString result;
+    fileOp_.getSearchResultFromMarkdownCode(folderPath, code, renameList, result, newFileDir, fileNum);
 }
 
 void MainWindow::on_createMarkdownPbn_clicked()

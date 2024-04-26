@@ -286,8 +286,10 @@ QString FileOperation::makeDirPath(QString dirPath)
     return dirPath+"/"+tmpName;
 }
 
-bool FileOperation::copyImgVideo(QDir& CurrentPath, const QStringList& fileNameArr, const QString & nameList, QString &searchResult)
+bool FileOperation::copyImgVideo(QDir& CurrentPath, const QStringList& fileNameArr, const QString & nameList
+                                 , QString &searchResult, QString destPath)
 {
+    bool isCopyMarkdownAssets = false;
     QDir tmpCurPath = CurrentPath;
     QStringList nameStrList;
     if(nameList.contains(",",Qt::CaseSensitive)){
@@ -302,6 +304,10 @@ bool FileOperation::copyImgVideo(QDir& CurrentPath, const QStringList& fileNameA
         Path = makeDirPath(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation));
     }else{
         Path = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+    }
+    if(!destPath.isEmpty())  {
+        Path = destPath;
+        isCopyMarkdownAssets = true;
     }
 
     for(int i = 0; i< fileNameArr.size(); ++i){
@@ -326,14 +332,27 @@ bool FileOperation::copyImgVideo(QDir& CurrentPath, const QStringList& fileNameA
                 return false;
             }
         }
-        searchResult =CurrentPath.absolutePath()+"/" + fileName;
+        searchResult = CurrentPath.absolutePath() + "/" + fileName;
         QString suffix =fileName.split(".").last();
         QString desPath;
         if(name.isEmpty()){
             desPath = Path + "/" + QString("%1").arg(i+1, 2, 10, QLatin1Char('0'))+"."+ suffix;
         }else{
             QString newName = newNumFileName(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), name, suffix);
-            desPath = Path + "/" + newName+"."+ suffix;
+
+            if(isCopyMarkdownAssets) {
+                QDir newDir(Path);
+                if(suffix == "png" || suffix == "jpg" || suffix == "gif"
+                        || suffix == "bmp"|| suffix == "jpeg") {
+                    newDir.mkpath(Path + "/img");
+                    desPath = Path + "/img/" + newName+ "."+ suffix;
+                } else {
+                    newDir.mkpath(Path + "/video");
+                    desPath = Path + "/video/" + newName+ "."+ suffix;
+                }
+            }else{
+                desPath = Path + "/" + newName+ "."+ suffix;
+            }
         }
         if(!QFile::copy(searchResult, desPath))
         {
@@ -346,7 +365,8 @@ bool FileOperation::copyImgVideo(QDir& CurrentPath, const QStringList& fileNameA
 }
 
 
-bool FileOperation::getSearchResultFromMarkdownCode(const QString &currentFullPath, const QString &codeText, const QString& nameList, QString &searchResult)
+bool FileOperation::getSearchResultFromMarkdownCode(const QString &currentFullPath, const QString &codeText,
+                                                    QString& nameList, QString &searchResult, QString destPath, QString fileNum)
 {
     if(currentFullPath.isEmpty()){
         emit sigFileOperationLog("Current FullPath is empty!");
@@ -371,7 +391,14 @@ bool FileOperation::getSearchResultFromMarkdownCode(const QString &currentFullPa
         return false;
     }
 
-    return copyImgVideo(CurrentPath, fileNameArr,nameList , searchResult);
+    // 拷贝Markdown文件的场景
+    if(!destPath.isEmpty()) {
+        for(int i = 0; i < fileNameArr.size(); ++i) {
+            nameList += fileNum + "-" + QString::number(i+1)+ " ";
+        }
+    }
+
+    return copyImgVideo(CurrentPath, fileNameArr, nameList, searchResult, destPath);
 }
 
 // -------------------------- get file List of last two weeks 一共  15 files

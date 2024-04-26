@@ -21,6 +21,7 @@
 #include "rename_file_name.h"
 #include "modify_conf_dialog.h"
 #include "create_markdown_dir.h"
+#include "get_markdown_dialog.h"
 
 
 namespace Ui {
@@ -161,9 +162,13 @@ private slots:
 
     void confDataSettingSlot();
 
+    void exportMarkdownSlot();
+
     void modifyConfDlgSlot(ConfigData data);
 
     void createMarkdownAndSubDirSlot(int type, QString namePathAbs);
+
+    void copyAssetsToExportDirSlot(QString oldfileAbs, QString newFileDir, QString fileName);
 
 protected:
     // 窗口设置为随着窗口变化而变化
@@ -222,6 +227,7 @@ private:
 
     ModifyConfDialog* modifyConfDlg_;
     CreateMarkdownAndSubDir* createMarkdownAndSubDirDlg_;
+    GetMarkdownDialog* getMarkdownFileDig_;
     int icoNum_{0};
 
     int appNormalWidth_{0};

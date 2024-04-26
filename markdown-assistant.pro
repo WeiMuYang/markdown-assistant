@@ -34,6 +34,7 @@ SOURCES += \
     create_markdown_dir.cpp \
     file_operation.cpp \
     get_assets_dialog.cpp \
+    get_markdown_dialog.cpp \
         main.cpp \
         mainwindow.cpp \
     modify_conf_dialog.cpp \
@@ -50,6 +51,7 @@ HEADERS += \
     create_markdown_dir.h \
     file_operation.h \
     get_assets_dialog.h \
+    get_markdown_dialog.h \
         mainwindow.h \
     modify_conf_dialog.h \
     open_ex_program.h \
@@ -63,6 +65,7 @@ FORMS += \
         assets_type_item.ui \
         create_markdown_dir.ui \
         get_assets_dialog.ui \
+        get_markdown_dialog.ui \
         mainwindow.ui \
         modify_conf_dialog.ui \
         rename_file_name.ui
