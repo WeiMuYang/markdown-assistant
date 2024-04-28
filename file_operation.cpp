@@ -33,7 +33,7 @@ void FileOperation::getDirAllFiles(const QString &dirPath)
         if(fileInfo.isDir()) //book  study  test目录
         {
             fileList_.append(getLastmodifiedTimeFileName(fileInfo.absoluteFilePath()));
-            if(fileInfo.fileName().contains("-old")){  // 之前旧文件
+            if(fileInfo.fileName().contains("-old") || fileInfo.fileName().contains("-export")){  // 之前旧文件
                 getDirAllFiles(fileInfo.absoluteFilePath());
             }
         }
@@ -437,7 +437,7 @@ void FileOperation::getHistoryFileList(const QString &dirPath, QFileInfoList& fi
             for(int i = 0; i < fileListTemp.size(); ++i){
                 resultFileList.append(fileListTemp.at(i));
             }
-            if(fileInfo.fileName().contains("-old")){  // 之前旧文件
+            if(fileInfo.fileName().contains("-old") || fileInfo.fileName().contains("-export")){  // 之前旧文件
                 getHistoryFileList(fileInfo.absoluteFilePath(), resultFileList);
             }
         }
@@ -589,7 +589,7 @@ void FileOperation::getSearchFileList(const QString &dirPath, QFileInfoList& fil
             for(int i = 0; i < fileListTemp.size(); ++i){
                 resultFileList.append(fileListTemp.at(i));
             }
-            if(fileInfo.fileName().contains("-old")){  // 之前旧文件
+            if(fileInfo.fileName().contains("-old") || fileInfo.fileName().contains("-export")){  // 之前旧文件
                 getSearchFileList(fileInfo.absoluteFilePath(), resultFileList, txt);
             }
         }

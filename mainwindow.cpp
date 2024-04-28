@@ -1565,8 +1565,7 @@ void MainWindow::confDataSettingSlot() {
 
 void MainWindow::exportMarkdownSlot()
 {
-    getMarkdownFileDig_->initGetMarkdownDlg(repoPath_, repoPath_+ "/" +subDirName_, screenWidth_, ui->numSpinBox->value());
-    getMarkdownFileDig_->showWindow();
+    getMarkdownFileDig_->showWindow(repoPath_, repoPath_+ "/" +subDirName_, screenWidth_, ui->numSpinBox->value());
 }
 
 void MainWindow::openCurrentDirSlot(){
@@ -1658,7 +1657,7 @@ void MainWindow::OpenHistoryFile(){
     //获取单元格内的内容
     QTableWidgetItem* curItem = ui->historyFileList->currentItem();
     QString text = curItem->text();
-    if(text.contains("-old/0")) {
+    if(text.contains("-old/") || text.contains("-export/") ) {
         openExPro_.OpenMarkdownAndDirSlot(repoPath_+"/" + text);
     }else{
         ChangeToHistoryFile();

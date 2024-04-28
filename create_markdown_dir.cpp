@@ -232,6 +232,12 @@ void CreateMarkdownAndSubDir::on_numOldMarkdownSpinBox_valueChanged(int fileNum)
     }
 
     fileName = fileInfoList.last().fileName();
+    QFileInfo fileInfo(subDirPath_+"/"+fileName);
+    if(fileInfo.isDir()) {
+        ui->templeFileNameEdit->setText("没有模板文件!");
+        numOldMarkdownSpinBoxStatus(0);
+        return ;
+    }
     ui->templeFileNameEdit->setText(fileName.split(QString("%1").arg(fileNum, 2, 10, QLatin1Char('0'))+"-").last());
     numOldMarkdownSpinBoxStatus(1);
 }

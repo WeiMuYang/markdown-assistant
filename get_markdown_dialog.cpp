@@ -63,12 +63,31 @@ void GetMarkdownDialog::initSize() {
     this->resize(QSize(width, height) * zoom);
 }
 
-void GetMarkdownDialog::showWindow() {
+QString GetMarkdownDialog::exportPathSimplify(QString exportPath){
+    QDir repoDir(repoPath_);
+    if(exportPath.startsWith(repoPath_)) {
+        QString relativePath = repoDir.relativeFilePath(exportPath);
+        return relativePath;
+    }
+    return exportPath;
+}
+
+QString GetMarkdownDialog::getExportFullPath(QString text){
+    QDir repoDir(repoPath_);
+    if(text.size() >= 2 && text.mid(1,2) != ":") {
+        return repoDir.absoluteFilePath(text);
+    }
+    return text;
+}
+
+void GetMarkdownDialog::showWindow(QString repoPath, QString subDirPath, int width, int fileNum) {
+    initGetMarkdownDlg(repoPath, subDirPath, width, fileNum);
+    QDir newDir(repoPath_);
     ui->newFileNameEdit->setText("");
-    QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
-    QDir newDir(desktop);
-    newDir.mkpath(desktop + "/export");
-    ui->newFilePathEdit->setText(desktop + "/export");
+    newDir.mkpath(repoPath_ + "/09-export/00-default");
+
+    ui->newFilePathEdit->setText(exportPathSimplify(repoPath_ + "/09-export/00-default"));
+
     updateMarkdownNum();
     initSize();
     ui->numOldMarkdownSpinBox->setValue(currentFileNum_);
@@ -84,7 +103,7 @@ bool GetMarkdownDialog::isMarkdownFile(QString fileName){
 
 void GetMarkdownDialog::updateMarkdownNum()
 {
-    QDir dir(ui->newFilePathEdit->text());
+    QDir dir(getExportFullPath(ui->newFilePathEdit->text()));
     QFileInfoList list = dir.entryInfoList(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
     int max = -1;
     QString templateFileName;
@@ -108,8 +127,7 @@ void GetMarkdownDialog::updateMarkdownNum()
 
 void GetMarkdownDialog::on_numNewMarkdownSpinBox_valueChanged(int fileNum)
 {
-    QString path = ui->newFilePathEdit->text();
-    QDir dir(ui->newFilePathEdit->text());
+    QDir dir(getExportFullPath( ui->newFilePathEdit->text()));
     QStringList filters;
     QString nameNum = QString("%1").arg(fileNum, 2, 10, QLatin1Char('0'))+"*";
     filters << nameNum;
@@ -165,8 +183,8 @@ void GetMarkdownDialog::on_yesPbn_clicked()
     QString fileName = QString("%1").arg(ui->numNewMarkdownSpinBox->value(), 2, 10,
                                          QLatin1Char('0')) + "-" + ui->newFileNameEdit->text() + ".md";
     if(ui->newFileNameEdit->isEnabled()) {
-        if(copyMarkdownFile(subDirPath_ + "/" + oldFileName_, ui->newFilePathEdit->text(), fileName)){
-            emit sigCopyAssetsToExportDir(subDirPath_ + "/" + oldFileName_, ui->newFilePathEdit->text(), fileName);
+        if(copyMarkdownFile(subDirPath_ + "/" + oldFileName_, getExportFullPath(ui->newFilePathEdit->text()), fileName)){
+            emit sigCopyAssetsToExportDir(subDirPath_ + "/" + oldFileName_, getExportFullPath(ui->newFilePathEdit->text()), fileName);
         }
     }else{
         emit sigGetMarkdownFileLog(QString("取消导出!"));
@@ -179,12 +197,23 @@ void GetMarkdownDialog::initGetMarkdownDlg(QString repoPath, QString subDirPath,
 {
     repoPath_ = repoPath;
     subDirPath_ = subDirPath;
+    if(subDirPath_.contains("-export")) {
+        ui->templeFileNameEdit->setText("不能从导出export目录导出!");
+        oldFileName_ = "";
+        numOldMarkdownSpinBoxStatus(0);
+    }
     width_= width;
     currentFileNum_ = fileNum;
 }
 
 void GetMarkdownDialog::on_numOldMarkdownSpinBox_valueChanged(int fileNum)
 {
+    if(subDirPath_.contains("-export")) {
+        ui->templeFileNameEdit->setText("不能从导出export目录导出!");
+        oldFileName_ = "";
+        numOldMarkdownSpinBoxStatus(0);
+        return ;
+    }
     QDir dir(subDirPath_);
     QString fileName;
     QStringList filters;
@@ -233,7 +262,7 @@ void GetMarkdownDialog::on_fileDirPbn_clicked()
         ui->newFilePathEdit->setText("");
         return ;
     }
-    ui->newFilePathEdit->setText(path);
+    ui->newFilePathEdit->setText(exportPathSimplify(path));
 }
 
 

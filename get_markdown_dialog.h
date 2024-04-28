@@ -20,12 +20,14 @@ public:
 
     void initGetMarkdownDlg(QString repoPath, QString subDirPath, int width, int fileNum);
     void numNewMarkdownSpinBoxStatus(int flags);
-    void showWindow();
+    void showWindow(QString repoPath, QString subDirPath, int width, int fileNum);
     void initSize();
     bool copyMarkdownFile(QString oldfileAbs, QString newFileDir, QString fileName);
     bool copyAssetsFile(QString oldfileAbs, QString newFileDir);
     void updateMarkdownNum();
     bool isMarkdownFile(QString fileName);
+    QString exportPathSimplify(QString exportPath);
+    QString getExportFullPath(QString exportPath);
 public slots:
     void on_numOldMarkdownSpinBox_valueChanged(int fileNum);
     void on_fileDirPbn_clicked();
