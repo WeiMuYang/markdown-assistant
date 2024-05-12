@@ -1,4 +1,4 @@
-#include "rename_file_name.h"
+﻿#include "rename_file_name.h"
 #include "ui_rename_file_name.h"
 #include <QDebug>
 #include <QMessageBox>
@@ -70,7 +70,7 @@ bool RenameFileName::BackUp(const QString &fromDir, const QString &toDir, bool c
     foreach(QFileInfo fileInfo, fileInfoList) {
         if(fileInfo.fileName() == "." || fileInfo.fileName() == "..")
             continue;
-        if(fileInfo.isDir()) {    /**< 当为目录时，递归的进行copy */
+        if(fileInfo.isDir()) {    /*  当为目录时，递归的进行copy */
             if(!BackUp(fileInfo.filePath(), targetDir.filePath(fileInfo.fileName()), coverFileIfExist)){
                 return false;
             }

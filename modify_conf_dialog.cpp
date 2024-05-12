@@ -30,7 +30,7 @@ void ModifyConfDialog::initWindow() {
     {//============
         ui->assetsDirList->setColumnCount(2);
         ui->assetsDirList->setSelectionBehavior(QAbstractItemView::SelectRows);
-        /*去掉每行的行号*/
+        /*去掉每行的行号 */
         QHeaderView *headerView = ui->assetsDirList->verticalHeader();
         headerView->setHidden(true);
         ui->assetsDirList->horizontalHeader()->setStretchLastSection(true);
@@ -44,7 +44,7 @@ void ModifyConfDialog::initWindow() {
     {//==============
         ui->repoDirList->setColumnCount(2);
         ui->repoDirList->setSelectionBehavior(QAbstractItemView::SelectRows);
-        /*去掉每行的行号*/
+        /* 去掉每行的行号 */
         QHeaderView *headerView = ui->repoDirList->verticalHeader();
         headerView->setHidden(true);
         ui->repoDirList->horizontalHeader()->setStretchLastSection(true);
@@ -157,7 +157,7 @@ void ModifyConfDialog::on_addAssetsDir_clicked()
     QFileInfo fileInfo(path);
     QString existName;
     if(!configdata_.addAssetsPath(fileInfo.fileName(), fileInfo.filePath(), existName)) {
-        emit sigModifyConfDlgLog("\"" + existName + "\"和\"" + fileInfo.fileName() + "\"是同一个目录!");
+        emit sigModifyConfDlgLog("\"" + existName + "\" and \"" + fileInfo.fileName() + "\"是同一个目录! ");
     }
     updateAssetsDirList();
 }
@@ -186,7 +186,7 @@ void ModifyConfDialog::on_addRepoDir_clicked()
     QFileInfo fileInfo(path);
     QString existName;
     if(!configdata_.addRepoPath(fileInfo.fileName(), fileInfo.filePath(), existName)) {
-        emit sigModifyConfDlgLog("\"" + existName + "\"和\"" + fileInfo.fileName() + "\"是同一个仓库!");
+        emit sigModifyConfDlgLog("\"" + existName + "\" and \"" + fileInfo.fileName() + "\"是同一个仓库!");
         return ;
     }
     updateRepoList();
@@ -306,4 +306,3 @@ void ModifyConfDialog::on_helpAssetsTypePbn_clicked()
 
     box.helpBoxSlot(msg, width_);
 }
-

@@ -137,7 +137,7 @@ void GetMarkdownDialog::on_numNewMarkdownSpinBox_valueChanged(int fileNum)
     if(fileInfoList.size() > 0) {
         // 有编号为fileNum的文件
         QString msg;
-        msg = QString("序号为：\"") + QString("%1").arg(fileNum, 2, 10, QLatin1Char('0')) + QString("\"的文件被占用！").toUtf8();
+        msg = QString("序号为：\"") + QString("%1").arg(fileNum, 2, 10, QLatin1Char('0')) + QString("\"的文件被占用 !").toUtf8();
         qDebug() << msg;
         numNewMarkdownSpinBoxStatus(0);
         return;

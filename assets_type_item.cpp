@@ -42,7 +42,7 @@ void AssetsTypeItem::showWindow()
 void AssetsTypeItem::on_okPbn_clicked()
 {
     if(ui->assetTypeText->text().isEmpty()) {
-        sigAssetsTypeLog("Assets Type 不能为空！");
+        sigAssetsTypeLog("Assets Type 不能为空! ");
     }else{
         emit sigAssetsType(ui->assetTypeText->text());
     }
