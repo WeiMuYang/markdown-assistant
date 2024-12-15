@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
         a.setFont(font);
     }
 
-    w.setIconNum(argc, argv);
+    w.setIconByConf();
     w.showSlot();
 
     return a.exec();

@@ -33,6 +33,8 @@ public:
     void updateSoftWarePath();
     void updateMeetingPath();
 
+    void updateIconPath();
+
     void setWidth(int res) {
         width_ = res;
     }
@@ -65,6 +67,10 @@ private slots:
     void on_applyPbn_clicked();
 
     void on_helpAssetsTypePbn_clicked();
+
+    void on_meetingFilePathPtn_clicked();
+
+    void on_iconFilePathPtn_clicked();
 
 signals:
     void sigModifyConfDlgLog(QString log);

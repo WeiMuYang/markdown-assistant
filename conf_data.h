@@ -29,6 +29,9 @@ public:
     QString getMeetFilePath(){
         return meetFilePath_;
     }
+    QString getIconFilePath(){
+        return iconPath_;
+    }
     const QStringList& getAssetsTypes(){
         return assetsType_;
     }
@@ -148,6 +151,14 @@ public:
         dataDirSoftWarePath_ = path;
     }
 
+    void setMeetingPath(const QString& path){
+        meetFilePath_ = path;
+    }
+
+    void setIconPath(const QString& path){
+        iconPath_ = path;
+    }
+
     ///////////  rename file  ////////
     bool readCharConfFile(QString path, QMap<QString, QString> &map);
     void analysisCharConfJson(QJsonObject &rootObj,QMap<QString, QString>& replaceCharListMap);
@@ -169,6 +180,7 @@ private: // need to change to private
     QString markdownSoftWarePath_;
     QString dataDirSoftWarePath_;
     QString meetFilePath_;
+    QString iconPath_;
     IniFile iniFile_;
 };
 

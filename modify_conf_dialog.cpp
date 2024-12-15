@@ -133,6 +133,7 @@ void ModifyConfDialog::showWindow() {
     updateAssetsType();
     updateSoftWarePath();
     updateMeetingPath();
+    updateIconPath();
     qDebug() << QString::number(this->width()) << " " << QString::number(this->height());
     show();
 }
@@ -144,6 +145,10 @@ void ModifyConfDialog::updateSoftWarePath() {
 
 void ModifyConfDialog::updateMeetingPath() {
     ui->meetingFilePathEdit->setText(configdata_.getMeetFilePath());
+}
+
+void ModifyConfDialog::updateIconPath() {
+    ui->iconFilePathEdit->setText(configdata_.getIconFilePath());
 }
 
 void ModifyConfDialog::on_addAssetsDir_clicked()
@@ -305,4 +310,29 @@ void ModifyConfDialog::on_helpAssetsTypePbn_clicked()
     msg += "5. \"{ }\"：匹配花括号内的任意字符序列。 \n";
 
     box.helpBoxSlot(msg, width_);
+}
+
+void ModifyConfDialog::on_meetingFilePathPtn_clicked()
+{
+    QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+    QString path = QFileDialog::getOpenFileName(this,"选择会议文件",desktop ,tr("Markdown files(*.md)"));
+    if(path.isEmpty()) {
+        emit sigModifyConfDlgLog("会议文件路径\"" + path + "\"为空，无法添加!");
+        return ;
+    }
+    ui->meetingFilePathEdit->setText(path);
+    configdata_.setMeetingPath(path);
+}
+
+
+void ModifyConfDialog::on_iconFilePathPtn_clicked()
+{
+    QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+    QString path = QFileDialog::getOpenFileName(this,"选择Icon文件",desktop ,tr("ICON files(*.ico)"));
+    if(path.isEmpty()) {
+        emit sigModifyConfDlgLog("Icon文件路径\"" + path + "\"为空，无法添加!");
+        return ;
+    }
+    ui->iconFilePathEdit->setText(path);
+    configdata_.setIconPath(path);
 }

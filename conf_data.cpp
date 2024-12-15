@@ -74,6 +74,7 @@ void ConfigData::analysisJson(QJsonObject &rootObj){
         }
     }
     meetFilePath_ = rootObj["MeetFilePath"].toString();
+    iconPath_ = rootObj["Icon"].toString();
 }
 
 QString ConfigData::getAssetsPathByKey(QString key){
@@ -335,6 +336,8 @@ bool ConfigData::writeConfJson() {
     QDateTime current_date_time =QDateTime::currentDateTime();
     QString current_date =current_date_time.toString("yyyy.MM.dd");
     jsonObject["Date"] = current_date;
+    jsonObject["MeetFilePath"] = meetFilePath_;
+    jsonObject["Icon"] = iconPath_;
     // 生成 JSON 文档
     QJsonDocument jsonDoc(jsonObject);
 

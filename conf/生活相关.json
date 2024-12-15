@@ -7,7 +7,8 @@
         "99-*.gif",
         "99-*.mp4"
     ],
-    "Date": "2024.01.07",
+    "Date": "2024.12.15",
+    "Icon": "F:/05-markdown-assistant/icon/markdown-assistant-1.ico",
     "ImagePath": [
         {
             "Desktop": "Desktop"
@@ -19,6 +20,7 @@
         "2 days",
         "today"
     ],
+    "MeetFilePath": "",
     "Software": {
         "DataDirSoftware": "D:/Users/yang-wei-da/AppData/Local/Programs/Microsoft VS Code/Code.exe",
         "MarkdownSoftware": "D:/Typora/Typora.exe"
@@ -40,7 +42,7 @@
             "购买记录": "F:/01-生活相关/06-购买记录"
         },
         {
-            "旅游材料": "F:/01-生活相关/07-出国旅游"
+            "旅游材料": "F:/01-生活相关/07-旅游"
         },
         {
             "看病体检王": "F:/01-生活相关/03-看病体检-王吴娜"

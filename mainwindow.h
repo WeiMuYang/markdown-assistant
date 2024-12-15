@@ -70,7 +70,7 @@ public:
     void playAudioMp3(const QString& path);
     void adjustMovieSize(QMovie* movie, const QSize& labelSize);
 
-    void setIconNum(int num, char *argv[]);
+//    void setIconNum(int num, char *argv[]);
 private slots:
     void updateListDataAndWgtSlot();
     void changeModeSlot();
@@ -180,7 +180,8 @@ protected:
 public:
     void showSlot(); // 声明show函数
 
-    void setIconByNum();
+    void setIconByConf();
+    bool isIconFile(const QString& filePath);
 private:
     Ui::MainWindow *ui;
     AssetsData addDelListData_;
