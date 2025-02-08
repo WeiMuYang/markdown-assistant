@@ -190,6 +190,7 @@ private:
     unsigned int clickNum_{0};
     QString assetsPath_;        // Path or desktop
     QString repoPath_;          // D:/YangWeiBin/01-sync-file-level-1/02-ramses-composer
+    QString oldPath_;           // E:/00-YangWeiBin/01-sync-file-level-1/02-ramses-composer
     QString subDirName_;        // 05-test
     QString fullCurrentMarkdownDirPath_;    // D:/YangWeiBin/01-sync-file-level-1/02-ramses-composer/05-test
     QString currentMarkdownFileName_;       // 63-车模2-IDC测试.md

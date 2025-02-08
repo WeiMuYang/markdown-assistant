@@ -53,6 +53,15 @@ void ConfigData::analysisJson(QJsonObject &rootObj){
         namePath.value = data[namePath.key].toString();
         repoNamePathList_.push_back(namePath);
     }
+    QJsonArray OldPathArr = rootObj["OldPath"].toArray();
+    for(int i = 0; i < OldPathArr.size(); ++i){
+        QJsonObject data = OldPathArr.at(i).toObject();
+        NamePath namePath;
+        namePath.key = data.keys().at(0);
+        namePath.value = data[namePath.key].toString();
+        oldNamePathList_.push_back(namePath);
+    }
+
     QJsonArray IntervalArr = rootObj["Interval"].toArray();
     for(int i = 0; i < IntervalArr.size(); ++i){
         QString value = IntervalArr.at(i).toString();
@@ -100,6 +109,20 @@ QString ConfigData::getRepoPathByKey(QString key){
         }
     }
     DebugBox(__FUNCTION__, __LINE__,"can't find "+ key + " from tarNamePathMap");
+    return QString("");
+}
+
+QString ConfigData::getOldPathByKey(QString key){
+    if(key.isEmpty()){
+        return QString("");
+    }
+    for(auto it = oldNamePathList_.begin(); it != oldNamePathList_.end(); ++it)
+    {
+        if(it->key == key)
+        {
+            return it->value;
+        }
+    }
     return QString("");
 }
 
@@ -231,6 +254,7 @@ bool ConfigData::writeIniFile() {
 void ConfigData::confDataClear(){
     assetsNamePathList_.clear();
     repoNamePathList_.clear();
+    oldNamePathList_.clear();
     intervalArr_.clear();
     assetsType_.clear();
     meetFilePath_.clear();
@@ -241,6 +265,7 @@ void ConfigData::confDataClear(){
 void ConfigData::clearAll(){
     assetsNamePathList_.clear();
     repoNamePathList_.clear();
+    oldNamePathList_.clear();
     intervalArr_.clear();
     assetsType_.clear();
     meetFilePath_.clear();
