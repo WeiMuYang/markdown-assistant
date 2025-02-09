@@ -26,7 +26,6 @@ ModifyConfDialog::~ModifyConfDialog()
 }
 
 void ModifyConfDialog::initWindow() {
-
     {//============
         ui->assetsDirList->setColumnCount(2);
         ui->assetsDirList->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -40,7 +39,6 @@ void ModifyConfDialog::initWindow() {
         ui->assetsDirList->setShowGrid(false); //设置不显示格子线
         connect(ui->assetsDirList,&QTableWidget::itemChanged,this, &ModifyConfDialog::updateAssetsDirListEditSlot);
     }
-
     {//==============
         ui->repoDirList->setColumnCount(2);
         ui->repoDirList->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -53,6 +51,19 @@ void ModifyConfDialog::initWindow() {
         //设置表格不显示格子线
         ui->repoDirList->setShowGrid(false); //设置不显示格子线
         connect(ui->repoDirList,&QTableWidget::itemChanged,this, &ModifyConfDialog::updateRepoListEditSlot);
+    }
+    {//==============
+        ui->oldDirList->setColumnCount(2);
+        ui->oldDirList->setSelectionBehavior(QAbstractItemView::SelectRows);
+        /* 去掉每行的行号 */
+        QHeaderView *headerView = ui->oldDirList->verticalHeader();
+        headerView->setHidden(true);
+        ui->oldDirList->horizontalHeader()->setStretchLastSection(true);
+        // 消除表格控件的边框
+        ui->oldDirList->setFrameShape(QFrame::NoFrame);
+        //设置表格不显示格子线
+        ui->oldDirList->setShowGrid(false); //设置不显示格子线
+        connect(ui->oldDirList,&QTableWidget::itemChanged,this, &ModifyConfDialog::updateOldListEditSlot);
     }
     {
         connect(ui->assetsTypeList,&QListWidget::itemChanged,this, &ModifyConfDialog::updateAssetsTypeListEditSlot);
@@ -94,6 +105,23 @@ void ModifyConfDialog::updateRepoList()
     connect(ui->repoDirList,&QTableWidget::itemChanged,this, &ModifyConfDialog::updateRepoListEditSlot);
 }
 
+void ModifyConfDialog::updateOldList()
+{
+    disconnect(ui->oldDirList,&QTableWidget::itemChanged,this, &ModifyConfDialog::updateOldListEditSlot);
+    ui->oldDirList->clearContents();
+    QList<NamePath> oldPath = configdata_.getOldPaths();
+    for(int i = 0; i < oldPath.size(); ++i) {
+        ui->oldDirList->setRowCount(i + 1);
+        NamePath dirInfo = oldPath.at(i);
+        QTableWidgetItem *pItem1 = new QTableWidgetItem(dirInfo.key);
+        QTableWidgetItem *pItem2 = new QTableWidgetItem(dirInfo.value);
+        pItem2->setFlags(pItem2->flags() & ~Qt::ItemIsEditable);
+        ui->oldDirList->setItem(i, 0, pItem1);
+        ui->oldDirList->setItem(i, 1, pItem2);
+    }
+    connect(ui->oldDirList,&QTableWidget::itemChanged,this, &ModifyConfDialog::updateOldListEditSlot);
+}
+
 void ModifyConfDialog::updateAssetsType()
 {
     disconnect(ui->assetsTypeList,&QListWidget::itemChanged,this, &ModifyConfDialog::updateAssetsTypeListEditSlot);
@@ -130,11 +158,13 @@ void ModifyConfDialog::showWindow() {
     initWindowsSize();
     updateAssetsDirList();
     updateRepoList();
+    updateOldList();
     updateAssetsType();
     updateSoftWarePath();
     updateMeetingPath();
     updateIconPath();
     qDebug() << QString::number(this->width()) << " " << QString::number(this->height());
+    ui->tabPathWidget->setCurrentIndex(0);
     show();
 }
 
@@ -249,6 +279,14 @@ void ModifyConfDialog::updateRepoListEditSlot(QTableWidgetItem *item) {
     }
 }
 
+void ModifyConfDialog::updateOldListEditSlot(QTableWidgetItem *item) {
+    if(item->column() == 0) {
+        int row = item->row();
+        QString name = item->text();
+        configdata_.modifyOldName(row, name);
+    }
+}
+
 void ModifyConfDialog::updateAssetsDirListEditSlot(QTableWidgetItem *item) {
     if(item->column() == 0) {
         int row = item->row();
@@ -335,4 +373,35 @@ void ModifyConfDialog::on_iconFilePathPtn_clicked()
     }
     ui->iconFilePathEdit->setText(path);
     configdata_.setIconPath(path);
+}
+
+
+void ModifyConfDialog::on_addOldDir_clicked()
+{
+    QString desktop = QStandardPaths::writableLocation(QStandardPaths::DesktopLocation);
+    QString path = QFileDialog::getExistingDirectory(this,"选择仓库目录", desktop,QFileDialog::ShowDirsOnly);
+    if(path.isEmpty()) {
+        emit sigModifyConfDlgLog("添加资源目录\"" + path + "\"为空，无法添加!");
+        return ;
+    }
+    QFileInfo fileInfo(path);
+    QString existName;
+    if(!configdata_.addOldPath(fileInfo.fileName(), fileInfo.filePath(), existName)) {
+        emit sigModifyConfDlgLog("\"" + existName + "\" and \"" + fileInfo.fileName() + "\"是同一个仓库!");
+        return ;
+    }
+    updateOldList();
+}
+
+void ModifyConfDialog::on_delOldDir_clicked()
+{
+    QList<QTableWidgetItem*> selectedItems = ui->oldDirList->selectedItems();
+    for (int i = 0; i < selectedItems.size(); ++i) {
+        QTableWidgetItem* item = selectedItems.at(i);
+        if (item->column() == 1) {
+            QString path = item->text();
+            configdata_.delOldPath(path);
+        }
+    }
+    updateOldList();
 }

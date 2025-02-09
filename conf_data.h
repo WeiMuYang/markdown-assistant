@@ -23,6 +23,9 @@ public:
     const QList<NamePath>& getRepoPaths(){
         return repoNamePathList_;
     }
+    const QList<NamePath>& getOldPaths(){
+        return oldNamePathList_;
+    }
     const QList<NamePath>& getAssetPaths(){
         return assetsNamePathList_;
     }
@@ -95,9 +98,31 @@ public:
         return true;
     }
 
+    bool addOldPath(const QString& name, const QString& path, QString& existName) {
+        NamePath np;
+        np.key = name;
+        np.value = path;
+        for(int i = 0; i < oldNamePathList_.size(); ++i) {
+            if(oldNamePathList_.at(i).value == path) {
+                existName = oldNamePathList_.at(i).key;
+                return false;
+            }
+        }
+        oldNamePathList_.append(np);
+        return true;
+    }
+
     bool modifyRepoName(int i, const QString& name) {
         if(i < repoNamePathList_.size()) {
-            repoNamePathList_[i].key= name;
+            repoNamePathList_[i].key = name;
+            return true;
+        }
+        return false;
+    }
+
+    bool modifyOldName(int i, const QString& name) {
+        if(i < oldNamePathList_.size()) {
+            oldNamePathList_[i].key = name;
             return true;
         }
         return false;
@@ -129,6 +154,15 @@ public:
         for(int i = 0; i < repoNamePathList_.size(); ++i) {
             if(repoNamePathList_.at(i).value == path) {
                 repoNamePathList_.removeAt(i);
+            }
+        }
+        return false;
+    }
+
+    bool delOldPath(QString path) {
+        for(int i = 0; i < oldNamePathList_.size(); ++i) {
+            if(oldNamePathList_.at(i).value == path) {
+                oldNamePathList_.removeAt(i);
             }
         }
         return false;

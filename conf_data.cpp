@@ -335,6 +335,14 @@ bool ConfigData::writeConfJson() {
     }
     jsonObject["TargetPath"] = targetPathArray;
 
+    QJsonArray oldPathArray;
+    for(int i = 0; i < oldNamePathList_.size(); ++i){
+        QJsonObject oldPathObject;
+        oldPathObject[oldNamePathList_.at(i).key] = oldNamePathList_.at(i).value;
+        oldPathArray.append(oldPathObject);
+    }
+    jsonObject["OldPath"] = oldPathArray;
+
     // 添加时间间隔数组
     QJsonArray intervalArray;
     for(int i = 0; i < intervalArr_.size(); ++i) {

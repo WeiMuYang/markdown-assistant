@@ -27,6 +27,7 @@ public:
     void showWindow();
     void updateAssetsDirList();
     void updateRepoList();
+    void updateOldList();
 
     void updateAssetsType();
 
@@ -54,6 +55,7 @@ private slots:
     void on_delAssetsTypePbn_clicked();
     void updateAssetsTypeListEditSlot(QListWidgetItem *current);
     void updateRepoListEditSlot(QTableWidgetItem *item);
+    void updateOldListEditSlot(QTableWidgetItem *item);
     void updateAssetsDirListEditSlot(QTableWidgetItem *item);
 
     void on_markdownSoftPbn_clicked();
@@ -71,6 +73,10 @@ private slots:
     void on_meetingFilePathPtn_clicked();
 
     void on_iconFilePathPtn_clicked();
+
+    void on_addOldDir_clicked();
+
+    void on_delOldDir_clicked();
 
 signals:
     void sigModifyConfDlgLog(QString log);

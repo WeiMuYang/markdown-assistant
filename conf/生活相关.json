@@ -7,7 +7,7 @@
         "99-*.gif",
         "99-*.mp4"
     ],
-    "Date": "2024.12.15",
+    "Date": "2025.02.09",
     "Icon": "F:/05-markdown-assistant/icon/markdown-assistant-1.ico",
     "ImagePath": [
         {
@@ -21,23 +21,16 @@
         "today"
     ],
     "MeetFilePath": "",
+    "OldPath": [
+        {
+            "购买记录": "G:/06-购买记录"
+        }
+    ],
     "Software": {
         "DataDirSoftware": "D:/Users/yang-wei-da/AppData/Local/Programs/Microsoft VS Code/Code.exe",
         "MarkdownSoftware": "D:/Typora/Typora.exe"
     },
     "TargetPath": [
-        {
-            "不重要的": "F:/01-生活相关/05-不重要-nf"
-        },
-        {
-            "房保税": "F:/01-生活相关/01-房屋-保险-个税"
-        },
-        {
-            "看病体检杨": "F:/01-生活相关/02-看病体检-杨伟彬"
-        },
-        {
-            "简历信息": "F:/01-生活相关/04-简历信息"
-        },
         {
             "购买记录": "F:/01-生活相关/06-购买记录"
         },
