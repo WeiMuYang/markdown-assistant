@@ -5,10 +5,9 @@
         "99-*.bmp",
         "99-*.jpeg",
         "99-*.gif",
-        "*.mp3",
         "99-*.mp4"
     ],
-    "Date": "2024.01.04",
+    "Date": "2024.03.26",
     "ImagePath": [
         {
             "Desktop": "Desktop"
@@ -21,30 +20,32 @@
         "today"
     ],
     "Software": {
-        "DataDirSoftware": "D:/YangWeiBin/software/Microsoft VS Code/Code.exe",
-        "MarkdownSoftware": "D:/YangWeiBin/software/Typora/Typora/Typora.exe"
+        "DataDirSoftware": "D:/00-YangWeiBin/software/Microsoft VS Code/Code.exe",
+        "MarkdownSoftware": "D:/00-YangWeiBin/software/Typora/Typora/Typora.exe"
     },
     "TargetPath": [
         {
-            "Ramses": "D:/YangWeiBin/01-sync-file-level-1/02-ramses-composer"
+            "Ramses": "D:/00-YangWeiBin/01-sync-file-level-1/01-ramses-composer"
         },
         {
-            "Python": "D:/YangWeiBin/01-sync-file-level-1/06-Python"
+            "Python": "E:/00-YangWeiBin/01-sync-file-level-1/06-Python"
         },
         {
-            "Lua": "D:/YangWeiBin/01-sync-file-level-1/07-Lua"
+            "Lua": "E:/00-YangWeiBin/01-sync-file-level-1/07-Lua"
         },
         {
-            "Thunder": "D:/YangWeiBin/01-sync-file-level-1/01-thunder-bmw"
+            "Thunder": "E:/00-YangWeiBin/01-sync-file-level-1/01-thunder-bmw"
         },
         {
-            "IELTS": "D:/YangWeiBin/01-sync-file-level-1/04-IELTS/02-exam"
+            "IELTS": "E:/00-YangWeiBin/01-sync-file-level-1/04-IELTS/02-exam"
         },
         {
-            "Android": "D:/YangWeiBin/01-sync-file-level-1/05-Android"
-        },
+            "Android": "E:/00-YangWeiBin/01-sync-file-level-1/05-Android"
+        }
+    ],
+    "OldPath": [
         {
-            "IELTS-Test-rename11": "D:/Markdown-Assistant-Version/IELTS-Test-rename11"
+            "Ramses": "E:/00-YangWeiBin/01-sync-file-level-1/02-ramses-composer"
         }
     ],
     "Icon": "F:/05-markdown-assistant/icon/markdown-assistant-1.ico",

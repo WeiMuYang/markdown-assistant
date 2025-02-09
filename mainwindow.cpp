@@ -304,9 +304,16 @@ void MainWindow::copyHistoryFilePathSlot()
         return;
     }
     QString path =list.at(0)->text();
+    QString filePath;
     QDir curDir(fullCurrentMarkdownDirPath_);
     curDir.setCurrent(fullCurrentMarkdownDirPath_);
-    QString filePath = curDir.relativeFilePath(repoPath_ + "/" + path);
+    QFile file(repoPath_ + "/" + path);
+    if(file.exists()){
+        filePath = curDir.relativeFilePath(repoPath_ +"/" + path);
+    }else{
+        oldPath_ = confData_.getOldPathByKey(ui->tarPathCombox->currentText());
+        filePath = curDir.relativeFilePath(oldPath_ + "/" + path);
+    }
     QString FileName = path.split("/").last();
     int start = FileName.indexOf("-");
     int num = FileName.lastIndexOf(".") - start - 1;
@@ -799,6 +806,7 @@ void MainWindow::initImgPathTarPathCombox()
     }
     assetsPath_ = confData_.getAssetsPathByKey(ui->imgPathCombox->currentText());
     repoPath_ = confData_.getRepoPathByKey(ui->tarPathCombox->currentText());
+    oldPath_ = confData_.getOldPathByKey(ui->tarPathCombox->currentText());
     connect(ui->tarPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setTarPathSlot);
     connect(ui->subPathComBox,&QComboBox::currentTextChanged,this,&MainWindow::setSubPathSlot);
     connect(ui->imgPathCombox,&QComboBox::currentTextChanged,this,&MainWindow::setImgPathSlot);
@@ -1653,7 +1661,12 @@ void MainWindow::OpenHistoryFile(){
     QTableWidgetItem* curItem = ui->historyFileList->currentItem();
     QString text = curItem->text();
     if(text.contains("-old/") || text.contains("-export/") ) {
-        openExPro_.OpenMarkdownAndDirSlot(repoPath_+"/" + text);
+        QFile file(repoPath_ + "/" + text);
+        if(file.exists()){
+            openExPro_.OpenMarkdownAndDirSlot(repoPath_+ "/" + text);
+        }else{
+            openExPro_.OpenMarkdownAndDirSlot(oldPath_+ "/" + text);
+        }
     }else{
         ChangeToHistoryFile();
         on_toolPbn_clicked(); // 打开文件
@@ -1836,18 +1849,33 @@ void MainWindow::on_historySearchPbn_clicked()
 }
 
 void MainWindow::updateRepoHistoryFileListBySearchSlot(QString txt){
-    QFileInfoList fileListTop20;
+    QFileInfoList fileList20ByCurRepo;
+    QFileInfoList fileList20ByOldRepo;
     ui->historyFileList->clear();
-    fileOp_.getSearchFileList(repoPath_, fileListTop20, txt);
-    ui->historyFileList->setRowCount(fileListTop20.size());        //设置行数/
-    for(int i = 0; i < fileListTop20.size(); ++i){
-        QFileInfo fileInfo = fileListTop20.at(i);
+    oldPath_ = confData_.getOldPathByKey(ui->tarPathCombox->currentText());
+    fileOp_.getSearchFileList(repoPath_, fileList20ByCurRepo, txt);
+    if(!oldPath_.isEmpty()){
+        fileOp_.getSearchFileList(oldPath_, fileList20ByOldRepo, txt);
+    }
+    ui->historyFileList->setRowCount(fileList20ByCurRepo.size() + fileList20ByOldRepo.size());        //设置行数/
+    int i = 0;
+    for(; i < fileList20ByCurRepo.size(); ++i){
+        QFileInfo fileInfo = fileList20ByCurRepo.at(i);
         QString name = fileInfo.filePath().split(repoPath_).last().remove(0,1);
         QString modifyTime = fileInfo.lastModified().toString("yyyy-MM-dd HH:mm:ss ddd");
         QTableWidgetItem *pItem1 = new QTableWidgetItem(name);
         QTableWidgetItem *pItem2 = new QTableWidgetItem(modifyTime);
         ui->historyFileList->setItem(i, 0, pItem1);
         ui->historyFileList->setItem(i, 1, pItem2);
+    }
+    for(int j = 0; j < fileList20ByOldRepo.size(); ++j){
+        QFileInfo fileInfo = fileList20ByOldRepo.at(j);
+        QString name = fileInfo.filePath().split(oldPath_).last().remove(0,1);
+        QString modifyTime = fileInfo.lastModified().toString("yyyy-MM-dd HH:mm:ss ddd");
+        QTableWidgetItem *pItem1 = new QTableWidgetItem(name);
+        QTableWidgetItem *pItem2 = new QTableWidgetItem(modifyTime);
+        ui->historyFileList->setItem(i + j, 0, pItem1);
+        ui->historyFileList->setItem(i + j, 1, pItem2);
     }
     ui->historyFileList->setColumnWidth(0, 1300 * 0.66);
     ui->historyFileList->setColumnWidth(1, 1300 * 0.33);

@@ -15,7 +15,7 @@ public:
     bool readConf(QString path);
     void analysisJson(QJsonObject &rootObj);
     QString getAssetsPathByKey(QString key);
-
+    QString getOldPathByKey(QString key);
     QString getRepoPathByKey(QString key);
 
     bool findTarPath(QString key, NamePath& data);
@@ -175,6 +175,7 @@ public:
 private: // need to change to private
     QList<NamePath> assetsNamePathList_;
     QList<NamePath> repoNamePathList_;
+    QList<NamePath> oldNamePathList_;
     QVector<QString> intervalArr_;
     QStringList assetsType_;
     QString markdownSoftWarePath_;
