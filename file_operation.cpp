@@ -337,6 +337,9 @@ bool FileOperation::copyImgVideo(QDir& CurrentPath, const QStringList& fileNameA
         QString desPath;
         if(name.isEmpty()){
             desPath = Path + "/" + QString("%1").arg(i+1, 2, 10, QLatin1Char('0'))+"."+ suffix;
+        } else if(QString::compare(name, "%time", Qt::CaseInsensitive) == 0){
+            QDateTime currentDateTime = QDateTime::currentDateTime().addSecs(i);
+            desPath = Path + "/" + currentDateTime.toString("yyyy-MM-dd_HH-mm-ss") +"."+ suffix;
         }else{
             QString newName = newNumFileName(QStandardPaths::writableLocation(QStandardPaths::DesktopLocation), name, suffix);
 

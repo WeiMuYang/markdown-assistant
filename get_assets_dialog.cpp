@@ -81,6 +81,7 @@ void GetAssetsDialog::on_noPbn_clicked()
 void GetAssetsDialog::on_helpPbn_clicked()
 {
     DebugBox box;
-    box.helpBoxSlot("默认自动编号，可以通过逗号或者空格分割多个名字！", width_);
+    box.helpBoxSlot("默认自动编号，可以通过逗号或者空格分割多个名字，%time是用时间命名！", width_);
+    ui->renameText->setText("%time");
 }
 
