@@ -484,7 +484,7 @@ void MainWindow::InitMainWindowMenu(){
     connect(ui->actionAbout, &QAction::triggered, this, &MainWindow::openAboutSlot);
 
     ui->actionRestart->setShortcut(QKeySequence("Ctrl+R"));
-    connect(ui->actionRestart,&QAction::triggered, this, &MainWindow::updateConfFileSlot);
+    connect(ui->actionRestart,&QAction::triggered, this, &MainWindow::startSlot);
 
     ui->actionClearLog->setShortcut(QKeySequence::Refresh);
     ui->actionClearLog->setShortcutContext(Qt::ApplicationShortcut);
