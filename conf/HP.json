@@ -1,0 +1,53 @@
+{
+    "AssetsType": [
+        "99-*.png",
+        "99-*.jpg",
+        "99-*.bmp",
+        "99-*.jpeg",
+        "99-*.gif",
+        "99-*.mp4"
+    ],
+    "Date": "2024.03.26",
+    "ImagePath": [
+        {
+            "Desktop": "Desktop"
+        }
+    ],
+    "Interval": [
+        "1 hours",
+        "1 days",
+        "2 days",
+        "today"
+    ],
+    "Software": {
+        "DataDirSoftware": "D:/00-YangWeiBin/software/Microsoft VS Code/Code.exe",
+        "MarkdownSoftware": "D:/00-YangWeiBin/software/Typora/Typora/Typora.exe"
+    },
+    "TargetPath": [
+        {
+            "Ramses": "D:/00-YangWeiBin/01-sync-file-level-1/01-ramses-composer"
+        },
+        {
+            "Python": "E:/00-YangWeiBin/01-sync-file-level-1/06-Python"
+        },
+        {
+            "Lua": "E:/00-YangWeiBin/01-sync-file-level-1/07-Lua"
+        },
+        {
+            "Thunder": "E:/00-YangWeiBin/01-sync-file-level-1/01-thunder-bmw"
+        },
+        {
+            "IELTS": "E:/00-YangWeiBin/01-sync-file-level-1/04-IELTS/02-exam"
+        },
+        {
+            "Android": "E:/00-YangWeiBin/01-sync-file-level-1/05-Android"
+        }
+    ],
+    "OldPath": [
+        {
+            "Ramses": "E:/00-YangWeiBin/01-sync-file-level-1/02-ramses-composer"
+        }
+    ],
+    "Icon": "F:/05-markdown-assistant/icon/markdown-assistant-1.ico",
+    "Version": "v1.0.0.beta"
+}
