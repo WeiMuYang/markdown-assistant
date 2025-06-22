@@ -2,17 +2,20 @@
 #include <QApplication>
 #include <QFont>
 #include <QStandardPaths>
-#include <QDesktopWidget>
+#include <QScreen>
 #include <QRect>
 #include <QString>
 #include <QApplication>
 
 int screenInfo()
 {
-    QDesktopWidget *dwsktopwidget = QApplication::desktop();
-    QRect deskrect = dwsktopwidget->availableGeometry();
-    QRect screenrect = dwsktopwidget->screenGeometry();
-    int scrcount = dwsktopwidget->screenCount();
+    QScreen *screen = QGuiApplication::primaryScreen();
+    // 获取可用的显示区域
+    QRect deskrect = screen->availableGeometry();
+    // 获取整个屏幕的几何区域
+    QRect screenrect = screen->geometry();
+    // 获取屏幕数量
+    int scrcount = QGuiApplication::screens().size();
     qCritical("screenrect.w==%s\n",qPrintable(QString::number(screenrect.width())));
     qCritical("screenrect.h==%s\n",qPrintable(QString::number(screenrect.height())));
     qCritical("deskrect.w==%s\n",qPrintable(QString::number(deskrect.width())));

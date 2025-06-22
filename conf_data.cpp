@@ -4,6 +4,7 @@
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QMessageBox>
+#include <QCoreApplication>
 #include "debug_box.h"
 
 ConfigData::ConfigData()
@@ -154,7 +155,8 @@ bool ConfigData::findImgPathByName(QString key, NamePath& data){
 bool iniFilePath(QString& iniPath, QString& iniAndjsonPath){
     QString iniFileName = "conf.ini";
     QString iniFileDir = "conf";
-    QString dotPath = QDir::currentPath();;
+    QString dotPath = QCoreApplication::applicationDirPath();
+    DebugBox(__FUNCTION__, __LINE__, dotPath);
     QDir dir1(dotPath);
     while(!dir1.exists(iniFileDir) && !dir1.isRoot()){
         dir1.cdUp();

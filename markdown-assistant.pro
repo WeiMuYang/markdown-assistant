@@ -24,7 +24,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 CONFIG += c++11
 
-msvc:QMAKE_CXXFLAGS += -execution-charset:utf-8
+# msvc:QMAKE_CXXFLAGS += -execution-charset:utf-8
 
 SOURCES += \
     about_dialog.cpp \
@@ -78,15 +78,13 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 RESOURCES += \
     img.qrc
 
-RC_ICONS = "./qss/icon/markdown-assistant.ico"
 
-# add ffmpeg
-# 头文件
-#INCLUDEPATH += $$PWD/ffmpeg-shared/include
-## 静态库目录
-#LIBS += -L$$PWD/ffmpeg-shared/lib -lavcodec -lavdevice -lavfilter -lavformat -lavutil -lpostproc -lswresample -lswscale
-## 动态库目录(必须有)
-#LIBS += -L$$PWD/ffmpeg-shared/bin -lavcodec -lavdevice -lavfilter -lavformat -lavutil -lpostproc -lswresample -lswscale
+
+# 仅在 macOS 上设置图标
+macx {
+    RC_ICONS = "qrc:/qss/icon/markdown-assistant.ico"
+    MACOSX_BUNDLE_ICON = "qrc:/qss/icon/markdown-assistant.ico"
+}
 
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/ffmpeg-shared/lib -lavcodec -lavdevice -lavfilter -lavformat -lavutil -lpostproc -lswresample -lswscale
@@ -101,3 +99,19 @@ INCLUDEPATH += $$PWD/ffmpeg-shared/include
 DEPENDPATH += $$PWD/ffmpeg-shared/include
 
 DISTFILES +=
+
+
+# 设定 FFmpeg 的路径
+# 你可以通过 `brew info ffmpeg` 找到正确的安装路径
+FFMPEG_PATH = $$PWD/ffmpeg-mac/7.1.1_2
+
+# 包含 FFmpeg 的头文件
+INCLUDEPATH += $$FFMPEG_PATH/include
+
+# 链接 FFmpeg 的库
+LIBS += -L$$FFMPEG_PATH/lib \
+        -lavcodec \
+        -lavformat \
+        -lavutil \
+        -lavfilter \
+        -lavdevice

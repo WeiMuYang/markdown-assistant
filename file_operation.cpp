@@ -65,7 +65,10 @@ int FileOperation::getLastmodifiedTimeFileNum(const QString &path, QString& full
 
     fileList_.clear();
     getDirAllFiles(dir.absolutePath());
-    qSort(fileList_.begin(), fileList_.end(),&FileOperation::sortFileByInfo);
+    std::sort(fileList_.begin(), fileList_.end(), [this](const auto& file1, const auto& file2) {
+        return this->sortFileByInfo(file1, file2);
+    });
+
     if(fileList_.isEmpty()){
         emit sigFileOperationLog("\"" + path + "\" does not has sub Directory!");
         return -1;
@@ -422,8 +425,8 @@ void FileOperation::getLastmodifiedTop20Files(const QString& path, QFileInfoList
     }
 }
 
-bool compare(const QFileInfo &file1, const QFileInfo &file2){
-    return file1.lastModified().toTime_t() > file2.lastModified().toTime_t();
+bool compare(const QFileInfo &file1, const QFileInfo &file2) {
+    return file1.lastModified().toSecsSinceEpoch() > file2.lastModified().toSecsSinceEpoch();
 }
 
 void FileOperation::getHistoryFileList(const QString &dirPath, QFileInfoList& fileListTop20){
@@ -446,7 +449,7 @@ void FileOperation::getHistoryFileList(const QString &dirPath, QFileInfoList& fi
         }
 
     }
-    qSort(resultFileList.begin(),resultFileList.end(),compare);
+    std::sort(resultFileList.begin(), resultFileList.end(), compare);
     for(int i = 0; i < resultFileList.size() && i < topFileCount*2; ++i){
         fileListTop20.append(resultFileList.at(i));
     }
@@ -456,7 +459,7 @@ void FileOperation::getHistorySubDirFileList(const QString &dirPath, QFileInfoLi
     QDir dir(dirPath);
     QFileInfoList fileListTemp;
     QFileInfoList list = dir.entryInfoList(QDir::Files |QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
-    qSort(list.begin(),list.end(),compare);
+    std::sort(list.begin(),list.end(),compare);
     for(int i = 0, j = 0; i < list.size() && j < topFileCount; ++i){
 //        qDebug() <<list.at(i).fileName();
         if(list.at(i).fileName() != "img" && list.at(i).fileName() != "video") {
@@ -597,7 +600,7 @@ void FileOperation::getSearchFileList(const QString &dirPath, QFileInfoList& fil
             }
         }
     }
-    qSort(resultFileList.begin(),resultFileList.end(),compare);
+    std::sort(resultFileList.begin(),resultFileList.end(),compare);
     for(int i = 0; i < resultFileList.size() && i < topFileCount; ++i){
         fileList.append(resultFileList.at(i));
     }

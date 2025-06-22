@@ -11,6 +11,8 @@
 #include <QKeyEvent>
 #include <QSystemTrayIcon>
 #include <QMediaPlayer>
+#include <QStyledItemDelegate>
+#include <QPainter>
 #include "conf_data.h"
 #include "video_thr.h"
 #include "file_operation.h"
@@ -27,6 +29,41 @@
 namespace Ui {
 class MainWindow;
 }
+
+
+class CustomTabBar : public QTabBar {
+public:
+    CustomTabBar(QWidget *parent = nullptr) : QTabBar(parent) {}
+
+protected:
+    void paintEvent(QPaintEvent *event) override {
+        QTabBar::paintEvent(event);
+        QPainter painter(this); // 绑定到当前的 QTabBar
+
+        for (int i = 0; i < count(); ++i) {
+            QRect tabRect = this->tabRect(i);
+            // 绘制标签背景
+            painter.fillRect(tabRect, isTabEnabled(i) ? QColor(240, 240, 240) : QColor(220, 220, 220));
+
+            // 绘制文本左对齐
+            painter.drawText(tabRect, Qt::AlignLeft | Qt::AlignVCenter, tabText(i));
+        }
+    }
+};
+
+
+
+class NoCheckDelegate : public QStyledItemDelegate {
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override {
+        // 克隆样式选项以移除 CheckState 的绘制
+        QStyleOptionViewItem opt = option;
+        opt.features &= ~QStyleOptionViewItem::HasCheckIndicator;
+        QStyledItemDelegate::paint(painter, opt, index);
+    }
+};
 
 
 class MainWindow : public QMainWindow

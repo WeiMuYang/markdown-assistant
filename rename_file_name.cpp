@@ -2,10 +2,16 @@
 #include "ui_rename_file_name.h"
 #include <QDebug>
 #include <QMessageBox>
-#include <QTextCodec>
+#include <QByteArray>
 #include <QClipboard>
 #include <QSplitter>
 #include <QAction>
+
+
+int getUtf8ByteLength(const QString& str) {
+    QByteArray byteArray = str.toUtf8(); // 将 QString 转换为 QByteArray（UTF-8 编码）
+    return byteArray.length(); // 返回字节长度
+}
 
 
 RenameFileName::RenameFileName(QWidget *parent) :
@@ -508,8 +514,7 @@ void RenameFileName::createCompareDirAndFileLog(const QString& path, const QStri
             QString str = curFileDir.dirName();
             int desiredLength = 40;
             // 使用UTF-8编码
-            QTextCodec *codec = QTextCodec::codecForName("UTF-8");
-            int byteLength = codec->fromUnicode(str).length();
+            int byteLength = getUtf8ByteLength(str);
             int numChineseChars = (byteLength - str.length()) / 2;
             QString paddedStr = str.leftJustified(desiredLength - numChineseChars);
             QString txt = QString("%1").arg(i + 1, 2, 10, QLatin1Char('0')) + QString(" |") + paddedStr + QString("|") + DirPathList.at(i);
@@ -520,8 +525,7 @@ void RenameFileName::createCompareDirAndFileLog(const QString& path, const QStri
             QString str = curFileDir.dirName();
             int desiredLength = 40;
             // 使用UTF-8编码
-            QTextCodec *codec = QTextCodec::codecForName("UTF-8");
-            int byteLength = codec->fromUnicode(str).length();
+            int byteLength = getUtf8ByteLength(str);
             int numChineseChars = (byteLength - str.length()) / 2;
             QString paddedStr = str.leftJustified(desiredLength - numChineseChars);
             QString txt = QString("%1").arg(i + 1, 2, 10, QLatin1Char('0')) + QString(" |") + paddedStr + QString("|") + FilePathList.at(i);

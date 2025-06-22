@@ -7,20 +7,21 @@
 #include <QMessageBox>
 #include <QStandardItemModel>
 #include <QDir>
-#include <QDesktopWidget>
+#include <QScreen>
 #include <QFileDialog>
 #include <QAction>
 #include <QMenu>
 #include <QMovie>
 #include <QImageReader>
-#include <QScreen>
 #include "debug_box.h"
+
 
 int printscreeninfo()
 {
-    QDesktopWidget *dwsktopwidget = QApplication::desktop();
-    QRect deskrect = dwsktopwidget->availableGeometry();
-    QRect screenrect = dwsktopwidget->screenGeometry();
+    QScreen *screen = QGuiApplication::primaryScreen();
+    // 获取可用的显示区域
+    QRect deskrect = screen->availableGeometry();
+
     return deskrect.width();
 }
 
@@ -230,7 +231,7 @@ void MainWindow::trayIconClickedSlot(QSystemTrayIcon::ActivationReason reason)
 void MainWindow::startSlot() {
     confData_.clearAll();
     if(!confData_.readIniFile()){
-        appendTextToLog(QString("iniFile读取失败 !"));
+        appendTextToLog(QString("iniFile读取失败 !" +  QCoreApplication::applicationDirPath()));
     }
     updateActionConfFileList();
     // 根据用户名设置路径
@@ -239,11 +240,12 @@ void MainWindow::startSlot() {
     setStatusBar("",false);
     updateConfFileSlot();
     ui->tabWgt->setCurrentIndex(0);
+
 }
 
 void MainWindow::initHistoryFileList() {
-    ui->historyFileList->setColumnCount(2);     //设置列数
-    //    ui->historyFileList->setRowCount(40);        //设置行数/
+    ui->historyFileList->setColumnCount(2);            //设置列数
+    //    ui->historyFileList->setRowCount(40);        //设置行数
     ui->historyFileList->setSelectionBehavior(QAbstractItemView::SelectRows);
     //设置每行内容不可编辑
     ui->historyFileList->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -661,8 +663,8 @@ void MainWindow::setInitNormalViewByScreenRes(){
     // 宽 高
     int width = screenWidth_ * Proportion * zoom;
     int height = width * WindowAspect * zoom;
-    QDesktopWidget *dwsktopwidget = QApplication::desktop();
-    QRect deskrect = dwsktopwidget->availableGeometry();
+    // 获取可用的显示区域
+    QRect deskrect = screen->availableGeometry();
     if(width >= deskrect.width()) {
         width = deskrect.width();
     }
@@ -797,6 +799,10 @@ void MainWindow::initImgPathTarPathCombox()
     ui->subPathComBox->clear();
     ui->tarPathCombox->clear();
     ui->imgPathCombox->clear();
+    // 解决Mac上有左边对勾的问题
+    ui->subPathComBox->setItemDelegate(new NoCheckDelegate(ui->subPathComBox));
+    ui->tarPathCombox->setItemDelegate(new NoCheckDelegate(ui->tarPathCombox));
+    ui->imgPathCombox->setItemDelegate(new NoCheckDelegate(ui->imgPathCombox));
 
     for(auto it = confData_.getAssetPaths().begin();it != confData_.getAssetPaths().end(); ++it){
         ui->imgPathCombox->addItem(it->key);
@@ -1024,11 +1030,14 @@ void MainWindow::changeSelectSatusSlot() {
     }
 }
 
+
 void MainWindow::playAudioMp3(const QString& path) {
-    audioPlayer_->setMedia(QUrl::fromLocalFile(path));
-    audioPlayer_->setVolume(50); // 设置音量
+    // 确保 audioPlayer_ 已经被初始化并且是 QMediaPlayer 类型
+    audioPlayer_->setSource(QUrl::fromLocalFile(path)); // 使用 setSource 替代 setMedia
+    // audioPlayer_->setVolume(50); // 设置音量
     audioPlayer_->play(); // 开始播放
 }
+
 
 void MainWindow::itemEnteredSlot(QListWidgetItem *item)
 {
