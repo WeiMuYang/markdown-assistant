@@ -31,6 +31,7 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     screenWidth_ = printscreeninfo();
+    zoom_ = 1.2;
     videoThr_ = new VideoThr;
     audioPlayer_ = new QMediaPlayer;
     clip_ = QApplication::clipboard();
@@ -142,6 +143,45 @@ MainWindow::MainWindow(QWidget *parent) :
     InitMainWindowMenu();
     initAddDelListMenu();
     startSlot();
+
+    // 保存控件的初始大小
+    saveInitialSizes();
+    scaleUI(zoom_);
+}
+
+void MainWindow::saveInitialSizes() {
+    // 保存所有控件的初始大小和字体大小
+    for (QWidget *widget : findChildren<QWidget*>()) {
+        initialSizes[widget] = widget->size();
+        initialFonts[widget] = widget->font();
+    }
+    initialSizes[confFileList_] = confFileList_->size();
+    initialFonts[confFileList_] = confFileList_->font();
+}
+
+void MainWindow::scaleUI(double factor) {
+    // 限制缩放因子，以避免过小或过大的控件
+    if (factor < 0.5) factor = 0.5; // 最小缩放
+    if (factor > 2.0) factor = 2.0; // 最大缩放
+
+    // 遍历所有控件并调整大小和字体
+    for (QWidget *widget : findChildren<QWidget*>()) {
+        if (initialSizes.contains(widget)) {
+            QSize initialSize = initialSizes[widget];
+            widget->resize(initialSize * factor);
+
+            QFont font = initialFonts[widget];
+            font.setPointSizeF(font.pointSizeF() * factor);
+            widget->setFont(font);
+        }
+    }
+
+    QSize initialSize = initialSizes[confFileList_];
+    confFileList_->resize(initialSize * factor);
+
+    QFont font = initialFonts[confFileList_];
+    font.setPointSizeF(font.pointSizeF() * factor);
+    confFileList_->setFont(font);
 }
 
 void MainWindow::initTray() {
@@ -648,22 +688,15 @@ void MainWindow::initStatusBar(){
 
 void MainWindow::setInitNormalViewByScreenRes(){
     QScreen *screen = QGuiApplication::primaryScreen();
-    // qreal logicalDpi = screen->logicalDotsPerInch();
-    qreal devicePixelRatio = screen->devicePixelRatio() * 100;
-    double zoom = 1;
-    if(devicePixelRatio > 150) {
-        zoom = devicePixelRatio / 150.0;
-    }
     double widthIn4K = 1400;
     double heightIn4K = 1100;
-
     // 高宽比
     double WindowAspect = heightIn4K / widthIn4K;
     // 占屏比
     double Proportion = widthIn4K / 3830.0;
     // 宽 高
-    int width = screenWidth_ * Proportion * zoom;
-    int height = width * WindowAspect * zoom;
+    int width = screenWidth_ * Proportion * 1.1;
+    int height = width * WindowAspect * 1.1;
     // 获取可用的显示区域
     QRect deskrect = screen->availableGeometry();
     if(width >= deskrect.width()) {
@@ -680,11 +713,7 @@ void MainWindow::setInitNormalViewByScreenRes(){
 }
 
 void MainWindow::setInitSampleViewByScreenRes(){
-
-    float zoom = 1;
-    if(screenWidth_ < 3830) {
-        zoom = 1.5;
-    }
+    float zoom = 1.5;
     // 宽高比
     double WindowAspect = 480.0 / 880.0;
     // 占屏比
@@ -703,26 +732,6 @@ void MainWindow::initScreenResNormal(){
     setInitNormalViewByScreenRes();
     this->resize(QSize(appNormalWidth_, appNormalHeight_));
     setMinimumSize(QSize(appNormalWidth_, appNormalHeight_));
-    initListWgt();
-}
-
-void MainWindow::setScreenWitdh(int w)
-{
-    screenWidth_ = w;
-}
-
-int MainWindow::getScreenWitdh()
-{
-    return screenWidth_;
-}
-
-ScreenRes MainWindow::getScrrenRes()
-{
-    if(screenWidth_ >= 3830){
-        return ScreenRes::High;
-    }else{
-        return ScreenRes::Low;
-    }
 }
 
 void MainWindow::setStatusBar(QString msg, bool isCorrect){
@@ -754,17 +763,9 @@ void MainWindow::setWindowStyle()
         QString paletteColor = qss.mid(20, 7);
         qApp->setPalette(QPalette(QColor(paletteColor)));
         qApp->setStyleSheet(qss);
-
-        if(screenWidth_ >= 3830){
-            QFont font = qApp->font();
-            font.setPointSize(12);
-            qApp->setFont(font);
-        }else{
-            QFont font = qApp->font();
-            font.setPointSize(12);
-            qApp->setFont(font);
-        }
-
+        QFont font = qApp->font();
+        font.setPointSize(10);
+        qApp->setFont(font);
         file.close();
     }
 }
@@ -948,15 +949,6 @@ void MainWindow::updateListDataAndWgtSlot(){
 
     ui->imgLabel->setPixmap(QString(""));
     appendTextToLog(u8"更新文件列表完毕 !");
-}
-
-void MainWindow::initListWgt(){
-    QFont font;
-    if(getScrrenRes() == ScreenRes::High){
-        multiple = 2;
-    }else{
-        multiple = 1;
-    }
 }
 
 void MainWindow::changedPercentByLabelImg(int width) {

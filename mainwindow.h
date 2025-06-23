@@ -73,7 +73,6 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow() override;
-    void initListWgt();
     void updateListWgt();
     void changedPercentByLabelImg(int width);
     QString matchOldName(QString name);
@@ -83,18 +82,17 @@ public:
     void updateRepoHistoryFileList();
     void setWindowStyle();
     void setItemIcon(const ImgData& data, QListWidgetItem* item);
+    void saveInitialSizes();
+    void scaleUI(double factor);
     void initTray();
     void initStatusBar();
     void InitMainWindowMenu();
     void updateActionConfFileList();
     void initHistoryFileList();
     void initAddDelListMenu();
-    void setScreenWitdh(int w);
-    int getScreenWitdh();
     void initScreenResNormal();
     void setInitNormalViewByScreenRes();
     void setInitSampleViewByScreenRes();
-    ScreenRes getScrrenRes();
     void updateSubDirCombox();
     void setSampleView();
     void setNormalView();
@@ -107,7 +105,6 @@ public:
     void playAudioMp3(const QString& path);
     void adjustMovieSize(QMovie* movie, const QSize& labelSize);
 
-//    void setIconNum(int num, char *argv[]);
 private slots:
     void updateListDataAndWgtSlot();
     void changeModeSlot();
@@ -129,8 +126,6 @@ private slots:
     void clipFromDelListSlot();
     void itemEnteredSlot(QListWidgetItem *item);
     void changeSelectSatusSlot();
-
-
     void ChangeToHistoryFile();
     void OpenHistoryFile();
     void CompareRenameFileList(QString , QString);
@@ -214,13 +209,30 @@ protected:
     bool eventFilter(QObject *obj, QEvent *e);
 
     void closeEvent(QCloseEvent *event);
+
+    void wheelEvent(QWheelEvent *event) override {
+        if (event->modifiers() & Qt::ControlModifier) {
+            if (event->angleDelta().y() > 0) {
+                zoom_ *= 1.1;
+            } else {
+                zoom_ /= 1.1;
+            }
+            scaleUI(zoom_);
+            event->accept();
+        } else {
+            QMainWindow::wheelEvent(event);
+        }
+    }
+
 public:
     void showSlot(); // 声明show函数
-
     void setIconByConf();
     bool isIconFile(const QString& filePath);
 private:
     Ui::MainWindow *ui;
+    double zoom_;
+    QMap<QWidget*, QSize> initialSizes; // 保存初始大小
+    QMap<QWidget*, QFont> initialFonts; // 保存初始字体
     AssetsData addDelListData_;
     ConfigData confData_;
     QClipboard *clip_;
