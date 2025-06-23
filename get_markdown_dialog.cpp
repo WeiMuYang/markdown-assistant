@@ -275,6 +275,7 @@ void GetMarkdownDialog::on_cancelPbn_clicked()
 
 void GetMarkdownDialog::on_newFilePathEdit_textChanged(const QString &arg1)
 {
+    Q_UNUSED(arg1)
     updateMarkdownNum();
 }
 

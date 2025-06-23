@@ -23,7 +23,7 @@ int printscreeninfo()
     return width;
 }
 
-double multiple = 2;  // 1 or 12/9
+double multiple = 1.5;
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -456,7 +456,6 @@ void MainWindow::delSrcFromListSlot() {
     for (int i = 0; i < ui->delList->count(); ++i) {
         if(ui->delList->item(i)->isSelected()){
             QString oldName = ui->delList->item(i)->text();
-            //            qDebug() <<ui->delList->item(i)->text();
             fileOp_.delDesktopFile(getAssetsPath(), oldName);
             // 2. del ui
             //注意：删除了一个Item后，删除的Item后面所有Item的index都会发生变化。
@@ -850,7 +849,7 @@ void MainWindow::updateSubDirCombox(){
 }
 
 void MainWindow::setImgPathSlot(QString currentStr){
-
+    Q_UNUSED(currentStr)
     assetsPath_ = confData_.getAssetsPathByKey(ui->imgPathCombox->currentText());
 }
 
@@ -1047,7 +1046,6 @@ void MainWindow::playAudioMp3(const QString& path) {
 void MainWindow::itemEnteredSlot(QListWidgetItem *item)
 {
     if(item == Q_NULLPTR){
-        //        qDebug() << "改变Item后，双击操作，清除了之前的item ";
         return;
     }
     QString name = item->text();
@@ -1165,8 +1163,6 @@ void MainWindow::on_syncPbn_clicked()
 void MainWindow::moveDelItemToAddListSlot(const QModelIndex &index)
 {
     Q_UNUSED(index);
-    qDebug() << ui->delList->currentItem()->text();
-
     QString oldName = ui->delList->currentItem()->text();
     ImgData data;
     addDelListData_.delDelImageListByOldName(oldName, data);
@@ -1424,7 +1420,6 @@ void MainWindow::resizeEvent(QResizeEvent *event)
     if(!isSimpleView_){
         appNormalHeight_ = this->height();
         appNormalWidth_ = this->width();
-        qDebug() << "appNormal : "  << appNormalWidth_ << appNormalHeight_;
     }
 }
 
