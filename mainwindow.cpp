@@ -19,10 +19,8 @@
 int printscreeninfo()
 {
     QScreen *screen = QGuiApplication::primaryScreen();
-    // 获取可用的显示区域
-    QRect deskrect = screen->availableGeometry();
-
-    return deskrect.width();
+    int width = screen->size().width();
+    return width;
 }
 
 double multiple = 2;  // 1 or 12/9
@@ -386,7 +384,9 @@ void MainWindow::updateRepoHistoryFileList(){
     for(int i = 0; i < fileListTop20.size(); ++i){
         QFileInfo fileInfo = fileListTop20.at(i);
         QString name = fileInfo.filePath().split(repoPath_).last().remove(0,1);
-        QString modifyTime = fileInfo.lastModified().toString("yyyy-MM-dd HH:mm:ss ddd");
+        QLocale chineseLocale(QLocale::Chinese, QLocale::China);
+        QString weekDay = chineseLocale.dayName(fileInfo.lastModified().date().dayOfWeek());
+        QString modifyTime = fileInfo.lastModified().toString("yyyy-MM-dd HH:mm:ss  " + weekDay);
         QTableWidgetItem *pItem1 = new QTableWidgetItem(name);
         QTableWidgetItem *pItem2 = new QTableWidgetItem(modifyTime);
         //        pItem2->setTextAlignment(Qt::AlignCenter);
@@ -648,10 +648,11 @@ void MainWindow::initStatusBar(){
 
 void MainWindow::setInitNormalViewByScreenRes(){
     QScreen *screen = QGuiApplication::primaryScreen();
-    qreal logicalDpi = screen->logicalDotsPerInch();
+    // qreal logicalDpi = screen->logicalDotsPerInch();
+    qreal devicePixelRatio = screen->devicePixelRatio() * 100;
     double zoom = 1;
-    if(logicalDpi > 150) {
-        zoom = logicalDpi / 150.0;
+    if(devicePixelRatio > 150) {
+        zoom = devicePixelRatio / 150.0;
     }
     double widthIn4K = 1400;
     double heightIn4K = 1100;
@@ -659,7 +660,7 @@ void MainWindow::setInitNormalViewByScreenRes(){
     // 高宽比
     double WindowAspect = heightIn4K / widthIn4K;
     // 占屏比
-    double Proportion = widthIn4K / 3840.0;
+    double Proportion = widthIn4K / 3830.0;
     // 宽 高
     int width = screenWidth_ * Proportion * zoom;
     int height = width * WindowAspect * zoom;
@@ -681,13 +682,13 @@ void MainWindow::setInitNormalViewByScreenRes(){
 void MainWindow::setInitSampleViewByScreenRes(){
 
     float zoom = 1;
-    if(screenWidth_ < 3840) {
+    if(screenWidth_ < 3830) {
         zoom = 1.5;
     }
     // 宽高比
     double WindowAspect = 480.0 / 880.0;
     // 占屏比
-    double Proportion = 880.0 / 3840.0;
+    double Proportion = 880.0 / 3830.0;
     // 宽 高
     int width = screenWidth_ * Proportion ;
     int height = width * WindowAspect;
@@ -717,7 +718,7 @@ int MainWindow::getScreenWitdh()
 
 ScreenRes MainWindow::getScrrenRes()
 {
-    if(screenWidth_ >= 3840){
+    if(screenWidth_ >= 3830){
         return ScreenRes::High;
     }else{
         return ScreenRes::Low;
@@ -753,6 +754,17 @@ void MainWindow::setWindowStyle()
         QString paletteColor = qss.mid(20, 7);
         qApp->setPalette(QPalette(QColor(paletteColor)));
         qApp->setStyleSheet(qss);
+
+        if(screenWidth_ >= 3830){
+            QFont font = qApp->font();
+            font.setPointSize(12);
+            qApp->setFont(font);
+        }else{
+            QFont font = qApp->font();
+            font.setPointSize(12);
+            qApp->setFont(font);
+        }
+
         file.close();
     }
 }
@@ -837,6 +849,7 @@ void MainWindow::updateSubDirCombox(){
 }
 
 void MainWindow::setImgPathSlot(QString currentStr){
+
     assetsPath_ = confData_.getAssetsPathByKey(ui->imgPathCombox->currentText());
 }
 
@@ -1453,7 +1466,6 @@ void MainWindow::addSub2RepoSlot(){
         return ;
     }
     QString newRepoName = subDirName_;
-    QString existName;
     addRepo2Conf(newRepoName, repoPath_ + "/" + newRepoName);
 }
 
@@ -1607,7 +1619,6 @@ void MainWindow::on_numSpinBox_valueChanged(int num)
         appendTextToLog(u8"当前的目标路径不存在 !");
         whoIsBoxSelection(BoxSelect::SubCombox);
 
-        QFileInfo currentInfo(currentMarkdownFileName_);
         QFileInfo repoInfo(repoPath_);
         this->setWindowTitle("Error - " + repoInfo.fileName() + " - [" + configFilePath_ + "]");
         return;
@@ -1631,7 +1642,6 @@ void MainWindow::on_numSpinBox_valueChanged(int num)
         currentMarkdownFileName_.clear();
         whoIsBoxSelection(BoxSelect::SubCombox);
 
-        QFileInfo currentInfo(currentMarkdownFileName_);
         QFileInfo repoInfo(repoPath_);
         this->setWindowTitle("Error - " + repoInfo.fileName() + " - [" + configFilePath_ + "]");
 

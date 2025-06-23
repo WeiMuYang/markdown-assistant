@@ -156,7 +156,6 @@ bool iniFilePath(QString& iniPath, QString& iniAndjsonPath){
     QString iniFileName = "conf.ini";
     QString iniFileDir = "conf";
     QString dotPath = QCoreApplication::applicationDirPath();
-    DebugBox(__FUNCTION__, __LINE__, dotPath);
     QDir dir1(dotPath);
     while(!dir1.exists(iniFileDir) && !dir1.isRoot()){
         dir1.cdUp();
