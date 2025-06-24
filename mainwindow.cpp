@@ -922,11 +922,11 @@ void MainWindow::changeModeSlot()
     }else{
         ui->addList->setViewMode(QListView::ListMode);
         ui->addList->setIconSize(QSize(30 ,15 * multiple));
-        ui->addList->setSpacing(4);
+        ui->addList->setSpacing(0);
 
         ui->delList->setViewMode(QListView::ListMode);
         ui->delList->setIconSize(QSize(30 ,15 * multiple));
-        ui->delList->setSpacing(4);
+        ui->delList->setSpacing(0);
     }
 }
 
