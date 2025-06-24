@@ -179,7 +179,6 @@ void ConfigData::getRencentJsonFiles(const QString& path) {
     dir.setNameFilters(filters);
     QFileInfoList fileInfoList = dir.entryInfoList();
 
-    QStringList fileList;
     for (const QFileInfo& fileInfo : fileInfoList) {
         if(fileInfo.fileName().left(3) != "00-" && fileInfo.fileName().left(3) != "99-") {
             iniFile_.recentFileList.append(fileInfo.fileName());
@@ -213,7 +212,6 @@ bool ConfigData::readIniFile()
     QJsonObject rootObj = jDoc.object();
     //0.HostName
     iniFile_.hostName = rootObj["HostName"].toString();
-    iniFile_.version = rootObj["Version"].toString();
     iniFile_.date = rootObj["Date"].toString();
     iniFile_.iniAndJsonPath = iniAndjsonDir;
     // 更新recent列表
@@ -231,7 +229,6 @@ bool ConfigData::writeIniFile() {
         recentFileArray.append(iniFile_.recentFileList.at(i));
     }
     jsonObject["RecentFile"] = recentFileArray;
-    jsonObject["Version"] = iniFile_.version;
     QDateTime current_date_time = QDateTime::currentDateTime();
     QString current_date = current_date_time.toString("yyyy.MM.dd");
     jsonObject["Date"] = current_date;
@@ -275,7 +272,6 @@ void ConfigData::clearAll(){
     dataDirSoftWarePath_.clear();
     iniFile_.iniAndJsonPath.clear();
     iniFile_.recentFileList.clear();
-    iniFile_.version.clear();
     iniFile_.date.clear();
 }
 
@@ -366,7 +362,6 @@ bool ConfigData::writeConfJson() {
     jsonObject["Software"] = softwareObject;
 
     // 添加其他属性
-    jsonObject["Version"] = iniFile_.version;
     QDateTime current_date_time =QDateTime::currentDateTime();
     QString current_date =current_date_time.toString("yyyy.MM.dd");
     jsonObject["Date"] = current_date;

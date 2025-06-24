@@ -9,7 +9,7 @@
 #define  MARKDOWN_SOFTWARE "MarkdownSoftware"
 #define  DATA_DIR_SOFTWARE "DataDirSoftware"
 
-#define VERSION "v1.0.0.beta"
+#define VERSION "v1.3.0"
 
 enum AssetsZoomSize{
     Size100 = 100, Size80 = 80, Size50 = 49, Size30 = 32, Size5 = 5
@@ -34,7 +34,6 @@ struct ImgData{
 struct IniFile{
     QString hostName;
     QVector<QString> recentFileList;
-    QString version;
     QString date;
     QString iniAndJsonPath;
 };

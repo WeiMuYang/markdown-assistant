@@ -1569,7 +1569,6 @@ void MainWindow::delAssstsDirSlot(){
 
 void MainWindow::confDataSettingSlot() {
     modifyConfDlg_->setWidth(screenWidth_);
-    confData_.setVersion(VERSION);
     modifyConfDlg_->setConfigData(confData_);
     modifyConfDlg_->showWindow();
 }
