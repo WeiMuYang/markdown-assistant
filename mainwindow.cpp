@@ -43,6 +43,7 @@ MainWindow::MainWindow(QWidget *parent) :
     createMarkdownAndSubDirDlg_ = new CreateMarkdownAndSubDir(this);
     getMarkdownFileDig_ = new GetMarkdownDialog(this);
     initScreenResNormal();
+
     // 0. 托盘
     initTray();
     initStatusBar();

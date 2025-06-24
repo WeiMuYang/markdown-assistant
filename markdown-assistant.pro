@@ -79,6 +79,7 @@ RESOURCES += \
     img.qrc
 
 
+RC_ICONS = "./qss/icon/markdown-assistant.ico"
 
 # 仅在 macOS 上设置图标
 macx {
