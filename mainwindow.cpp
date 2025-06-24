@@ -52,6 +52,7 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(timerSync_, &QTimer::timeout, this, &MainWindow::syncAddListTimelySlot);
     timerSync_->setInterval(1500);
 
+    changeModeSlot();
     ui->addList->setMovement(QListWidget::Static);
     ui->addList->setSelectionMode(QAbstractItemView::ExtendedSelection);
     ui->addList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -908,25 +909,24 @@ void MainWindow::changeModeSlot()
         // 设置显示模式
         ui->addList->setViewMode(QListView::IconMode);  // ListMode  IconMode
         // 甚至随略图的大小
-        ui->addList->setIconSize(QSize(100,100*multiple));  // 100,100
+        ui->addList->setIconSize(QSize(100,100 * multiple));  // 100,100
         // 设置图标间距
         ui->addList->setSpacing(15);
         // 设置显示模式
         ui->delList->setViewMode(QListView::IconMode);  // ListMode  IconMode
         // 甚至随略图的大小
-        ui->delList->setIconSize(QSize(100,100*multiple));  // 100,100
+        ui->delList->setIconSize(QSize(100,100 * multiple));  // 100,100
         // 设置图标间距
         ui->delList->setSpacing(15);
     }else{
         ui->addList->setViewMode(QListView::ListMode);
-        ui->addList->setIconSize(QSize(40 ,20*multiple));
+        ui->addList->setIconSize(QSize(30 ,15 * multiple));
         ui->addList->setSpacing(4);
 
         ui->delList->setViewMode(QListView::ListMode);
-        ui->delList->setIconSize(QSize(40 ,20*multiple));
+        ui->delList->setIconSize(QSize(30 ,15 * multiple));
         ui->delList->setSpacing(4);
     }
-    appendTextToLog(u8"修改显示模式完毕 !");
 }
 
 MainWindow::~MainWindow()
@@ -1156,7 +1156,12 @@ void MainWindow::on_syncPbn_clicked()
         appendTextToLog(QDateTime::currentDateTime().toString("[HH:mm:ss]") + u8" 关闭自动同步 !");
         ui->syncPbn->setStyleSheet("");
     }
+    QSize initialSize = initialSizes[ui->syncPbn];
+    ui->syncPbn->resize(initialSize * zoom_);
 
+    QFont font = initialFonts[ui->syncPbn];
+    font.setPointSizeF(font.pointSizeF() * zoom_);
+    ui->syncPbn->setFont(font);
 }
 
 // 双击移动 DelImageList -->  AddImageList
